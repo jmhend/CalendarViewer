@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -30,6 +29,12 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	private static final String TAG = MainActivity.class.getSimpleName();
 	
 ////==========================================================================================
+//// Member variables.
+////==========================================================================================
+	
+	private MonthListView mListView;
+	
+////==========================================================================================
 //// Activity lifecycle.
 ////==========================================================================================
 	
@@ -51,11 +56,12 @@ public class MainActivity extends Activity implements OnDayClickListener {
 				.ends(end);
 		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
 		
-		//ListView setup.
-		final ListView monthList = (ListView) findViewById(R.id.month_list);
-		monthList.setAdapter(monthAdapter);
-		monthList.setFriction(0.075f);
-		monthList.setVerticalScrollBarEnabled(false);
+		// ListView setup.
+		mListView = (MonthListView) findViewById(R.id.month_list);
+		mListView.setAdapter(monthAdapter);
+		
+		CalendarDay today = CalendarDay.currentDay();
+		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
 	}
 	
 ////==========================================================================================
@@ -96,7 +102,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 		
 		ListView listView = (ListView) findViewById(R.id.behind_list);
 		listView.setClipToPadding(false);
-		listView.setPadding(0, 900, 0, 0);
+		listView.setPadding(0, 276 * 3, 0, 0);
 		listView.setAdapter(new BehindCalendarListAdapter(this, strings));
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			/*
@@ -105,8 +111,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 			 */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				String text = "Hello, " + position + ".";
-				Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
+				mListView.displayDay(new CalendarDay(2013, Calendar.APRIL, 20));
 			}
 		});
 	}

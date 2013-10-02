@@ -180,6 +180,21 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	}
 	
 	/**
+	 * 
+	 * @param day
+	 * @return
+	 */
+	public int getPositionForDay(CalendarDay day) {
+		if (day.isBeforeDay(mStartDay) || day.isAfterDay(mEndDay)) {
+			return -1;
+		}
+		int monthDiff = day.month - mStartDay.month;
+		int yearDiff = day.year - mStartDay.year;
+		int position = yearDiff * 12 + monthDiff;
+		return position;
+	}
+	
+	/**
 	 * @param year
 	 * @param month
 	 * @return True if the currently selected day is the month.
@@ -299,6 +314,42 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 			this.year = year;
 			this.month = month;
 			this.dayOfMonth = dayOfMonth;
+		}
+		
+		/**
+		 * @param day
+		 * @return True if this CalendarDay is the same day as 'day'.
+		 */
+		public boolean isSameDay(CalendarDay day) {
+			return (year == day.year) && (month == day.month) && (dayOfMonth == day.dayOfMonth);
+		}
+		
+		/**
+		 * @param day
+		 * @return True if this CalendarDay is before 'day'.
+		 */
+		public boolean isBeforeDay(CalendarDay day) {
+			if (year < day.year) {
+				return true;
+			}
+			if (year > day.year) {
+				return false;
+			}
+			if (month < day.month) {
+				return true;
+			}
+			if (month > day.month) {
+				return false;
+			}
+			return dayOfMonth < day.dayOfMonth;
+		}
+		
+		/**
+		 * @param day
+		 * @return True if this CalendarDay is after 'day'.
+		 */
+		public boolean isAfterDay(CalendarDay day) {
+			return !isSameDay(day) && !isBeforeDay(day);
 		}
 		
 		/*
