@@ -4,14 +4,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.Toast;
 
 /**
  * Adapter for presenting a List of months.
@@ -23,20 +21,18 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	private static final String TAG = MonthListAdapter.class.getSimpleName();
 	
 ////=====================================================================================
-//// Static constants.
-////=====================================================================================
-	
-	protected static final int WEEK_7_OVERHANG_HEIGHT = 7;
-	
-////=====================================================================================
 //// Member variables.
 ////=====================================================================================
 	
 	private final Context mContext;
-	private CalendarController mController;
+	private int mFirstDayOfWeek;
+	private CalendarDay mStartDay;
+	private CalendarDay mEndDay;
 	private CalendarDay mSelectedDay;
-	
+	private final CalendarDay mCurrentDay;
 	private int mCount;
+	
+	private OnDayClickListener mExternalListener;
 	
 ////=====================================================================================
 //// Constructor.
@@ -47,10 +43,11 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @param context
 	 * @param controller
 	 */
-	public MonthListAdapter(Context context, CalendarController controller) {
+	public MonthListAdapter(Context context, CalendarViewerConfig config, OnDayClickListener listener) {
 		mContext = context;
-		mController = controller;
-		init();
+		mExternalListener = listener;
+		mCurrentDay = CalendarDay.currentDay();
+		init(config);
 		calculateCount();
 	}
 	
@@ -61,9 +58,11 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	/**
 	 * Initialize.
 	 */
-	private void init() {
-		Calendar now = Calendar.getInstance();
-		mSelectedDay = new CalendarDay(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+	private void init(CalendarViewerConfig config) {
+		mFirstDayOfWeek = config.getFirstDayOfWeek();
+		mStartDay = config.getStartDay();
+		mEndDay = config.getEndDay();
+		mSelectedDay = config.getSelectedDay();
 	}
 	
 ////=====================================================================================
@@ -76,7 +75,6 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 */
 	@Override
 	public int getCount() {
-		// One per month in the year range.
 		return mCount;
 	}
 	
@@ -123,13 +121,14 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 		// Generate MonthView data.
 		final int month = getMonthForPosition(position);
 		final int year = getYearForPosition(position);
-//		final int month = getMonthForPosition
-//		final int year = position / 12 + mController.getMinYear();
 		final int selectedDay = isSelectedDayInMonth(year, month) ? mSelectedDay.dayOfMonth : -1;
 		params.put(MonthView.KEY_MONTH, Integer.valueOf(month));
 		params.put(MonthView.KEY_YEAR, Integer.valueOf(year));
 		params.put(MonthView.KEY_SELECTED_DAY, Integer.valueOf(selectedDay));
-		params.put(MonthView.KEY_WEEK_START, Integer.valueOf(mController.getFirstDayOfWeek()));
+		params.put(MonthView.KEY_WEEK_START, Integer.valueOf(mFirstDayOfWeek));
+		params.put(MonthView.KEY_CURRENT_YEAR, Integer.valueOf(mCurrentDay.year));
+		params.put(MonthView.KEY_CURRENT_MONTH, Integer.valueOf(mCurrentDay.month));
+		params.put(MonthView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mCurrentDay.dayOfMonth));
 
 		monthView.reset();
 		monthView.setMonthParams(params);
@@ -138,17 +137,15 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	}
 	
 ////=====================================================================================
-//// 
+//// Positioning.
 ////=====================================================================================
 	
 	/**
 	 * Calculates how many months the list will contain.
 	 */
 	private void calculateCount() {
-		final CalendarDay start = mController.getStartDay();
-		final CalendarDay end = mController.getEndDay();
-		int startMonths = start.year * 12 + start.month;
-		int endMonths = end.year * 12 + end.month;
+		int startMonths = mStartDay.year * 12 + mStartDay.month;
+		int endMonths = mEndDay.year * 12 + mEndDay.month;
 		int months = endMonths - startMonths + 1;
 		mCount = months;
 	}
@@ -159,7 +156,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @return
 	 */
 	private int getMonthForPosition(int position) {
-		int month = (position + mController.getStartDay().month) % 12;
+		int month = (position + mStartDay.month) % 12;
 		return month;
 	}
 	
@@ -169,7 +166,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @return
 	 */
 	private int getYearForPosition(int position) {
-		int year = (position + mController.getStartDay().month) / 12 + mController.getStartDay().year;
+		int year = (position + mStartDay.month) / 12 + mStartDay.year;
 		return year;
 	}
 	
@@ -200,10 +197,15 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(MonthView monthView, CalendarDay day) {
+	public void onDayClick(View calendarView, CalendarDay day) {
 		if (day != null) {
-			mController.onDaySelected(day.year, day.month, day.dayOfMonth);
+			if (!Utils.isDayCurrentOrFuture(day)) {
+				return;
+			}
 			setSelectedDay(day);
+			if (mExternalListener != null) {
+				mExternalListener.onDayClick(calendarView, day);
+			}
 		}
 	}
 	
@@ -212,9 +214,14 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayLongClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(MonthView monthView, CalendarDay day) {
+	public void onDayLongClick(View calendarView, CalendarDay day) {
 		if (day != null) {
-			Toast.makeText(mContext, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
+			if (!Utils.isDayCurrentOrFuture(day)) {
+				return;
+			}
+			if (mExternalListener != null) {
+				mExternalListener.onDayLongClick(calendarView, day);
+			}
 		}
 	}
 
@@ -231,6 +238,34 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 		int year;
 		int month;
 		int dayOfMonth;
+		
+		/**
+		 * @return CalendarDay initialized to the current day.
+		 */
+		public static CalendarDay currentDay() {
+			return fromCalendar(Calendar.getInstance());
+		}
+		
+		/**
+		 * @param calendar
+		 * @return CalendarDay initialized to the same day has 'calendar'
+		 * is current set to.
+		 */
+		public static CalendarDay fromCalendar(Calendar calendar) {
+			return new CalendarDay(calendar.get(Calendar.YEAR), 
+					calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.DAY_OF_MONTH));
+		}
+		
+		/**
+		 * @param time
+		 * @return CalendarDay initialized to the same day as 'time'.
+		 */
+		public static CalendarDay fromTime(long time) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(time);
+			return fromCalendar(calendar);
+		}
 		
 		/**
 		 * Constructor with all args.

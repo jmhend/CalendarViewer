@@ -5,10 +5,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +25,7 @@ import android.widget.Toast;
  * @author jmhend
  *
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnDayClickListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -41,35 +41,63 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		initBehindCalendarList();
 		
-//		Calendar twoYears = Calendar.getInstance();
-//		twoYears.add(Calendar.YEAR, 2);
-//		Date now = new Date();
-//		
-//		CalendarPickerView calendar = (CalendarPickerView) findViewById(R.id.calendar);
-//		calendar.init(now, twoYears.getTime()).withSelectedDate(now);
-//
-//		calendar.setOnDateSelectedListener(new OnDateSelectedListener() {
-//			/*
-//			 * (non-Javadoc)
-//			 * @see com.squareup.timessquare.CalendarPickerView.OnDateSelectedListener#onDateSelected(java.util.Date)
-//			 */
-//			@Override
-//			public void onDateSelected(Date date) {
-//				Toast.makeText(MainActivity.this, date.toLocaleString(), Toast.LENGTH_SHORT).show();
-//			}
-//			
-//		});
+		// MonthListAdapter setup.
+		CalendarDay start = new CalendarDay(2012, Calendar.SEPTEMBER, 10);
+		CalendarDay end = new CalendarDay(2014, Calendar.SEPTEMBER, 15);
+		CalendarViewerConfig.Builder builder = CalendarViewerConfig.startBuilding()
+				.starts(start)
+				.ends(end);
+		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
 		
+		//ListView setup.
+		final ListView monthList = (ListView) findViewById(R.id.month_list);
+		monthList.setAdapter(monthAdapter);
+		monthList.setFriction(0.075f);
+		monthList.setVerticalScrollBarEnabled(false);
+	}
+	
+////==========================================================================================
+//// OnDayClickListener
+////==========================================================================================
+	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayClick(android.view.View, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
+	 */
+	@Override
+	public void onDayClick(View calendarView, CalendarDay day) {
+		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayLongClick(android.view.View, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
+	 */
+	@Override
+	public void onDayLongClick(View calendarView, CalendarDay day) {
+		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
+	}
+	
+////==========================================================================================
+//// BehindCalendarListAdapter
+////==========================================================================================
+
+	/**
+	 * Sets up the ListView that sits behind the CalendarViewer.
+	 * Used for testing the alpha, etc. of the CalendarViewer.
+	 */
+	private void initBehindCalendarList() {
 		List<String> strings = new ArrayList<String>();
 		for (int i = 0; i < 100; i++) {
 			strings.add(i + "");
 		}
 		
-		ListView listView = (ListView) findViewById(R.id.back_list);
+		ListView listView = (ListView) findViewById(R.id.behind_list);
 		listView.setClipToPadding(false);
 		listView.setPadding(0, 900, 0, 0);
-		listView.setAdapter(new MyAdapter(this, strings));
+		listView.setAdapter(new BehindCalendarListAdapter(this, strings));
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			/*
 			 * (non-Javadoc)
@@ -77,62 +105,41 @@ public class MainActivity extends Activity {
 			 */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				String text = ((TextView) view.findViewById(R.id.text)).getText().toString() + ", " + position + "";
+				String text = "Hello, " + position + ".";
 				Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
 			}
 		});
-
-		MonthListAdapter adapter = new MonthListAdapter(this, new CalendarController() {
-
-			@Override
-			public int getFirstDayOfWeek() {
-				return 2;
-			}
-
-			@Override
-			public CalendarDay getStartDay() {
-				return new CalendarDay(2013, Calendar.OCTOBER, 14);
-			}
-
-			@Override
-			public CalendarDay getEndDay() {
-				return new CalendarDay(2015, Calendar.OCTOBER, 14);
-			}
-
-			@Override
-			public CalendarDay getSelectedDay() {
-				Calendar now = Calendar.getInstance();
-				return new CalendarDay(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-			}
-
-			@Override
-			public void onDaySelected(int year, int month, int dayOfMonth) {
-				Toast.makeText(MainActivity.this, (month + 1) + "/" + dayOfMonth+ "/" + year, Toast.LENGTH_SHORT).show();
-			}
-			
-		});
-		
-		float f = 0.075f;
-		
-		ListView list = (ListView) findViewById(R.id.list);
-		list.setAdapter(adapter);
-		list.setFriction(f);
-		list.setVerticalScrollBarEnabled(false);
 	}
-
-	private static class MyAdapter extends ArrayAdapter<String> {
+	/**
+	 * Adapter for ListView that sits behind the CalendarViewer.
+	 * @author jmhend
+	 *
+	 */
+	private static class BehindCalendarListAdapter extends ArrayAdapter<String> {
 
 		private List<String> mStrings;
 		
-		public MyAdapter(Context context, List<String> objects) {
+		/**
+		 * @param context
+		 * @param objects
+		 */
+		public BehindCalendarListAdapter(Context context, List<String> objects) {
 			super(context, 0, objects);
 			mStrings = objects;
 		}
 		
+		/*
+		 * (non-Javadoc)
+		 * @see android.widget.ArrayAdapter#getCount()
+		 */
 		public int getCount() {
 			return mStrings.size();
 		}
 		
+		/*
+		 * (non-Javadoc)
+		 * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
+		 */
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = LayoutInflater.from(getContext()).inflate(R.layout.listitem, parent, false);
@@ -141,8 +148,5 @@ public class MainActivity extends Activity {
 			((TextView) convertView.findViewById(R.id.text)).setText(mStrings.get(position));
 			return convertView;
 		}
-		
 	}
-	
-	
 }

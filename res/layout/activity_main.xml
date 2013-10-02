@@ -4,14 +4,14 @@
     android:layout_height="match_parent" >
     
     <ListView 
-        android:id="@+id/back_list"
+        android:id="@+id/behind_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <ListView
-        android:id="@+id/list"
+        android:id="@+id/month_list"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="#EE008dd0" />
+        android:layout_height="276dp"
+        android:background="#DD008dd0" />
 
 </RelativeLayout>

@@ -25,7 +25,7 @@ public final class R {
 		public static final int calendar_text_active = 0x7f040007;
 		public static final int calendar_text_inactive = 0x7f040006;
 		public static final int calendar_text_selected = 0x7f040008;
-		public static final int calendar_text_selector = 0x7f04000a;
+		public static final int calendar_text_selector = 0x7f04000f;
 		public static final int calendar_text_unselectable = 0x7f040009;
 	}
 	public static final class dimen {

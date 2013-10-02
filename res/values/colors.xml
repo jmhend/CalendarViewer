@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="day_text_active">#bbffffff</color>
+    <color name="day_text_inactive">#88dddddd</color>
+    <color name="day_text_today">#ffffff66</color>
+    <color name="day_selected_highlight">#3cffffff</color>
+    <color name="calendar_text_title">#ddffffff</color>
+    
+</resources>

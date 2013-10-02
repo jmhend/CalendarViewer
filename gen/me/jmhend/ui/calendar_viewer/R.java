@@ -68,8 +68,13 @@ containing a value of this type.
         public static final int calendar_text_active=0x7f040007;
         public static final int calendar_text_inactive=0x7f040006;
         public static final int calendar_text_selected=0x7f040008;
-        public static final int calendar_text_selector=0x7f04000a;
+        public static final int calendar_text_selector=0x7f04000f;
+        public static final int calendar_text_title=0x7f04000e;
         public static final int calendar_text_unselectable=0x7f040009;
+        public static final int day_selected_highlight=0x7f04000d;
+        public static final int day_text_active=0x7f04000a;
+        public static final int day_text_inactive=0x7f04000b;
+        public static final int day_text_today=0x7f04000c;
     }
     public static final class dimen {
         /** 
@@ -83,13 +88,13 @@ containing a value of this type.
         public static final int calendar_month_topmargin=0x7f050001;
         public static final int calendar_text_medium=0x7f050003;
         public static final int calendar_text_small=0x7f050004;
-        public static final int date_picker_view_animator_height=0x7f050005;
         public static final int day_number_select_circle_radius=0x7f050008;
-        public static final int day_number_size=0x7f05000a;
+        public static final int day_of_week_text_size=0x7f050007;
+        public static final int day_text_size=0x7f05000a;
         public static final int month_bottom_padding=0x7f05000b;
-        public static final int month_day_label_text_size=0x7f050007;
-        public static final int month_label_size=0x7f050009;
         public static final int month_list_item_header_height=0x7f050006;
+        public static final int month_title_text_size=0x7f050009;
+        public static final int monthview_height=0x7f050005;
     }
     public static final class drawable {
         public static final int calendar_bg_selector=0x7f020000;
@@ -97,9 +102,9 @@ containing a value of this type.
     }
     public static final class id {
         public static final int action_settings=0x7f090005;
-        public static final int back_list=0x7f090000;
+        public static final int behind_list=0x7f090000;
         public static final int calendar_grid=0x7f090004;
-        public static final int list=0x7f090001;
+        public static final int month_list=0x7f090001;
         public static final int text=0x7f090002;
         public static final int title=0x7f090003;
     }
