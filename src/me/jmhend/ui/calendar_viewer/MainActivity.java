@@ -8,6 +8,7 @@ import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,14 +55,19 @@ public class MainActivity extends Activity implements OnDayClickListener {
 		CalendarViewerConfig.Builder builder = CalendarViewerConfig.startBuilding()
 				.starts(start)
 				.ends(end);
-		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
+//		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
+//		
+//		// ListView setup.
+//		mListView = (MonthListView) findViewById(R.id.month_list);
+//		mListView.setAdapter(monthAdapter);
+//		
+//		CalendarDay today = CalendarDay.currentDay();
+//		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
 		
-		// ListView setup.
-		mListView = (MonthListView) findViewById(R.id.month_list);
-		mListView.setAdapter(monthAdapter);
-		
-		CalendarDay today = CalendarDay.currentDay();
-		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
+		MonthPagerAdapter pagerAdapter = new MonthPagerAdapter(this, builder.build(), this);
+		ViewPager pager = (ViewPager) findViewById(R.id.pager);
+		pager.setClickable(false);
+		pager.setAdapter(pagerAdapter);
 	}
 	
 ////==========================================================================================
@@ -74,7 +80,21 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	 */
 	@Override
 	public void onDayClick(View calendarView, CalendarDay day) {
-//		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
+		postInvalidate(calendarView);
+		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
+	}
+	
+	public void postInvalidate(final View view) {
+		view.post(new Runnable() {
+			/*
+			 * (non-Javadoc)
+			 * @see java.lang.Runnable#run()
+			 */
+			@Override
+			public void run() {
+				view.invalidate();
+			}
+		});
 	}
 
 	/*
@@ -83,7 +103,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	 */
 	@Override
 	public void onDayLongClick(View calendarView, CalendarDay day) {
-//		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
 	}
 	
 ////==========================================================================================
@@ -111,7 +131,6 @@ public class MainActivity extends Activity implements OnDayClickListener {
 			 */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				mListView.displayDay(new CalendarDay(2013, Calendar.APRIL, 20));
 			}
 		});
 	}
