@@ -1,21 +1,18 @@
 package me.jmhend.ui.calendar_viewer;
 
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
+import me.jmhend.ui.calendar_viewer.CalendarViewerDecorator.ApplyLevel;
 import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
-import me.jmhend.ui.calendar_viewer.MonthViewDecorator.ApplyLevel;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.format.DateUtils;
-import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -34,6 +31,7 @@ public class MonthView extends View {
 	protected static final int DEFAULT_DAYS_PER_WEEK = 7;
 	protected static final int DEFAULT_NUM_ROWS = 6;
 	protected static final int DEFAULT_FIRST_WEEKDAY = Calendar.SUNDAY;
+	public static final int MAX_DAYS = 31;
 	
 	public static final String KEY_MONTH = "month";
 	public static final String KEY_YEAR = "year";
@@ -44,18 +42,28 @@ public class MonthView extends View {
 	public static final String KEY_CURRENT_YEAR = "current_year";
 	public static final String KEY_CURRENT_DAY_OF_MONTH = "current_day_of_month";
 	
-	private static final String FORMAT_DAY = "%d";
-
+	private static final String[] DAYS = new String[MAX_DAYS+1];
+	private static final String[] WEEKDAYS = {
+		"SAT",	// Calendar.DAY_OF_WEEK is 1 based. For % 7 operations, 7 --> 0
+		"SUN",
+		"MON",
+		"TUE",
+		"WED",
+		"THU",
+		"FRI",
+	};
+	
 ////==================================================================================================
 //// Member variables.
 ////==================================================================================================
 	
 	// Dimens
 	protected int mSelectedCircleRadius;
+	protected int mSelectedCircleStrokeWidth;
 	protected int mDayTextSize;
 	protected int mDayOfWeekTextSize;
 	protected int mMonthHeaderHeight;
-	protected int mMonthTitleSize;
+	protected int mMonthTitleTextSize;
 	protected int mBottomPadding;
 	protected int mPadding = 0;
 	protected int mWidth;
@@ -63,7 +71,6 @@ public class MonthView extends View {
 	
 	// Time
 	private Calendar mCalendar;
-	private Calendar mDayLabelCalendar;
 	protected int mDayOfWeekStart = 0;
 	protected int mWeekStart = DEFAULT_FIRST_WEEKDAY;
 	protected int mMonth;
@@ -81,6 +88,10 @@ public class MonthView extends View {
 	protected int mTodayNumberColor;
 	protected int mSelectedCircleColor;
 	
+	// Typeface
+	protected Typeface mTypeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
+	protected Typeface mTypefaceBold = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD);
+	
 	// Paint
 	protected Paint mMonthDayLabelPaint;
 	protected Paint mMonthNumPaint;
@@ -94,7 +105,6 @@ public class MonthView extends View {
 	
 	// Formatting
 	private StringBuilder mStringBuilder;
-	private DateFormatSymbols mDateFormatSymbols = new DateFormatSymbols();
 	
 	// TouchEvents
 	private float mLastTouchX;
@@ -102,8 +112,23 @@ public class MonthView extends View {
 	
 	// Actions
 	private OnDayClickListener mOnDayClickListener;
-	private List<MonthViewDecorator> mDecorators = new ArrayList<MonthViewDecorator>();
+	private List<CalendarViewerDecorator> mDecorators = new ArrayList<CalendarViewerDecorator>();
 	
+	// Draw calculations.
+	private final int[] mDayXs = new int[MAX_DAYS];
+	private final int[] mDayYs = new int[MAX_DAYS];
+	private final boolean[] mDayActives = new boolean[MAX_DAYS];
+	
+////==================================================================================================
+//// Static
+////==================================================================================================
+	
+	static {
+		// Initialize the DAYS array.
+		for (int i = 1; i < DAYS.length; i++) {
+			DAYS[i] = String.valueOf(i);
+		}
+	}
 
 ////==================================================================================================
 //// Constructor.
@@ -155,17 +180,17 @@ public class MonthView extends View {
 		Resources r = getContext().getResources();
 		mStringBuilder = new StringBuilder(50);
 		mCalendar = Calendar.getInstance();
-		mDayLabelCalendar = Calendar.getInstance();
 		mActiveDayTextColor = r.getColor(R.color.day_text_active);
 		mInactiveDayTextColor = r.getColor(R.color.day_text_inactive);
 		mTodayNumberColor = r.getColor(R.color.day_text_today);
 		mMonthTitleColor = r.getColor(R.color.calendar_text_title);
-		mSelectedCircleColor = r.getColor(R.color.day_selected_highlight);
+		mSelectedCircleColor = r.getColor(R.color.selected_highlight);
 		mDayTextSize = r.getDimensionPixelSize(R.dimen.day_text_size);
-		mMonthTitleSize = r.getDimensionPixelSize(R.dimen.month_title_text_size);
+		mMonthTitleTextSize = r.getDimensionPixelSize(R.dimen.month_title_text_size);
 		mDayOfWeekTextSize = r.getDimensionPixelSize(R.dimen.day_of_week_text_size);
 		mMonthHeaderHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
-		mSelectedCircleRadius = r.getDimensionPixelSize(R.dimen.day_number_select_circle_radius);
+		mSelectedCircleRadius = r.getDimensionPixelSize(R.dimen.selected_circle_radius);
+		mSelectedCircleStrokeWidth = r.getDimensionPixelSize(R.dimen.selected_circle_stroke_width);
 		mBottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
 		mRowHeight = (r.getDimensionPixelOffset(R.dimen.monthview_height) - mMonthHeaderHeight) / 6;
 	}
@@ -176,7 +201,7 @@ public class MonthView extends View {
 	protected void initView() {
 		mMonthTitlePaint = new Paint();
 		mMonthTitlePaint.setAntiAlias(true);
-		mMonthTitlePaint.setTextSize(mMonthTitleSize);
+		mMonthTitlePaint.setTextSize(mMonthTitleTextSize);
 		mMonthTitlePaint.setTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
 		mMonthTitlePaint.setColor(mMonthTitleColor);
 		mMonthTitlePaint.setTextAlign(Paint.Align.CENTER);
@@ -184,8 +209,8 @@ public class MonthView extends View {
 		mSelectedCirclePaint = new Paint();
 		mSelectedCirclePaint.setAntiAlias(true);
 		mSelectedCirclePaint.setColor(mSelectedCircleColor);
-		mSelectedCirclePaint.setTextAlign(Paint.Align.CENTER);
-		mSelectedCirclePaint.setStyle(Paint.Style.FILL);
+		mSelectedCirclePaint.setStyle(Paint.Style.STROKE);
+		mSelectedCirclePaint.setStrokeWidth(mSelectedCircleStrokeWidth);
 		mMonthDayLabelPaint = new Paint();
 		mMonthDayLabelPaint.setAntiAlias(true);
 		mMonthDayLabelPaint.setTextSize(mDayOfWeekTextSize);
@@ -229,6 +254,21 @@ public class MonthView extends View {
 	}
 	
 ////==================================================================================================
+//// Getters/Setters
+////==================================================================================================
+	
+	/**
+	 * Sets the color of the Month title and day labels.
+	 * @param color
+	 */
+	public void setTitleColor(int color) {
+		mMonthTitleColor = color;
+		mMonthTitlePaint.setColor(mMonthTitleColor);
+		mMonthDayLabelPaint.setColor(mMonthTitleColor);
+		invalidate(0, 0, mWidth, mMonthHeaderHeight);
+	}
+	
+////==================================================================================================
 //// View.
 ////==================================================================================================
 	
@@ -238,6 +278,7 @@ public class MonthView extends View {
 	 */
 	@Override
 	protected void onDraw(Canvas canvas) {
+		calculateDayPoints();
 		applyDecorators(canvas, ApplyLevel.BELOW);
 		drawMonthTitle(canvas);
 		drawDayOfWeekLabels(canvas);
@@ -323,7 +364,7 @@ public class MonthView extends View {
 	 */
 	protected void drawMonthTitle(Canvas canvas) {
 		final int x = (mWidth + 2 * mPadding) / 2;
-		final int y = (mMonthHeaderHeight - mDayOfWeekTextSize) / 2 + mMonthTitleSize / 3;
+		final int y = (mMonthHeaderHeight - mDayOfWeekTextSize) / 2 + mMonthTitleTextSize / 3;
 		canvas.drawText(getMonthTitleString(), x, y, mMonthTitlePaint);
 	}
 	
@@ -337,9 +378,7 @@ public class MonthView extends View {
 		for (int day = 0; day < mDaysPerWeek; day++) {
 			int dayOfWeek = (day + mWeekStart) % mDaysPerWeek;
 			int x = spacing * (1 + 2 * day) + mPadding;
-			mDayLabelCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-			String label = mDateFormatSymbols.getShortWeekdays()[mDayLabelCalendar.get(Calendar.DAY_OF_WEEK)].toUpperCase(Locale.getDefault());
-			canvas.drawText(label, x, y, mMonthDayLabelPaint);
+			canvas.drawText(WEEKDAYS[dayOfWeek], x, y, mMonthDayLabelPaint);
 		}
 	}
 	
@@ -348,6 +387,37 @@ public class MonthView extends View {
 	 * @param canvas
 	 */
 	protected void drawDates(Canvas canvas) {
+		for (int day = 1; day <= mNumCells; day++) {
+			final int x = mDayXs[day-1];
+			final int y = mDayYs[day-1];
+			
+			if (mSelectedDayOfWeek == day) {
+				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
+			}
+			int textColor;
+			if (mTodayOfWeek == day) {
+				textColor = mTodayNumberColor;
+			} else if (mDayActives[day-1]) {
+				textColor = mActiveDayTextColor;
+			} else {
+				textColor = mInactiveDayTextColor;
+			}
+			Typeface tf = (mTodayOfWeek == day) ? mTypefaceBold : mTypeface;
+			mMonthNumPaint.setTypeface(tf);
+			mMonthNumPaint.setColor(textColor);
+			canvas.drawText(DAYS[day], x, y, mMonthNumPaint);
+		}
+	}
+	
+////==================================================================================================
+//// Logic
+////==================================================================================================
+
+	/**
+	 * Calculates the (x,y) coordinates of each day in the month.
+	 */
+	protected void calculateDayPoints() {
+		clearDayArrays();
 		int y = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH + mMonthHeaderHeight;
 		int paddingDay = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
 		int dayOffset = findDayOffset();
@@ -355,19 +425,11 @@ public class MonthView extends View {
 		
 		while (day <= mNumCells) {
 			int x = paddingDay * (1 + 2 * dayOffset) + mPadding;
-			if (mSelectedDayOfWeek == day) {
-				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
-			}
-			int textColor;
-			if (mTodayOfWeek == day) {
-				textColor = mTodayNumberColor;
-			} else if (isCurrentDayOrLater(day)) {
-				textColor = mActiveDayTextColor;
-			} else {
-				textColor = mInactiveDayTextColor;
-			}
-			mMonthNumPaint.setColor(textColor);
-			canvas.drawText(String.format(FORMAT_DAY, day), x, y, mMonthNumPaint);
+			mDayXs[day-1] = x;
+			mDayYs[day-1] = y;
+			
+			boolean active = (mTodayOfWeek == day) || isCurrentDayOrLater(day);
+			mDayActives[day-1] = active;
 			
 			// Reached the end of the week, start drawing on the next line.
 			dayOffset++;
@@ -378,11 +440,30 @@ public class MonthView extends View {
 			day++;
 		}
 	}
-	
-////==================================================================================================
-//// Logic
-////==================================================================================================
 
+	/**
+	 * @param day
+	 * @return The x coordinate where the date of 'day' is drawn.
+	 */
+	public int getXPointForDay(int day) {
+		return mDayXs[day-1];
+	}
+	
+	/**
+	 * @param day
+	 * @return The y coordinate where the date of 'day' is drawn.
+	 */
+	public int getYPointForDay(int day) {
+		return mDayYs[day-1];
+	}
+	
+	/**
+	 * @param day
+	 * @return True if 'day' is an active day.
+	 */
+	public boolean isDayActive(int day) {
+		return mDayActives[day-1];
+	}
 	
 	/**
 	 * @param dayOfMonth
@@ -451,7 +532,6 @@ public class MonthView extends View {
 		}
 		
 		if (y < mMonthHeaderHeight) {
-			Log.e(TAG, "y-pos " + y + " out of bounds");
 			return null;
 		}
 		
@@ -460,7 +540,6 @@ public class MonthView extends View {
 		
 		// Check day bounds.
 		if (day < 1 || day > Utils.getDaysInMonth(mMonth, mYear)) {
-			Log.e(TAG, "day " + day + " is out of bounds");
 			return null;
 		}
 
@@ -525,20 +604,27 @@ public class MonthView extends View {
 ////==================================================================================================
 	
 	/**
-	 * Adds a MonthViewDecorator to the MonthView.
+	 * Adds a CalendarViewerDecorator to the MonthView.
 	 * Decorators will be applied in the order that they're added.
 	 * @param decorator
 	 */
-	public void addDecorator(MonthViewDecorator decorator) {
+	public void addDecorator(CalendarViewerDecorator decorator) {
 		mDecorators.add(decorator);
 	}
 	
 	/**
-	 * Removes the MonthViewDecorator.
+	 * Removes the CalendarViewerDecorators.
 	 * @param decorator
 	 */
-	public void removeDecorator(MonthViewDecorator decorator) {
+	public void removeDecorator(CalendarViewerDecorator decorator) {
 		mDecorators.remove(decorator);
+	}
+	
+	/**
+	 * Removes all CalendarViewerDecorators.
+	 */
+	public void clearDecorators() {
+		mDecorators.clear();
 	}
 	
 	/**
@@ -546,11 +632,25 @@ public class MonthView extends View {
 	 * @param level
 	 */
 	private void applyDecorators(Canvas canvas, ApplyLevel level) {
-		for (MonthViewDecorator decorator : mDecorators) {
+		for (CalendarViewerDecorator decorator : mDecorators) {
 			if (decorator.getApplyLevel() == level) {
 				decorator.apply(this, canvas);
 			}
 		}
 	}
 	
+////==================================================================================================
+//// Utility.
+////==================================================================================================
+	
+	/**
+	 * Zero-out point arrays, reset valid array.
+	 */
+	private void clearDayArrays() {
+		for (int i = 0; i < MAX_DAYS; i++) {
+			mDayXs[i] = 0;
+			mDayYs[i] = 0;
+			mDayActives[i] = false;
+		}
+	}	
 }

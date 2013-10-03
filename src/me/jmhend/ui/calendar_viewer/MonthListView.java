@@ -2,6 +2,7 @@ package me.jmhend.ui.calendar_viewer;
 
 import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ public class MonthListView extends ListView implements CalendarDisplayer, AbsLis
 	
 	private static final float DEFAULT_FRICTION = 0.05f;
 	private static final int SCROLLBACK_DURATION = 80;
+	private static final float MIN_MONTH_OPACITY = 0.15f;
 	
 ////====================================================================================
 //// Member variables.
@@ -102,7 +104,6 @@ public class MonthListView extends ListView implements CalendarDisplayer, AbsLis
 	@Override
 	public void displayDay(CalendarDay day) {
 		int position = mMonthAdapter.getPositionForDay(day);
-		Log.e(TAG, "Position: " + position);
 		if (position != -1) {
 			postSetSelection(position);
 		}
@@ -165,7 +166,7 @@ public class MonthListView extends ListView implements CalendarDisplayer, AbsLis
 	 * Smoothly scrolls to position.
 	 * @param position
 	 */
-	public void postScrollTo(final int position) {
+	public void postSmoothScrollTo(final int position) {
 		post(new Runnable() {
 			/*
 			 * (non-Javadoc)
@@ -200,7 +201,7 @@ public class MonthListView extends ListView implements CalendarDisplayer, AbsLis
 		if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 			int pos = getScrollToPosition();
 			if (pos != -1) {
-				postScrollTo(pos);
+				postSmoothScrollTo(pos);
 			}
 		}
 	}
@@ -211,7 +212,42 @@ public class MonthListView extends ListView implements CalendarDisplayer, AbsLis
 	 */
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		if (visibleItemCount == 0) {
+			return;
+		}
 		
+		// Fade MonthView Title/DayLabels as they're farther from the top of the View.
+		for (int i = 0; i < view.getChildCount(); i++) {
+			MonthView child = (MonthView) view.getChildAt(i);
+			int top = child.getTop();
+			int height = child.getHeight();
+			int thresh = height / 2;
+			
+			// Fade out MonthViews that aren't in the most screen-dominate month.
+			float percent;
+			
+			// Has fully faded out above the screen.
+			if (top <= -thresh) {
+				percent = MIN_MONTH_OPACITY;
+				
+			// Is fading out above the screen.
+			} else if (top < 0 && top > -thresh) {
+				percent = 1f - Math.abs(((float) top) / ((float) (-thresh)));
+				if (percent < MIN_MONTH_OPACITY) {
+					percent = MIN_MONTH_OPACITY;
+				}
+			// Has fully appeared on screen.
+			} else if (top < thresh) {
+				percent = 1f;
+			// Is appearing on the screen.
+			} else {
+				percent = 1f - Math.abs(((float) top - thresh) / ((float) (height - thresh)));
+				if (percent < MIN_MONTH_OPACITY) {
+					percent = MIN_MONTH_OPACITY;
+				}
+			}
+			child.setAlpha(percent);
+		}
 	}
 
 }

@@ -71,10 +71,10 @@ containing a value of this type.
         public static final int calendar_text_selector=0x7f04000f;
         public static final int calendar_text_title=0x7f04000e;
         public static final int calendar_text_unselectable=0x7f040009;
-        public static final int day_selected_highlight=0x7f04000d;
         public static final int day_text_active=0x7f04000a;
         public static final int day_text_inactive=0x7f04000b;
         public static final int day_text_today=0x7f04000c;
+        public static final int selected_highlight=0x7f04000d;
     }
     public static final class dimen {
         /** 
@@ -82,19 +82,20 @@ containing a value of this type.
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f05000c;
+        public static final int activity_horizontal_margin=0x7f05000d;
         public static final int calendar_day_headers_paddingbottom=0x7f050000;
         public static final int calendar_month_title_bottommargin=0x7f050002;
         public static final int calendar_month_topmargin=0x7f050001;
         public static final int calendar_text_medium=0x7f050003;
         public static final int calendar_text_small=0x7f050004;
-        public static final int day_number_select_circle_radius=0x7f050008;
         public static final int day_of_week_text_size=0x7f050007;
-        public static final int day_text_size=0x7f05000a;
-        public static final int month_bottom_padding=0x7f05000b;
+        public static final int day_text_size=0x7f05000b;
+        public static final int month_bottom_padding=0x7f05000c;
         public static final int month_list_item_header_height=0x7f050006;
-        public static final int month_title_text_size=0x7f050009;
+        public static final int month_title_text_size=0x7f05000a;
         public static final int monthview_height=0x7f050005;
+        public static final int selected_circle_radius=0x7f050008;
+        public static final int selected_circle_stroke_width=0x7f050009;
     }
     public static final class drawable {
         public static final int calendar_bg_selector=0x7f020000;

@@ -74,7 +74,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	 */
 	@Override
 	public void onDayClick(View calendarView, CalendarDay day) {
-		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
+//		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
 	}
 
 	/*
@@ -83,7 +83,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	 */
 	@Override
 	public void onDayLongClick(View calendarView, CalendarDay day) {
-		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
+//		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
 	}
 	
 ////==========================================================================================
@@ -97,7 +97,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	private void initBehindCalendarList() {
 		List<String> strings = new ArrayList<String>();
 		for (int i = 0; i < 100; i++) {
-			strings.add(i + "");
+			strings.add("Marketing Team Meeting");
 		}
 		
 		ListView listView = (ListView) findViewById(R.id.behind_list);

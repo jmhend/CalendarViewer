@@ -15,6 +15,6 @@
         android:scrollbars="none"
         android:dividerHeight="0dp"
         android:divider="@null"
-        android:background="#DD008dd0" />
+        android:background="#F6008dd0" />
 
 </RelativeLayout>

@@ -34,6 +34,8 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	
 	private OnDayClickListener mExternalListener;
 	
+	private Map<Integer, HeatDecorator> mDecoratorsMap = new HashMap<Integer, HeatDecorator>();
+	
 ////=====================================================================================
 //// Constructor.
 ////=====================================================================================
@@ -130,7 +132,17 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 		params.put(MonthView.KEY_CURRENT_MONTH, Integer.valueOf(mCurrentDay.month));
 		params.put(MonthView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mCurrentDay.dayOfMonth));
 
+		HeatDecorator dec;
+		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
+			dec = mDecoratorsMap.get(Integer.valueOf(position));
+		} else {
+			dec = new HeatDecorator();
+			mDecoratorsMap.put(Integer.valueOf(position), dec);
+		}
+		
 		monthView.reset();
+		monthView.clearDecorators();
+		monthView.addDecorator(dec);
 		monthView.setMonthParams(params);
 		monthView.invalidate();
 		return monthView;
