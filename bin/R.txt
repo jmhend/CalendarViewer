@@ -36,12 +36,13 @@ int dimen selected_circle_radius 0x7f050008
 int dimen selected_circle_stroke_width 0x7f050009
 int drawable calendar_bg_selector 0x7f020000
 int drawable ic_launcher 0x7f020001
-int id action_settings 0x7f090005
+int id action_settings 0x7f090006
 int id behind_list 0x7f090000
-int id calendar_grid 0x7f090004
+int id calendar_grid 0x7f090005
+int id month_list 0x7f090002
 int id pager 0x7f090001
-int id text 0x7f090002
-int id title 0x7f090003
+int id text 0x7f090003
+int id title 0x7f090004
 int layout activity_main 0x7f030000
 int layout listitem 0x7f030001
 int layout month 0x7f030002

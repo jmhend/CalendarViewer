@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 ////==========================================================================================
 	
 	private MonthListView mListView;
+	private MonthViewPager mPager;
 	
 ////==========================================================================================
 //// Activity lifecycle.
@@ -55,19 +57,20 @@ public class MainActivity extends Activity implements OnDayClickListener {
 		CalendarViewerConfig.Builder builder = CalendarViewerConfig.startBuilding()
 				.starts(start)
 				.ends(end);
-//		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
-//		
-//		// ListView setup.
-//		mListView = (MonthListView) findViewById(R.id.month_list);
-//		mListView.setAdapter(monthAdapter);
-//		
-//		CalendarDay today = CalendarDay.currentDay();
-//		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
+		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
 		
-		MonthPagerAdapter pagerAdapter = new MonthPagerAdapter(this, builder.build(), this);
-		ViewPager pager = (ViewPager) findViewById(R.id.pager);
-		pager.setClickable(false);
-		pager.setAdapter(pagerAdapter);
+		// ListView setup.
+		mListView = (MonthListView) findViewById(R.id.month_list);
+		mListView.setAdapter(monthAdapter);
+//		
+		CalendarDay today = CalendarDay.currentDay();
+		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
+		
+		MonthPagerAdapter pagerAdapter = new MonthPagerAdapter(this, builder.build());
+		mPager = (MonthViewPager) findViewById(R.id.pager);
+		mPager.setAdapter(pagerAdapter);
+		mPager.setOnDayClickListener(this);
+		mPager.setCurrentItem(pagerAdapter.getPositionForDay(today));
 	}
 	
 ////==========================================================================================
@@ -80,21 +83,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	 */
 	@Override
 	public void onDayClick(View calendarView, CalendarDay day) {
-		postInvalidate(calendarView);
 		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
-	}
-	
-	public void postInvalidate(final View view) {
-		view.post(new Runnable() {
-			/*
-			 * (non-Javadoc)
-			 * @see java.lang.Runnable#run()
-			 */
-			@Override
-			public void run() {
-				view.invalidate();
-			}
-		});
 	}
 
 	/*

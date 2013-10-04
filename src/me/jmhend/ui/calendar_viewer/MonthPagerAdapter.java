@@ -13,15 +13,19 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 
 
-public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayClickListener, OnPageChangeListener{
+public class MonthPagerAdapter extends RecyclingPagerAdapter {
 	
 	private static final String TAG = MonthPagerAdapter.class.getSimpleName();
 	
 ////====================================================================================
-//// Member variables.
+//// Static constants.
 ////====================================================================================
 	
-	private ViewPager mPager;
+	public static final String KEY_POSITION = "position";
+	
+////====================================================================================
+//// Member variables.
+////====================================================================================
 	
 	private final Context mContext;
 	private int mFirstDayOfWeek;
@@ -30,8 +34,6 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 	private CalendarDay mSelectedDay;
 	private final CalendarDay mCurrentDay;
 	private int mCount;
-	
-	private OnDayClickListener mExternalListener;
 	
 	private Map<Integer, HeatDecorator> mDecoratorsMap = new HashMap<Integer, HeatDecorator>();
 	
@@ -44,9 +46,8 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 	 * @param context
 	 * @param controller
 	 */
-	public MonthPagerAdapter(Context context, CalendarViewerConfig config, OnDayClickListener listener) {
+	public MonthPagerAdapter(Context context, CalendarViewerConfig config) {
 		mContext = context;
-		mExternalListener = listener;
 		mCurrentDay = CalendarDay.currentDay();
 		init(config);
 		calculateCount();
@@ -62,9 +63,6 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 		mSelectedDay = config.getSelectedDay();
 	}
 	
-	public void update() {
-		
-	}
 	
 ////====================================================================================
 //// RecyclingPagerAdapter
@@ -74,7 +72,6 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 	 * (non-Javadoc)
 	 * @see me.jmhend.ui.calendar_viewer.RecyclingPagerAdapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public View getView(int position, View convertView, ViewGroup container) {
 		MonthView monthView;
@@ -82,12 +79,25 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 			monthView = new MonthView(mContext);
 			monthView.setLayoutParams(new AbsListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			monthView.setClickable(true);
-			monthView.setOnDayClickListener(this);
+			
+			if (container instanceof OnDayClickListener) {
+				monthView.setOnDayClickListener((OnDayClickListener) container);
+			}
 		} else {
 			monthView = (MonthView) convertView;
 		}
-		
-		Map<String, Integer> params = (Map<String, Integer>) monthView.getTag();
+		updatePage(position, monthView);
+		return monthView;
+	}
+	
+	/**
+	 * Updates the content of 'view' at position.
+	 * @param position
+	 * @param view
+	 */
+	@SuppressWarnings("unchecked")
+	public void updatePage(int position, MonthView view) {
+		Map<String, Integer> params = (Map<String, Integer>) view.getTag();
 		if (params == null) {
 			params = new HashMap<String, Integer>();
 		}
@@ -96,6 +106,7 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 		final int month = getMonthForPosition(position);
 		final int year = getYearForPosition(position);
 		final int selectedDay = isSelectedDayInMonth(year, month) ? mSelectedDay.dayOfMonth : -1;
+		params.put(KEY_POSITION, Integer.valueOf(position));
 		params.put(MonthView.KEY_MONTH, Integer.valueOf(month));
 		params.put(MonthView.KEY_YEAR, Integer.valueOf(year));
 		params.put(MonthView.KEY_SELECTED_DAY, Integer.valueOf(selectedDay));
@@ -112,13 +123,11 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 			mDecoratorsMap.put(Integer.valueOf(position), dec);
 		}
 		
-		monthView.reset();
-		monthView.clearDecorators();
-		monthView.addDecorator(dec);
-		monthView.setMonthParams(params);
-		monthView.invalidate();
-		monthView.setClickable(true);
-		return monthView;
+		view.reset();
+		view.clearDecorators();
+		view.addDecorator(dec);
+		view.setMonthParams(params);
+		view.invalidate();
 	}
 
 	/*
@@ -198,76 +207,7 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter implements OnDayCli
 	}
 	
 ////====================================================================================
-//// OnDayClickListener
-////====================================================================================
-	
-	/*
-	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
-	 */
-	@Override
-	public void onDayClick(View calendarView, CalendarDay day) {
-		if (day != null) {
-			if (!Utils.isDayCurrentOrFuture(day)) {
-				return;
-			}
-			setSelectedDay(day);
-			if (mExternalListener != null) {
-				mExternalListener.onDayClick(calendarView, day);
-			}
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayLongClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
-	 */
-	@Override
-	public void onDayLongClick(View calendarView, CalendarDay day) {
-		if (day != null) {
-			if (!Utils.isDayCurrentOrFuture(day)) {
-				return;
-			}
-			if (mExternalListener != null) {
-				mExternalListener.onDayLongClick(calendarView, day);
-			}
-		}
-	}
-	
-////====================================================================================
 //// OnPageChangeListener
 ////====================================================================================
-
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrollStateChanged(int)
-	 */
-	@Override
-	public void onPageScrollStateChanged(int state) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled(int, float, int)
-	 */
-	@Override
-	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected(int)
-	 */
-	@Override
-	public void onPageSelected(int position) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-
 
 }

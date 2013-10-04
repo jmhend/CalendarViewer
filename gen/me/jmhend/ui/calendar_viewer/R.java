@@ -102,12 +102,13 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int action_settings=0x7f090005;
+        public static final int action_settings=0x7f090006;
         public static final int behind_list=0x7f090000;
-        public static final int calendar_grid=0x7f090004;
+        public static final int calendar_grid=0x7f090005;
+        public static final int month_list=0x7f090002;
         public static final int pager=0x7f090001;
-        public static final int text=0x7f090002;
-        public static final int title=0x7f090003;
+        public static final int text=0x7f090003;
+        public static final int title=0x7f090004;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

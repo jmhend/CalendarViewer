@@ -8,21 +8,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <android.support.v4.view.ViewPager
+    <me.jmhend.ui.calendar_viewer.MonthViewPager
 	    android:id="@+id/pager"
 	    android:layout_width="match_parent"
 	    android:layout_height="276dp"
 	    android:background="#F6008dd0" />
-    
-    <!-- 
+
+   
     <me.jmhend.ui.calendar_viewer.MonthListView
         android:id="@+id/month_list"
         android:layout_width="match_parent"
         android:layout_height="276dp"
+        android:layout_below="@id/pager"
+        android:layout_marginTop="2dp"
         android:scrollbars="none"
         android:dividerHeight="0dp"
         android:divider="@null"
         android:background="#F6008dd0" />
-         -->
+         
 
 </RelativeLayout>
