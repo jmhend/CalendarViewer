@@ -222,8 +222,6 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 		if (primaryAlpha < MIN_MONTH_OPACITY) {
 			primaryAlpha = MIN_MONTH_OPACITY;
 		}
-		Log.i(TAG, position + ", " + positionOffset + ", " + positionOffsetPixels + " (" + primaryAlpha + ")");
-		
 		for (int i = 0; i < getChildCount(); i++) {
 			final View child = getChildAt(i);
 			final int childPos = getPositionFromTag(child);

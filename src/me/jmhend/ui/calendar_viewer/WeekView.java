@@ -1,5 +1,6 @@
 package me.jmhend.ui.calendar_viewer;
 
+import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -20,6 +21,34 @@ public class WeekView extends View {
 	public static final int DAY_SEPARATOR_WIDTH = MonthView.DAY_SEPARATOR_WIDTH;
 	
 	public static final int MAX_DAYS = 7;
+	
+////======================================================================================
+//// WeekRange
+////======================================================================================
+	
+	/**
+	 * Defines the day range for a week.
+	 * 
+	 * @author jmhend
+	 */
+	public static class WeekRange {
+		public CalendarDay weekStart;
+		public CalendarDay weekEnd;
+		
+		public WeekRange(CalendarDay start, CalendarDay end) {
+			this.weekStart = start;
+			this.weekEnd = end;
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return weekStart.toString() + "-" + weekEnd.toString();
+		}
+	}
 	
 ////======================================================================================
 //// Member variables.
@@ -84,6 +113,7 @@ public class WeekView extends View {
 ////======================================================================================
 //// Logic.
 ////======================================================================================
+	
 	
 	/**
 	 * Calculates the (x,y) coordinates of each day in the month.

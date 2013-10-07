@@ -13,9 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.format.DateUtils;
-import android.text.format.Time;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -320,6 +318,7 @@ public class MonthView extends View {
 		switch (motionEvent.getActionMasked()) {
 		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_MOVE:
+		case MotionEvent.ACTION_DOWN:
 			mLastTouchX = motionEvent.getX();
 			mLastTouchY = motionEvent.getY();
 			break;

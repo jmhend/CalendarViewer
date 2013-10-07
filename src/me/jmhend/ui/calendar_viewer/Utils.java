@@ -1,6 +1,12 @@
 package me.jmhend.ui.calendar_viewer;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import android.util.Log;
+
 import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.WeekView.WeekRange;
 
 /**
  * Utility methods.
@@ -67,6 +73,37 @@ public class Utils {
 			return true;
 		}
 		return day.dayOfMonth >= currentDay.dayOfMonth;
+	}
+	
+	/**
+	 * Returns the start CalendarDay and end CalendarDay of the week that contains 'day'.
+	 * Assumes the desired first day of week is already set on 'cal'.
+	 * 
+	 * @param day
+	 * @return
+	 */
+	public static WeekRange getWeekRangeForDay(Calendar cal, CalendarDay day) {
+		if (cal == null) {
+			cal = Calendar.getInstance();
+		}
+		cal.set(Calendar.YEAR, day.year);
+		cal.set(Calendar.MONTH, day.month);
+		cal.set(Calendar.DAY_OF_MONTH, day.dayOfMonth);
+		
+		int firstDayOfWeek = cal.getFirstDayOfWeek();
+		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		int offset = dayOfWeek - firstDayOfWeek;
+		if (offset < 0) {
+			offset += 7;
+		}
+		
+		cal.add(Calendar.DAY_OF_YEAR, -offset);
+		CalendarDay start = CalendarDay.fromCalendar(cal);
+		
+		cal.add(Calendar.DAY_OF_YEAR, 6);
+		CalendarDay end = CalendarDay.fromCalendar(cal);
+		
+		return new WeekRange(start, end);
 	}
 
 }
