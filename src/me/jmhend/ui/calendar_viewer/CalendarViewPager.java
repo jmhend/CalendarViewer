@@ -3,46 +3,47 @@ package me.jmhend.ui.calendar_viewer;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**
- * ViewPager that displays a collection of MonthViews.
+ * Base class for a ViewPager of calendar Views.
  * @author jmhend
+ *
  */
-public class MonthViewPager extends ViewPager implements OnDayClickListener {
-
-	private static final String TAG = MonthViewPager.class.getSimpleName();
+public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	
-////=============================================================================
+	private static final String TAG = CalendarViewPager.class.getSimpleName();
+	
+////=====================================================================================
 //// Static constants.
-////=============================================================================
+////=====================================================================================
 	
-	private static final float WIDTH_THRESHOLD = 0.33f;
-	private static final float MIN_MONTH_OPACITY = 0.2f;
+	protected static final float WIDTH_THRESHOLD = 0.33f;
+	protected static final float MIN_PAGE_OPACITY = 0.2f;
 	
-////=============================================================================
-//// Member variables
-////=============================================================================
+////=====================================================================================
+//// Member variables.
+////=====================================================================================
 	
-	private MonthPagerAdapter mAdapter;
+	private CalendarAdapter mAdapter;
 	private OnPageChangeListener mPageChangeListener;
 	private OnDayClickListener mDayClickListener;
 	
-////=============================================================================
-//// Constructor.
-////=============================================================================
-	
+////=====================================================================================
+//// Constructor
+////=====================================================================================
+
 	/**
 	 * @param context
 	 * @param attrs
 	 */
-	public MonthViewPager(Context context, AttributeSet attrs) {
+	public CalendarViewPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
@@ -50,37 +51,43 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 	/**
 	 * @param context
 	 */
-	public MonthViewPager(Context context) {
+	public CalendarViewPager(Context context) {
 		super(context);
 		init();
 	}
 	
 ////=============================================================================
-//// Init.
+////Init.
 ////=============================================================================
 	
 	/**
-	 * Init.
+	 * Initialize.
 	 */
-	private void init() {
+	protected void init() {
 		mPageChangeListener = new OnPageChangeListener() {
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrollStateChanged(int)
+			 */
 			@Override
-			public void onPageScrollStateChanged(int state) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void onPageScrollStateChanged(int state) { }
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled(int, float, int)
+			 */
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				makeFancy(position, positionOffset, positionOffsetPixels);
+				fadeEdges(position, positionOffset, positionOffsetPixels);
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected(int)
+			 */
 			@Override
-			public void onPageSelected(int position) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void onPageSelected(int position) { }
 			
 		};
 		setOnPageChangeListener(mPageChangeListener);
@@ -96,13 +103,13 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 	 */
 	@Override
 	public void setAdapter(PagerAdapter adapter) {
-		if (!(adapter instanceof MonthPagerAdapter)) {
+		if (!(adapter instanceof CalendarAdapter)) {
 			throw new IllegalArgumentException("PagerAdapter must be of type " 
-						+ MonthPagerAdapter.class.getCanonicalName() 
+						+ CalendarAdapter.class.getCanonicalName() 
 						+ ", but is instead " 
 						+ adapter.getClass().getCanonicalName());
 		}
-		mAdapter = (MonthPagerAdapter) adapter;
+		mAdapter = (CalendarAdapter) adapter;
 		super.setAdapter(adapter);
 	}
 	
@@ -111,6 +118,26 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 	 */
 	public void setOnDayClickListener(OnDayClickListener listener) {
 		mDayClickListener = listener;
+	}
+	
+	/**
+	 * Sets the current day of the ViewPager.
+	 * @param day
+	 */
+	public void setCurrentDay(CalendarDay day) {
+		final int position = mAdapter.getPositionForDay(day);
+		if (position != -1) {
+			post(new Runnable() {
+				/*
+				 * (non-Javadoc)
+				 * @see java.lang.Runnable#run()
+				 */
+				@Override
+				public void run() {
+					setCurrentItem(position);
+				}
+			});
+		}
 	}
 	
 ////=============================================================================
@@ -148,10 +175,10 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 			return -1;
 		}
 		Map<String, Integer> params = (HashMap<String, Integer>) view.getTag();
-		if (!params.containsKey(MonthPagerAdapter.KEY_POSITION)) {
+		if (!params.containsKey(CalendarAdapter.KEY_POSITION)) {
 			return -1;
 		}
-		return params.get(MonthPagerAdapter.KEY_POSITION).intValue();
+		return params.get(CalendarAdapter.KEY_POSITION).intValue();
 	}
 	
 	/**
@@ -166,7 +193,7 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 		}
 		return getViewAtPosition(position);
 	}
-	
+
 ////=============================================================================
 //// Update
 ////=============================================================================
@@ -180,7 +207,7 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 		if (child == null) {
 			return;
 		}
-		mAdapter.updatePage(position, (MonthView) child);
+		mAdapter.updateView(position, (CalendarView) child);
 	}
 	
 	/**
@@ -189,16 +216,16 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 	public void updateVisiblePages() {
 		int childCount = getChildCount();
 		for (int i = 0; i < childCount; i++) {
-			MonthView child = (MonthView) getChildAt(i);
+			CalendarView child = (CalendarView) getChildAt(i);
 			int childPosition = getPositionFromTag(child);
 			if (childPosition != -1) {
-				mAdapter.updatePage(childPosition, child);
+				mAdapter.updateView(childPosition, child);
 			}
 		}
 	}
 	
 ////=============================================================================
-//// Fanciness.
+////Fanciness.
 ////=============================================================================
 	
 	/**
@@ -207,20 +234,20 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 	 * @param positionOffset
 	 * @param positionOffsetPixels
 	 */
-	private void makeFancy(int position, float positionOffset, int positionOffsetPixels) {
+	private void fadeEdges(int position, float positionOffset, int positionOffsetPixels) {
 		float primaryAlpha;
 		float secondaryAlpha;
 		
 		if (positionOffset < WIDTH_THRESHOLD) {
 			primaryAlpha = 1f;
-			secondaryAlpha = MIN_MONTH_OPACITY;
+			secondaryAlpha = MIN_PAGE_OPACITY;
 		} else {
-			primaryAlpha = 1f - (positionOffset - WIDTH_THRESHOLD) / ((1 - MIN_MONTH_OPACITY) - WIDTH_THRESHOLD);
-			secondaryAlpha = Math.min(1f, (positionOffset - WIDTH_THRESHOLD) / (1 - WIDTH_THRESHOLD) + MIN_MONTH_OPACITY);
+			primaryAlpha = 1f - (positionOffset - WIDTH_THRESHOLD) / ((1 - MIN_PAGE_OPACITY) - WIDTH_THRESHOLD);
+			secondaryAlpha = Math.min(1f, (positionOffset - WIDTH_THRESHOLD) / (1 - WIDTH_THRESHOLD) + MIN_PAGE_OPACITY);
 		}
 		
-		if (primaryAlpha < MIN_MONTH_OPACITY) {
-			primaryAlpha = MIN_MONTH_OPACITY;
+		if (primaryAlpha < MIN_PAGE_OPACITY) {
+			primaryAlpha = MIN_PAGE_OPACITY;
 		}
 		for (int i = 0; i < getChildCount(); i++) {
 			final View child = getChildAt(i);
@@ -233,17 +260,16 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 		}
 	}
 	
-	
 ////====================================================================================
 //// OnDayClickListener
 ////====================================================================================
 	
 	/*
 	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
+	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayClick(android.view.View, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(View calendarView, CalendarDay day) {
+	public void onDayClick(CalendarView calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;
@@ -258,10 +284,10 @@ public class MonthViewPager extends ViewPager implements OnDayClickListener {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayLongClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
+	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayLongClick(android.view.View, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(View calendarView, CalendarDay day) {
+	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;

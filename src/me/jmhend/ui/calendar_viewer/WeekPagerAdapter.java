@@ -1,18 +1,26 @@
 package me.jmhend.ui.calendar_viewer;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
+
+import org.joda.time.DateTime;
+import org.joda.time.Weeks;
+
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
 
 /**
  * PagerAdapter for supplying a ViewPager with WeekViews.
  * @author jmhend
  */
-public class WeekPagerAdapter extends RecyclingPagerAdapter {
+public class WeekPagerAdapter extends CalendarAdapter {
 	
 	private static final String TAG = WeekPagerAdapter.class.getSimpleName();
 	
@@ -26,8 +34,10 @@ public class WeekPagerAdapter extends RecyclingPagerAdapter {
 	
 	private final Context mContext;
 	private int mFirstDayOfWeek;
+	private final Calendar mCalendar;
 	private CalendarDay mStartDay;
 	private CalendarDay mEndDay;
+	private CalendarDay mFirstVisibleDay;
 	private CalendarDay mSelectedDay;
 	private final CalendarDay mCurrentDay;
 	private int mCount;
@@ -46,6 +56,11 @@ public class WeekPagerAdapter extends RecyclingPagerAdapter {
 	public WeekPagerAdapter(Context context, CalendarViewerConfig config) {
 		mContext = context;
 		mCurrentDay = CalendarDay.currentDay();
+		mCalendar = Calendar.getInstance();
+		mCalendar.set(Calendar.MILLISECOND, 0);
+		mCalendar.set(Calendar.SECOND, 0);
+		mCalendar.set(Calendar.MINUTE, 0);
+		mCalendar.set(Calendar.HOUR, 0);
 		init(config);
 		calculateCount();
 	}
@@ -62,8 +77,83 @@ public class WeekPagerAdapter extends RecyclingPagerAdapter {
 		mStartDay = config.getStartDay();
 		mEndDay = config.getEndDay();
 		mSelectedDay = config.getSelectedDay();
+		mCalendar.setFirstDayOfWeek(mFirstDayOfWeek);
+		mFirstVisibleDay = Utils.getWeekRangeForDay(mCalendar, mStartDay).weekStart;
+	}
+	
+////====================================================================================
+//// CalendarAdapter
+////====================================================================================
+
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarAdapter#updateView(int, me.jmhend.ui.calendar_viewer.CalendarView)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void updateView(int position, CalendarView view) {
+		WeekView weekView = (WeekView) view;
+		Map<String, Integer> params = (Map<String, Integer>) weekView.getTag();
+		if (params == null) {
+			params = new HashMap<String, Integer>();
+		}
+		
+		// Generate WeekView data.
+		CalendarDay startDay = getWeekStartForPosition(position);
+		CalendarDay endDay = getWeekEndForPosition(position);
+		params.put(CalendarAdapter.KEY_POSITION, Integer.valueOf(position));
+		params.put(WeekView.KEY_WEEK_START, Integer.valueOf(mFirstDayOfWeek));
+		params.put(WeekView.KEY_START_YEAR, Integer.valueOf(startDay.year));
+		params.put(WeekView.KEY_START_MONTH, Integer.valueOf(startDay.month));
+		params.put(WeekView.KEY_START_DAY_OF_MONTH, Integer.valueOf(startDay.dayOfMonth));
+		params.put(WeekView.KEY_END_YEAR, Integer.valueOf(endDay.year));
+		params.put(WeekView.KEY_END_MONTH, Integer.valueOf(endDay.month));
+		params.put(WeekView.KEY_END_DAY_OF_MONTH, Integer.valueOf(endDay.dayOfMonth));
+		params.put(WeekView.KEY_SELECTED_YEAR, Integer.valueOf(mSelectedDay.year));
+		params.put(WeekView.KEY_SELECTED_MONTH, Integer.valueOf(mSelectedDay.month));
+		params.put(WeekView.KEY_SELECTED_DAY_OF_MONTH, Integer.valueOf(mSelectedDay.dayOfMonth));
+		params.put(WeekView.KEY_CURRENT_YEAR, Integer.valueOf(mCurrentDay.year));
+		params.put(WeekView.KEY_CURRENT_MONTH, Integer.valueOf(mCurrentDay.month));
+		params.put(WeekView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mCurrentDay.dayOfMonth));
+
+		HeatDecorator dec;
+		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
+			dec = mDecoratorsMap.get(Integer.valueOf(position));
+		} else {
+			dec = new HeatDecorator(startDay.year, startDay.month);
+			mDecoratorsMap.put(Integer.valueOf(position), dec);
+		}
+		
+		weekView.reset();
+		weekView.clearDecorators();
+		weekView.addDecorator(dec);
+		weekView.setParams(params);
+		weekView.invalidate();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarAdapter#getPositionForDay(me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+	 */
+	@Override
+	public int getPositionForDay(CalendarDay day) {
+		if (day.isBeforeDay(mStartDay) || day.isAfterDay(mEndDay)) {
+			return -1;
+		}
+		DateTime dtStart = mFirstVisibleDay.toDateTime();
+		DateTime dtDay = day.toDateTime();
+		return Weeks.weeksBetween(dtStart, dtDay).getWeeks();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarAdapter#setSelectedDay(me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+	 */
+	@Override
+	public void setSelectedDay(CalendarDay day) {
+		mSelectedDay = day;
+	}
+	
 ////====================================================================================
 //// Positioning
 ////====================================================================================
@@ -72,40 +162,38 @@ public class WeekPagerAdapter extends RecyclingPagerAdapter {
 	 * Calculates how many months the list will contain.
 	 */
 	private void calculateCount() {
-		int startMonths = mStartDay.year * 12 + mStartDay.month;
-		int endMonths = mEndDay.year * 12 + mEndDay.month;
-		int months = endMonths - startMonths + 1;
-		mCount = months;
+		DateTime dtStart = mStartDay.toDateTime();
+		DateTime dtEnd = mEndDay.toDateTime();
+		int numWeeks = Weeks.weeksBetween(dtStart, dtEnd).getWeeks();
+		mCount = numWeeks + 1;
 	}
-	
+
 	/**
-	 * Gets which month to display for 'position'
+	 * Calculate the CalendarDay of the start of the week, based upon position.
+	 * TODO: Cache these? Map<Position, CalendarDay>
 	 * @param position
-	 * @return
 	 */
-	private int getMonthForPosition(int position) {
-		int month = (position + mStartDay.month) % 12;
-		return month;
-	}
-	
-	/**
-	 * Gets which year to display for 'position'
-	 * @param position
-	 * @return
-	 */
-	private int getYearForPosition(int position) {
-		int year = (position + mStartDay.month) / 12 + mStartDay.year;
-		return year;
-	}
-	
-	// 1. When creating adapter, determine the first week, using the Utils.getWeekRangeForCalendarDay(mStartDay).
-	// 2. ''                   , determine the end week, using 				''
-	// 3. TODO: getCount()??
-	// 3. for getWeekStart(position): mStartDay.asCalendar().add(Calendar.DAY_OF_YEAR,7 * position) ?
-	
 	private CalendarDay getWeekStartForPosition(int position) {
-		return null;
+		mCalendar.set(Calendar.YEAR, mFirstVisibleDay.year);
+		mCalendar.set(Calendar.MONTH, mFirstVisibleDay.month);
+		mCalendar.set(Calendar.DAY_OF_MONTH, mFirstVisibleDay.dayOfMonth);
+		mCalendar.add(Calendar.DAY_OF_YEAR, 7 * position);
+		return CalendarDay.fromCalendar(mCalendar);
 	}
+	
+	/**
+	 * Calculate the CalendarDay of the end of the week, based upon position.
+	 * TODO: Cache these? Map<Position, CalendarDay>
+	 * @param position
+	 */
+	private CalendarDay getWeekEndForPosition(int position) {
+		mCalendar.set(Calendar.YEAR, mFirstVisibleDay.year);
+		mCalendar.set(Calendar.MONTH, mFirstVisibleDay.month);
+		mCalendar.set(Calendar.DAY_OF_MONTH, mFirstVisibleDay.dayOfMonth);
+		mCalendar.add(Calendar.DAY_OF_YEAR, 7 * position + 6);
+		return CalendarDay.fromCalendar(mCalendar);
+	}
+	
 ////====================================================================================
 //// View
 ////====================================================================================
@@ -116,8 +204,20 @@ public class WeekPagerAdapter extends RecyclingPagerAdapter {
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup container) {
-		// TODO Auto-generated method stub
-		return null;
+		WeekView weekView;
+		if (convertView == null) {
+			weekView = new WeekView(mContext);
+			weekView.setLayoutParams(new AbsListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			weekView.setClickable(true);
+			
+			if (container instanceof OnDayClickListener) {
+				weekView.setOnDayClickListener((OnDayClickListener) container);
+			}
+		} else {
+			weekView = (WeekView) convertView;
+		}
+		updateView(position, weekView);
+		return weekView;
 	}
 
 	/*
@@ -126,8 +226,6 @@ public class WeekPagerAdapter extends RecyclingPagerAdapter {
 	 */
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return mCount;
 	}
-
 }

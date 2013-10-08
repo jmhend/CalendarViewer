@@ -23,25 +23,27 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050008;
-        public static final int day_of_week_text_size=0x7f050002;
-        public static final int day_text_size=0x7f050006;
-        public static final int month_bottom_padding=0x7f050007;
-        public static final int month_list_item_header_height=0x7f050001;
-        public static final int month_title_text_size=0x7f050005;
+        public static final int activity_horizontal_margin=0x7f050009;
+        public static final int day_of_week_text_size=0x7f050003;
+        public static final int day_text_size=0x7f050007;
+        public static final int month_bottom_padding=0x7f050008;
+        public static final int month_list_item_header_height=0x7f050002;
+        public static final int month_title_text_size=0x7f050006;
         public static final int monthview_height=0x7f050000;
-        public static final int selected_circle_radius=0x7f050003;
-        public static final int selected_circle_stroke_width=0x7f050004;
+        public static final int selected_circle_radius=0x7f050004;
+        public static final int selected_circle_stroke_width=0x7f050005;
+        public static final int weekview_height=0x7f050001;
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f090004;
+        public static final int action_settings=0x7f090005;
         public static final int behind_list=0x7f090000;
-        public static final int month_list=0x7f090002;
+        public static final int month_list=0x7f090003;
         public static final int pager=0x7f090001;
-        public static final int text=0x7f090003;
+        public static final int text=0x7f090004;
+        public static final int week_pager=0x7f090002;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

@@ -1,9 +1,10 @@
 package me.jmhend.ui.calendar_viewer;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -136,14 +137,14 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
 			dec = mDecoratorsMap.get(Integer.valueOf(position));
 		} else {
-			dec = new HeatDecorator();
+			dec = new HeatDecorator(year, month);
 			mDecoratorsMap.put(Integer.valueOf(position), dec);
 		}
 		
 		monthView.reset();
 		monthView.clearDecorators();
 		monthView.addDecorator(dec);
-		monthView.setMonthParams(params);
+		monthView.setParams(params);
 		monthView.invalidate();
 		return monthView;
 	}
@@ -224,7 +225,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(View calendarView, CalendarDay day) {
+	public void onDayClick(CalendarView calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;
@@ -241,7 +242,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayLongClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(View calendarView, CalendarDay day) {
+	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;
@@ -249,128 +250,6 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 			if (mExternalListener != null) {
 				mExternalListener.onDayLongClick(calendarView, day);
 			}
-		}
-	}
-
-////=====================================================================================
-//// CalendarDay
-////=====================================================================================
-	
-	/**
-	 * Represents a day on the Calendar.
-	 * 
-	 * @author jmhend
-	 */
-	public static class CalendarDay {
-		int year;
-		int month;
-		int dayOfMonth;
-		
-		/**
-		 * @return CalendarDay initialized to the current day.
-		 */
-		public static CalendarDay currentDay() {
-			return fromCalendar(Calendar.getInstance());
-		}
-		
-		/**
-		 * @param calendar
-		 * @return CalendarDay initialized to the same day has 'calendar'
-		 * is current set to.
-		 */
-		public static CalendarDay fromCalendar(Calendar calendar) {
-			return new CalendarDay(calendar.get(Calendar.YEAR), 
-					calendar.get(Calendar.MONTH),
-					calendar.get(Calendar.DAY_OF_MONTH));
-		}
-		
-		/**
-		 * @param time
-		 * @return CalendarDay initialized to the same day as 'time'.
-		 */
-		public static CalendarDay fromTime(long time) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(time);
-			return fromCalendar(calendar);
-		}
-		
-		/**
-		 * Constructor with all args.
-		 * @param year
-		 * @param month
-		 * @param dayOfMonth
-		 */
-		public CalendarDay(int year, int month, int dayOfMonth) { 
-			this.year = year;
-			this.month = month;
-			this.dayOfMonth = dayOfMonth;
-		}
-		
-		/**
-		 * Fill from another CalendarDay.
-		 * @param day
-		 */
-		public void set(CalendarDay day) {
-			this.year = day.year;
-			this.month = day.month;
-			this.dayOfMonth = day.dayOfMonth;
-		}
-		
-		/**
-		 * Set date fields.
-		 * @param year
-		 * @param month
-		 * @param dayOfMonth
-		 */
-		public void set(int year, int month, int dayOfMonth) {
-			this.year = year;
-			this.month = month;
-			this.dayOfMonth = dayOfMonth;
-		}
-		
-		/**
-		 * @param day
-		 * @return True if this CalendarDay is the same day as 'day'.
-		 */
-		public boolean isSameDay(CalendarDay day) {
-			return (year == day.year) && (month == day.month) && (dayOfMonth == day.dayOfMonth);
-		}
-		
-		/**
-		 * @param day
-		 * @return True if this CalendarDay is before 'day'.
-		 */
-		public boolean isBeforeDay(CalendarDay day) {
-			if (year < day.year) {
-				return true;
-			}
-			if (year > day.year) {
-				return false;
-			}
-			if (month < day.month) {
-				return true;
-			}
-			if (month > day.month) {
-				return false;
-			}
-			return dayOfMonth < day.dayOfMonth;
-		}
-		
-		/**
-		 * @param day
-		 * @return True if this CalendarDay is after 'day'.
-		 */
-		public boolean isAfterDay(CalendarDay day) {
-			return !isSameDay(day) && !isBeforeDay(day);
-		}
-		
-		/*
-		 * (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString() {
-			return (month + 1) + "/" + dayOfMonth + "/" + year;
 		}
 	}
 }

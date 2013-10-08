@@ -1,10 +1,8 @@
 package me.jmhend.ui.calendar_viewer;
 
-import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;

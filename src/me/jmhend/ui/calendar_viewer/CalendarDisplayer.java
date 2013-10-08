@@ -1,6 +1,6 @@
 package me.jmhend.ui.calendar_viewer;
 
-import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 
 /**
  * 

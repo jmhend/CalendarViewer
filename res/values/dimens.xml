@@ -1,5 +1,6 @@
 <resources>
-    <dimen name="monthview_height">270.0dip</dimen>
+    <dimen name="monthview_height">266.0dip</dimen>
+    <dimen name="weekview_height">86dip</dimen>
     <dimen name="month_list_item_header_height">50.0dip</dimen>
     <dimen name="day_of_week_text_size">10.0sp</dimen>
     <dimen name="selected_circle_radius">16.0dip</dimen>

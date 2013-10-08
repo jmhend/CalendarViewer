@@ -40,10 +40,10 @@ public interface CalendarViewerDecorator {
 	public ApplyLevel getApplyLevel();
 	
 	/**
-	 * Applies the Decorator to the calendarView.
+	 * Applies the Decorator to the CalendarView.
 	 * 
-	 * @param calendarView
+	 * @param view
 	 * @param canvas calendarView's canvas.
 	 */
-	public void apply(View calendarView, Canvas canvas);
+	public void apply(CalendarView view, Canvas canvas);
 }

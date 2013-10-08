@@ -3,25 +3,21 @@ package me.jmhend.ui.calendar_viewer;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
 import android.content.Context;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 
 
-public class MonthPagerAdapter extends RecyclingPagerAdapter {
+public class MonthPagerAdapter extends CalendarAdapter {
 	
 	private static final String TAG = MonthPagerAdapter.class.getSimpleName();
 	
 ////====================================================================================
 //// Static constants.
 ////====================================================================================
-	
-	public static final String KEY_POSITION = "position";
 	
 ////====================================================================================
 //// Member variables.
@@ -86,9 +82,22 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter {
 		} else {
 			monthView = (MonthView) convertView;
 		}
-		updatePage(position, monthView);
+		updateView(position, monthView);
 		return monthView;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.view.PagerAdapter#getCount()
+	 */
+	@Override
+	public int getCount() {
+		return mCount;
+	}
+	
+////====================================================================================
+//// Positioning
+////====================================================================================
 	
 	/**
 	 * Updates the content of 'view' at position.
@@ -96,8 +105,10 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter {
 	 * @param view
 	 */
 	@SuppressWarnings("unchecked")
-	public void updatePage(int position, MonthView view) {
-		Map<String, Integer> params = (Map<String, Integer>) view.getTag();
+	@Override
+	public void updateView(int position, CalendarView view) {
+		MonthView monthView = (MonthView) view;
+		Map<String, Integer> params = (Map<String, Integer>) monthView.getTag();
 		if (params == null) {
 			params = new HashMap<String, Integer>();
 		}
@@ -106,7 +117,7 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter {
 		final int month = getMonthForPosition(position);
 		final int year = getYearForPosition(position);
 		final int selectedDay = isSelectedDayInMonth(year, month) ? mSelectedDay.dayOfMonth : -1;
-		params.put(KEY_POSITION, Integer.valueOf(position));
+		params.put(CalendarAdapter.KEY_POSITION, Integer.valueOf(position));
 		params.put(MonthView.KEY_MONTH, Integer.valueOf(month));
 		params.put(MonthView.KEY_YEAR, Integer.valueOf(year));
 		params.put(MonthView.KEY_SELECTED_DAY, Integer.valueOf(selectedDay));
@@ -119,24 +130,39 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter {
 		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
 			dec = mDecoratorsMap.get(Integer.valueOf(position));
 		} else {
-			dec = new HeatDecorator();
+			dec = new HeatDecorator(year, month);
 			mDecoratorsMap.put(Integer.valueOf(position), dec);
 		}
 		
-		view.reset();
-		view.clearDecorators();
-		view.addDecorator(dec);
-		view.setMonthParams(params);
-		view.invalidate();
+		monthView.reset();
+		monthView.clearDecorators();
+		monthView.addDecorator(dec);
+		monthView.setParams(params);
+		monthView.invalidate();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarAdapter#setSelectedDay(me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+	 */
+	@Override
+	public void setSelectedDay(CalendarDay day) {
+		mSelectedDay = day;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see android.support.v4.view.PagerAdapter#getCount()
+	 * @see me.jmhend.ui.calendar_viewer.CalendarAdapter#getPositionForDay(me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public int getCount() {
-		return mCount;
+	public int getPositionForDay(CalendarDay day) {
+		if (day.isBeforeDay(mStartDay) || day.isAfterDay(mEndDay)) {
+			return -1;
+		}
+		int monthDiff = day.month - mStartDay.month;
+		int yearDiff = day.year - mStartDay.year;
+		int position = yearDiff * 12 + monthDiff;
+		return position;
 	}
 	
 ////====================================================================================
@@ -174,30 +200,6 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter {
 	}
 	
 	/**
-	 * Sets which day to select.
-	 * @param day
-	 */
-	public void setSelectedDay(CalendarDay day) {
-		mSelectedDay = day;
-		notifyDataSetChanged();
-	}
-
-	/**
-	 * 
-	 * @param day
-	 * @return
-	 */
-	public int getPositionForDay(CalendarDay day) {
-		if (day.isBeforeDay(mStartDay) || day.isAfterDay(mEndDay)) {
-			return -1;
-		}
-		int monthDiff = day.month - mStartDay.month;
-		int yearDiff = day.year - mStartDay.year;
-		int position = yearDiff * 12 + monthDiff;
-		return position;
-	}
-	
-	/**
 	 * @param year
 	 * @param month
 	 * @return True if the currently selected day is the month.
@@ -205,9 +207,5 @@ public class MonthPagerAdapter extends RecyclingPagerAdapter {
 	private boolean isSelectedDayInMonth(int year, int month) {
 		return mSelectedDay.year == year && mSelectedDay.month == month;
 	}
-	
-////====================================================================================
-//// OnPageChangeListener
-////====================================================================================
 
 }

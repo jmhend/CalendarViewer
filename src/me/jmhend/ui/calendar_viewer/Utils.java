@@ -1,11 +1,8 @@
 package me.jmhend.ui.calendar_viewer;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
-import android.util.Log;
-
-import me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import me.jmhend.ui.calendar_viewer.WeekView.WeekRange;
 
 /**

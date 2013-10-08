@@ -1,11 +1,15 @@
 package me.jmhend.ui.calendar_viewer;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.view.View;
 
 /**
  * CalendarViewDecorator that adds heat colors to the CalendarViewer.
@@ -26,7 +30,8 @@ public class HeatDecorator implements CalendarViewerDecorator {
 	
 	private int mRadius;
 	private Paint mPaint;
-	private final int[] mDayColors = new int[MonthView.MAX_DAYS];
+	
+	private final Map<CalendarDay, Integer> mColorMap = Collections.synchronizedMap(new HashMap<CalendarDay, Integer>());
 	
 	int colors[] = {
 		0x00000000,
@@ -49,17 +54,19 @@ public class HeatDecorator implements CalendarViewerDecorator {
 	/**
 	 * Construct.
 	 */
-	public HeatDecorator() {
+	public HeatDecorator(int year, int month) {
 		mRadius = 48;
 		mPaint = new Paint();
 		mPaint.setAntiAlias(true);
 		mPaint.setStyle(Style.FILL);
 		
-		for (int i = 0; i < mDayColors.length; i++) {
+		for (int i = 0; i < 31; i++) {
 			Random r = new Random();
 			int c = r.nextInt(10000);
 			int color = colors[c % colors.length];
-			addHeat(i + 1, color);
+			
+			CalendarDay day = new CalendarDay(year, month, i + 1);
+			addHeat(day, color);
 		}
 	}
 	
@@ -80,12 +87,12 @@ public class HeatDecorator implements CalendarViewerDecorator {
 	 * @param day
 	 * @param color
 	 */
-	public void addHeat(int day, int color) {
-		mDayColors[day-1] = color;
+	public void addHeat(CalendarDay day, int color) {
+		mColorMap.put(day, Integer.valueOf(color));
 	}
 
 ////=================================================================================
-//// MonthView Decorator.
+//// CalendarView Decorator.
 ////=================================================================================
 	
 	/*
@@ -102,26 +109,22 @@ public class HeatDecorator implements CalendarViewerDecorator {
 	 * @see me.jmhend.ui.calendar_viewer.CalendarViewerDecorator#apply(android.view.View, android.graphics.Canvas)
 	 */
 	@Override
-	public void apply(View view, Canvas canvas) {
-		if (!(view instanceof MonthView)) {
-			return;
-		}
-		MonthView monthView = (MonthView) view;
-		for (int day = 1; day <= mDayColors.length; day++) {
-			if (mDayColors[day-1] == 0x00000000) {
+	public void apply(CalendarView view, Canvas canvas) {
+		for (Entry<CalendarDay, Integer> entry : mColorMap.entrySet()) {
+			CalendarDay day = entry.getKey();
+			int color = entry.getValue().intValue();
+			if (color == 0) {
 				continue;
 			}
-			if (!monthView.isDayActive(day)) {
-				continue;
+			
+			int x = view.getXForDay(day);
+			int y = view.getYForDay(day);
+			if (y <= 0 || x <= 0) {
+				return;
 			}
-			int x = monthView.getXPointForDay(day);
-			int y = monthView.getYPointForDay(day);
-			if (x == 0 && y == 0) {
-				continue;
-			}
-			mPaint.setColor(mDayColors[day-1]);
+			
+			mPaint.setColor(color);
 			canvas.drawCircle(x,  y - mRadius / 3, mRadius, mPaint);
 		}
 	}
-
 }
