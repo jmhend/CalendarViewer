@@ -6,11 +6,18 @@ import java.util.List;
 
 import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
-import android.app.Activity;
+import me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks;
+import me.jmhend.ui.calendar_viewer.CalendarViewer.Mode;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,7 +25,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
@@ -26,7 +32,7 @@ import android.widget.Toast;
  * @author jmhend
  *
  */
-public class MainActivity extends Activity implements OnDayClickListener {
+public class MainActivity extends FragmentActivity implements OnDayClickListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 	
@@ -34,10 +40,8 @@ public class MainActivity extends Activity implements OnDayClickListener {
 //// Member variables.
 ////==========================================================================================
 	
-	private MonthListView mListView;
-	private CalendarViewPager mPager;
-	
-	private CalendarViewPager mWeekPager;
+	private CalendarViewer mCalendarViewer;
+	private CalendarViewerCallbacks mCallback;
 	
 ////==========================================================================================
 //// Activity lifecycle.
@@ -53,27 +57,24 @@ public class MainActivity extends Activity implements OnDayClickListener {
 		setContentView(R.layout.activity_main);
 		initBehindCalendarList();
 		
-		// MonthListAdapter setup.
-		CalendarDay start = new CalendarDay(2013, Calendar.SEPTEMBER, 10);
-		CalendarDay end = new CalendarDay(2014, Calendar.SEPTEMBER, 15);
-		CalendarViewerConfig.Builder builder = CalendarViewerConfig.startBuilding()
-				.starts(start)
-				.ends(end);
+		addFragment();
+		setCallbacks();
 		
-		CalendarDay today = CalendarDay.currentDay();
+//		// MonthListAdapter setup.
+//		CalendarDay today = CalendarDay.currentDay();
 		
-		MonthPagerAdapter pagerAdapter = new MonthPagerAdapter(this, builder.build());
-		mPager = (CalendarViewPager) findViewById(R.id.pager);
-		mPager.setAdapter(pagerAdapter);
-		mPager.setOnDayClickListener(this);
-		mPager.setCurrentItem(pagerAdapter.getPositionForDay(today));
-		
-		WeekPagerAdapter weekAdapter = new WeekPagerAdapter(this, builder.build());
-		mWeekPager = (CalendarViewPager) findViewById(R.id.week_pager);
-		mWeekPager.setAdapter(weekAdapter);
-		mWeekPager.setOnDayClickListener(this);
-		mWeekPager.setCurrentDay(today);
-		
+//		MonthPagerAdapter pagerAdapter = new MonthPagerAdapter(this, builder.build());
+//		mMonthPager = (CalendarViewPager) findViewById(R.id.pager);
+//		mMonthPager.setAdapter(pagerAdapter);
+//		mMonthPager.setOnDayClickListener(this);
+//		mMonthPager.setCurrentItem(pagerAdapter.getPositionForDay(today));
+//		
+//		WeekPagerAdapter weekAdapter = new WeekPagerAdapter(this, builder.build());
+//		mWeekPager = (CalendarViewPager) findViewById(R.id.week_pager);
+//		mWeekPager.setAdapter(weekAdapter);
+//		mWeekPager.setOnDayClickListener(this);
+//		mWeekPager.setCurrentDay(today);
+//		
 //		
 //		// ListView setup.
 //		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
@@ -81,6 +82,56 @@ public class MainActivity extends Activity implements OnDayClickListener {
 //		mListView.setAdapter(monthAdapter);
 //		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
 
+	}
+	
+	private void addFragment() {
+		CalendarDay start = new CalendarDay(2013, Calendar.SEPTEMBER, 10);
+		CalendarDay end = new CalendarDay(2014, Calendar.SEPTEMBER, 15);
+		CalendarViewerConfig.Builder builder = CalendarViewerConfig.startBuilding()
+				.starts(start)
+				.ends(end)
+				.mode(Mode.MONTH);
+		
+		mCalendarViewer = CalendarViewer.newInstance(null);
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.replace(R.id.calendar_viewer_container, mCalendarViewer);
+		ft.commit();
+	}
+	
+////==========================================================================================
+//// Menu
+////==========================================================================================
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+	    return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    	case R.id.menu_closed:
+	    		mCalendarViewer.setMode(Mode.CLOSED);
+	    		return true;
+	        case R.id.menu_week:
+	        	mCalendarViewer.setMode(Mode.WEEK);
+	            return true;
+	        case R.id.menu_month:
+	        	mCalendarViewer.setMode(Mode.MONTH);
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 ////==========================================================================================
@@ -94,10 +145,6 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	@Override
 	public void onDayClick(CalendarView calendarView, CalendarDay day) {
 //		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
-		int x = calendarView.getXForDay(day);
-		int y = calendarView.getYForDay(day);
-		Log.i(TAG, day.toString() + ": " + x + ", " + y);
-		mWeekPager.setCurrentDay(CalendarDay.currentDay());
 	}
 
 	/*
@@ -106,18 +153,78 @@ public class MainActivity extends Activity implements OnDayClickListener {
 	 */
 	@Override
 	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
-		testShit(day);
-		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
+//		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
 	}
-	
-	private void testShit(CalendarDay day) {
-	}
-	
 	
 ////==========================================================================================
 //// BehindCalendarListAdapter
 ////==========================================================================================
 
+	private void setActionBarTitle(String title) {
+		getActionBar().setTitle("Monday, October 13");
+	}
+	
+	private void setActionBarSubtitle(String title) {
+		getActionBar().setSubtitle(title);
+	}
+	
+	private void setCallbacks() {
+		mCallback = new CalendarViewerCallbacks() {
+			/*
+			 * (non-Javadoc)
+			 * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
+			 * onVisibleDaysChanged(me.jmhend.ui.calendar_viewer.CalendarViewer)
+			 */
+			@Override
+			public void onVisibleDaysChanged(CalendarViewer viewer) {
+				setActionBarSubtitle(viewer.getTitle());
+			}
+			
+			/*
+			 * (non-Javadoc)
+			 * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
+			 * onDaySelected(me.jmhend.ui.calendar_viewer.CalendarView, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+			 */
+			@Override
+			public void onDaySelected(CalendarView view, CalendarDay day) {
+				setActionBarTitle(day.toString());
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
+			 * onDayLongPressed(me.jmhend.ui.calendar_viewer.CalendarView, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+			 */
+			@Override
+			public void onDayLongPressed(CalendarView view, CalendarDay day) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
+			 * onModeChanged(me.jmhend.ui.calendar_viewer.CalendarViewer, me.jmhend.ui.calendar_viewer.CalendarViewer.Mode)
+			 */
+			@Override
+			public void onModeChanged(CalendarViewer viewer, Mode newMode) {
+				setActionBarSubtitle(viewer.getTitle());
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
+			 * onResized(me.jmhend.ui.calendar_viewer.CalendarViewer, int, int, int)
+			 */
+			@Override
+			public void onResized(CalendarViewer viewer, int top, int width, int height) {
+				// TODO Auto-generated method stub
+			}
+
+		};
+		mCalendarViewer.setCallback(mCallback);
+	}
+	
 	/**
 	 * Sets up the ListView that sits behind the CalendarViewer.
 	 * Used for testing the alpha, etc. of the CalendarViewer.
@@ -139,6 +246,7 @@ public class MainActivity extends Activity implements OnDayClickListener {
 			 */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Log.i(TAG, "Title: " + mCalendarViewer.getTitle());
 			}
 		});
 	}

@@ -21,6 +21,25 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	private static final String TAG = CalendarViewPager.class.getSimpleName();
 	
 ////=====================================================================================
+//// OnPageSelectedListener
+////=====================================================================================
+	
+	/**
+	 * Callback interface for ViewPager page selections.
+	 * @author jmhend
+	 *
+	 */
+	public static interface OnPageSelectedListener {
+		
+		/**
+		 * Called when a ViewPager's page is a selected.
+		 * @param pager
+		 * @param position
+		 */
+		public void onPageSelected(ViewPager pager, int position);
+	}
+	
+////=====================================================================================
 //// Static constants.
 ////=====================================================================================
 	
@@ -33,6 +52,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	
 	private CalendarAdapter mAdapter;
 	private OnPageChangeListener mPageChangeListener;
+	private OnPageSelectedListener mPageSelectedListener;
 	private OnDayClickListener mDayClickListener;
 	
 ////=====================================================================================
@@ -87,8 +107,11 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected(int)
 			 */
 			@Override
-			public void onPageSelected(int position) { }
-			
+			public void onPageSelected(int position) {
+				if (mPageSelectedListener != null) {
+					mPageSelectedListener.onPageSelected(CalendarViewPager.this, position);
+				}
+			}
 		};
 		setOnPageChangeListener(mPageChangeListener);
 	}
@@ -96,6 +119,17 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 ////=============================================================================
 //// Getters/Setters
 ////=============================================================================
+	
+	/**
+	 * @return The title of the currently displayed CalendarView.
+	 */
+	public String getCurrentItemTitle() {
+		View view = getViewAtPosition(getCurrentItem());
+		if (view != null) {
+			return ((CalendarView) view).getTitle();
+		}
+		return "";
+	}
 	
 	/*
 	 * (non-Javadoc)
@@ -118,6 +152,13 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	 */
 	public void setOnDayClickListener(OnDayClickListener listener) {
 		mDayClickListener = listener;
+	}
+	
+	/**
+	 * @param listener
+	 */
+	public void setOnPageSelectedListener(OnPageSelectedListener listener) {
+		mPageSelectedListener = listener;
 	}
 	
 	/**

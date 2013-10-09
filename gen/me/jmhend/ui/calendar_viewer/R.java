@@ -36,18 +36,22 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
+        public static final int ic_notification_transluscent=0x7f020001;
     }
     public static final class id {
-        public static final int action_settings=0x7f090005;
         public static final int behind_list=0x7f090000;
-        public static final int month_list=0x7f090003;
-        public static final int pager=0x7f090001;
+        public static final int calendar_viewer_container=0x7f090001;
+        public static final int menu_closed=0x7f090005;
+        public static final int menu_month=0x7f090007;
+        public static final int menu_week=0x7f090006;
+        public static final int month_pager=0x7f090002;
         public static final int text=0x7f090004;
-        public static final int week_pager=0x7f090002;
+        public static final int week_pager=0x7f090003;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int listitem=0x7f030001;
+        public static final int calendar_viewer=0x7f030001;
+        public static final int listitem=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -84,5 +88,8 @@ public final class R {
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f070001;
+        public static final int BlueLight=0x7f070002;
+        public static final int BlueLightSubtext=0x7f070004;
+        public static final int BlueLightText=0x7f070003;
     }
 }

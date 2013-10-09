@@ -301,6 +301,13 @@ public abstract class CalendarView extends View {
 ////===================================================================================
 	
 	/**
+	 * @return The display title of this CalendarView.
+	 */
+	public String getTitle() {
+		return "";
+	}
+	
+	/**
 	 * Sets the color of the Month title and day labels.
 	 * @param color
 	 */

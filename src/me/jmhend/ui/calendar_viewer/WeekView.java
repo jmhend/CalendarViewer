@@ -221,9 +221,11 @@ public class WeekView extends CalendarView {
 		}
 	}
 	
-	/**
-	 * @return Title of this WeekView. The range of days this week covers.
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarView#getTitle()
 	 */
+	@Override
 	public String getTitle() {
 		long startTime = mCalendar.getTimeInMillis();
 		mCalendar.add(Calendar.DAY_OF_MONTH, 6);

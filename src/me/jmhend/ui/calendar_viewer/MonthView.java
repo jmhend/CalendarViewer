@@ -277,13 +277,15 @@ public class MonthView extends CalendarView {
 	protected void drawMonthTitle(Canvas canvas) {
 		final int x = (mWidth + 2 * mPadding) / 2;
 		final int y = (mMonthHeaderHeight - mDayOfWeekTextSize) / 2 + mMonthTitleTextSize / 3;
-		canvas.drawText(getMonthTitleString(), x, y, mMonthTitlePaint);
+		canvas.drawText(getTitle(), x, y, mMonthTitlePaint);
 	}
 	
-	/**
-	 * @return String to title the month.
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarView#getTitle()
 	 */
-	private String getMonthTitleString() {
+	@Override
+	public String getTitle() {
 		long time = mCalendar.getTimeInMillis();
 		mStringBuilder.delete(0, mStringBuilder.length());
 		return DateUtils.formatDateRange(getContext(), mFormatter, time, time, 52).toString();

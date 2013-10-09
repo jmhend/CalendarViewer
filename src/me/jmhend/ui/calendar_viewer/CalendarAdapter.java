@@ -4,6 +4,9 @@ import java.util.Calendar;
 
 import org.joda.time.DateTime;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Abstract class for providing Views for a collection of Calendar days.
  * @author jmhend
@@ -45,7 +48,7 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 	 * 
 	 * @author jmhend
 	 */
-	public static class CalendarDay {
+	public static class CalendarDay implements Parcelable {
 		int year;
 		int month;
 		int dayOfMonth;
@@ -100,6 +103,21 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 		public DateTime toDateTime() {
 			// JodaTime months are 1-12.
 			return new DateTime(year, month + 1, dayOfMonth, 0, 0);
+		}
+		
+		/**
+		 * @return A Calendar with the same time information as this CalendarDay.
+		 */
+		public Calendar toCalendar() {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.HOUR, 0);
+			cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+			cal.set(Calendar.MONTH, month);
+			cal.set(Calendar.YEAR, year);
+			return cal;
 		}
 		
 		/**
@@ -225,5 +243,47 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 		public String toString() {
 			return (month + 1) + "/" + dayOfMonth + "/" + year;
 		}
+		
+		/**
+		 * Parcel constructor.
+		 * @param in
+		 */
+		public CalendarDay(Parcel in) {
+			year = in.readInt();
+			month = in.readInt();
+			dayOfMonth = in.readInt();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.Parcelable#describeContents()
+		 */
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.Parcelable#writeToParcel(android.os.Parcel, int)
+		 */
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeInt(year);
+			dest.writeInt(month);
+			dest.writeInt(dayOfMonth);
+		}
+		
+		public static final Parcelable.Creator<CalendarDay> CREATOR = new Parcelable.Creator<CalendarDay>() {
+			@Override
+			public CalendarDay createFromParcel(Parcel source) {
+				return new CalendarDay(source);
+			}
+
+			@Override
+			public CalendarDay[] newArray(int size) {
+				return new CalendarDay[size];
+			}		
+		};
 	}
 }

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -14,7 +14,22 @@
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:actionBarStyle">@style/BlueLight</item>
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+    
+    <style name="BlueLight" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">#FF008DD0</item>
+        <item name="android:titleTextStyle">@style/BlueLightText</item>
+        <item name="android:subtitleTextStyle">@style/BlueLightSubtext</item>
+    </style>
+    
+    <style name="BlueLightText" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+    	<item name="android:textColor">#FFFFFFFF</item>
+    </style>  
+    
+    <style name="BlueLightSubtext" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
+    	<item name="android:textColor">#FF7fcde9</item>
+    </style>  
 
 </resources>

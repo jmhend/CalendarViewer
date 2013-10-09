@@ -1,6 +1,5 @@
 package me.jmhend.ui.calendar_viewer;
 
-import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -12,7 +11,7 @@ import android.widget.ListView;
  * ListView that contains MonthView row cells.
  * @author jmhend
  */
-public class MonthListView extends ListView implements CalendarDisplayer, AbsListView.OnScrollListener {
+public class MonthListView extends ListView implements AbsListView.OnScrollListener {
 	
 	private static final String TAG = MonthListView.class.getSimpleName();
 	
@@ -89,22 +88,6 @@ public class MonthListView extends ListView implements CalendarDisplayer, AbsLis
 		}
 		mMonthAdapter = (MonthListAdapter) adapter;
 		super.setAdapter(adapter);
-	}
-	
-////====================================================================================
-//// CalendarController
-////====================================================================================
-	
-	/*
-	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.CalendarController#displayDay(me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
-	 */
-	@Override
-	public void displayDay(CalendarDay day) {
-		int position = mMonthAdapter.getPositionForDay(day);
-		if (position != -1) {
-			postSetSelection(position);
-		}
 	}
 	
 ////====================================================================================
