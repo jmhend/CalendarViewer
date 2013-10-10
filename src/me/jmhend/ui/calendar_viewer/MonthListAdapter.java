@@ -46,7 +46,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @param context
 	 * @param controller
 	 */
-	public MonthListAdapter(Context context, CalendarViewerConfig config, OnDayClickListener listener) {
+	public MonthListAdapter(Context context, CalendarControllerConfig config, OnDayClickListener listener) {
 		mContext = context;
 		mExternalListener = listener;
 		mCurrentDay = CalendarDay.currentDay();
@@ -61,7 +61,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	/**
 	 * Initialize.
 	 */
-	private void init(CalendarViewerConfig config) {
+	private void init(CalendarControllerConfig config) {
 		mFirstDayOfWeek = config.getFirstDayOfWeek();
 		mStartDay = config.getStartDay();
 		mEndDay = config.getEndDay();

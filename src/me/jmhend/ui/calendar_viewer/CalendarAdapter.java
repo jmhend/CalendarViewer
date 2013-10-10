@@ -16,6 +16,12 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 	public static final String KEY_POSITION = "position";
 	
 ////=====================================================================================
+//// Member variables.
+////=====================================================================================
+	
+	private CalendarViewPager mViewPager;
+	
+////=====================================================================================
 //// Abstract
 ////=====================================================================================
 	
@@ -38,6 +44,33 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 	 * @param day
 	 */
 	public abstract void setSelectedDay(CalendarDay day);
+	
+////=====================================================================================
+//// ViewPager
+////=====================================================================================
+	
+	/**
+	 * @return
+	 */
+	protected CalendarViewPager getViewPager() {
+		return mViewPager;
+	}
+	
+	/**
+	 * @param pager
+	 */
+	public void setViewPager(CalendarViewPager pager) {
+		mViewPager = pager;
+	}
+	
+	/**
+	 * Updates the content of the ViewPager.
+	 */
+	protected void updateViewPager() {
+		if (mViewPager != null) {
+			mViewPager.updateVisiblePages();
+		}
+	}
 	
 ////=====================================================================================
 //// CalendarDay

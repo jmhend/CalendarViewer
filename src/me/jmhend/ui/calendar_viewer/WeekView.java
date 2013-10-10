@@ -148,10 +148,10 @@ public class WeekView extends CalendarView {
 	 * @see android.view.View#onDraw(android.graphics.Canvas)
 	 */
 	@Override
-	public void onDraw(Canvas canvas) {
+	protected void onDraw(Canvas canvas) {
 		calculateDayPoints();
 		applyDecorators(canvas, ApplyLevel.BELOW);
-		drawTitle(canvas);
+//		drawTitle(canvas);
 		drawDayOfWeekLabels(canvas);
 		drawDates(canvas);
 		applyDecorators(canvas, ApplyLevel.TOP);
@@ -164,7 +164,7 @@ public class WeekView extends CalendarView {
 	@Override
 	protected void onMeasure(int widthMeaureSpec, int heightMeasureSpec) {
 		final int width = MeasureSpec.getSize(widthMeaureSpec);
-		final int height = mRowHeight + mMonthHeaderHeight + mBottomPadding;
+		final int height = mRowHeight + mBottomPadding;
 		setMeasuredDimension(width, height);
 	}
 	
@@ -261,9 +261,9 @@ public class WeekView extends CalendarView {
 			return null;
 		}
 		
-		if (y < mMonthHeaderHeight) {
-			return null;
-		}
+//		if (y < mMonthHeaderHeight) {
+//			return null;
+//		}
 		
 		int position = ((int) ((x - padding) * mDaysPerWeek / (this.mWidth - padding - this.mPadding)));
 		
@@ -286,7 +286,7 @@ public class WeekView extends CalendarView {
 	protected void calculateDayPoints() {
 		clearDayArrays();
 		int paddingDay = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
-		mDayY = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH + mMonthHeaderHeight;
+		mDayY = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH;
 		
 		for (int i = 0; i < mDayXs.length; i++) {
 			int x = paddingDay * (1 + 2 * i) + mPadding;

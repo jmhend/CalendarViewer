@@ -144,6 +144,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 						+ adapter.getClass().getCanonicalName());
 		}
 		mAdapter = (CalendarAdapter) adapter;
+		mAdapter.setViewPager(this);
 		super.setAdapter(adapter);
 	}
 	
@@ -266,7 +267,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	}
 	
 ////=============================================================================
-////Fanciness.
+//// Fanciness.
 ////=============================================================================
 	
 	/**
@@ -316,7 +317,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 				return;
 			}
 			mAdapter.setSelectedDay(day);
-			updateVisiblePages();
 			if (mDayClickListener != null) {
 				mDayClickListener.onDayClick(calendarView, day);
 			}

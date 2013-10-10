@@ -4,13 +4,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
+import me.jmhend.ui.calendar_viewer.CalendarController.OnCalendarControllerChangeListener;
 import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
 
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -20,7 +21,7 @@ import android.widget.AbsListView;
  * PagerAdapter for supplying a ViewPager with WeekViews.
  * @author jmhend
  */
-public class WeekPagerAdapter extends CalendarAdapter {
+public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarControllerChangeListener {
 	
 	private static final String TAG = WeekPagerAdapter.class.getSimpleName();
 	
@@ -33,13 +34,9 @@ public class WeekPagerAdapter extends CalendarAdapter {
 ////======================================================================================
 	
 	private final Context mContext;
-	private int mFirstDayOfWeek;
 	private final Calendar mCalendar;
-	private CalendarDay mStartDay;
-	private CalendarDay mEndDay;
+	private final CalendarController mController;
 	private CalendarDay mFirstVisibleDay;
-	private CalendarDay mSelectedDay;
-	private final CalendarDay mCurrentDay;
 	private int mCount;
 	
 	private Map<Integer, HeatDecorator> mDecoratorsMap = new HashMap<Integer, HeatDecorator>();
@@ -53,32 +50,30 @@ public class WeekPagerAdapter extends CalendarAdapter {
 	 * @param context
 	 * @param controller
 	 */
-	public WeekPagerAdapter(Context context, CalendarViewerConfig config) {
-		mContext = context;
-		mCurrentDay = CalendarDay.currentDay();
+	public WeekPagerAdapter(Context context, CalendarController controller) {
+		mContext = context.getApplicationContext();
+		mController = controller;
+		mController.registerListener(this);
 		mCalendar = Calendar.getInstance();
 		mCalendar.set(Calendar.MILLISECOND, 0);
 		mCalendar.set(Calendar.SECOND, 0);
 		mCalendar.set(Calendar.MINUTE, 0);
 		mCalendar.set(Calendar.HOUR, 0);
-		init(config);
+		updateFromController(controller);
 		calculateCount();
 	}
 	
 ////======================================================================================
 //// Init.
 ////======================================================================================
-	
+
 	/**
-	 * Initialize.
+	 * Updates the cached time fields from the ConfigProvider.
+	 * @param cp
 	 */
-	private void init(CalendarViewerConfig config) {
-		mFirstDayOfWeek = config.getFirstDayOfWeek();
-		mStartDay = config.getStartDay();
-		mEndDay = config.getEndDay();
-		mSelectedDay = config.getSelectedDay();
-		mCalendar.setFirstDayOfWeek(mFirstDayOfWeek);
-		mFirstVisibleDay = Utils.getWeekRangeForDay(mCalendar, mStartDay).weekStart;
+	private void updateFromController(CalendarController controller) {
+		mCalendar.setFirstDayOfWeek(controller.getFirstDayOfWeek());
+		mFirstVisibleDay = Utils.getWeekRangeForDay(mCalendar, controller.getStartDay()).weekStart;
 	}
 	
 ////====================================================================================
@@ -102,19 +97,19 @@ public class WeekPagerAdapter extends CalendarAdapter {
 		CalendarDay startDay = getWeekStartForPosition(position);
 		CalendarDay endDay = getWeekEndForPosition(position);
 		params.put(CalendarAdapter.KEY_POSITION, Integer.valueOf(position));
-		params.put(WeekView.KEY_WEEK_START, Integer.valueOf(mFirstDayOfWeek));
+		params.put(WeekView.KEY_WEEK_START, Integer.valueOf(mController.getFirstDayOfWeek()));
 		params.put(WeekView.KEY_START_YEAR, Integer.valueOf(startDay.year));
 		params.put(WeekView.KEY_START_MONTH, Integer.valueOf(startDay.month));
 		params.put(WeekView.KEY_START_DAY_OF_MONTH, Integer.valueOf(startDay.dayOfMonth));
 		params.put(WeekView.KEY_END_YEAR, Integer.valueOf(endDay.year));
 		params.put(WeekView.KEY_END_MONTH, Integer.valueOf(endDay.month));
 		params.put(WeekView.KEY_END_DAY_OF_MONTH, Integer.valueOf(endDay.dayOfMonth));
-		params.put(WeekView.KEY_SELECTED_YEAR, Integer.valueOf(mSelectedDay.year));
-		params.put(WeekView.KEY_SELECTED_MONTH, Integer.valueOf(mSelectedDay.month));
-		params.put(WeekView.KEY_SELECTED_DAY_OF_MONTH, Integer.valueOf(mSelectedDay.dayOfMonth));
-		params.put(WeekView.KEY_CURRENT_YEAR, Integer.valueOf(mCurrentDay.year));
-		params.put(WeekView.KEY_CURRENT_MONTH, Integer.valueOf(mCurrentDay.month));
-		params.put(WeekView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mCurrentDay.dayOfMonth));
+		params.put(WeekView.KEY_SELECTED_YEAR, Integer.valueOf(mController.getSelectedDay().year));
+		params.put(WeekView.KEY_SELECTED_MONTH, Integer.valueOf(mController.getSelectedDay().month));
+		params.put(WeekView.KEY_SELECTED_DAY_OF_MONTH, Integer.valueOf(mController.getSelectedDay().dayOfMonth));
+		params.put(WeekView.KEY_CURRENT_YEAR, Integer.valueOf(mController.getCurrentDay().year));
+		params.put(WeekView.KEY_CURRENT_MONTH, Integer.valueOf(mController.getCurrentDay().month));
+		params.put(WeekView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mController.getCurrentDay().dayOfMonth));
 
 		HeatDecorator dec;
 		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
@@ -125,8 +120,8 @@ public class WeekPagerAdapter extends CalendarAdapter {
 		}
 		
 		weekView.reset();
-		weekView.clearDecorators();
-		weekView.addDecorator(dec);
+//		weekView.clearDecorators();
+//		weekView.addDecorator(dec);
 		weekView.setParams(params);
 		weekView.invalidate();
 	}
@@ -137,7 +132,7 @@ public class WeekPagerAdapter extends CalendarAdapter {
 	 */
 	@Override
 	public int getPositionForDay(CalendarDay day) {
-		if (day.isBeforeDay(mStartDay) || day.isAfterDay(mEndDay)) {
+		if (day.isBeforeDay(mController.getStartDay()) || day.isAfterDay(mController.getEndDay())) {
 			return -1;
 		}
 		DateTime dtStart = mFirstVisibleDay.toDateTime();
@@ -151,7 +146,8 @@ public class WeekPagerAdapter extends CalendarAdapter {
 	 */
 	@Override
 	public void setSelectedDay(CalendarDay day) {
-		mSelectedDay = day;
+		mController.setSelectedDay(day);
+		updateViewPager();
 	}
 	
 ////====================================================================================
@@ -162,8 +158,8 @@ public class WeekPagerAdapter extends CalendarAdapter {
 	 * Calculates how many months the list will contain.
 	 */
 	private void calculateCount() {
-		DateTime dtStart = mStartDay.toDateTime();
-		DateTime dtEnd = mEndDay.toDateTime();
+		DateTime dtStart = mController.getStartDay().toDateTime();
+		DateTime dtEnd = mController.getEndDay().toDateTime();
 		int numWeeks = Weeks.weeksBetween(dtStart, dtEnd).getWeeks();
 		mCount = numWeeks + 1;
 	}
@@ -227,5 +223,30 @@ public class WeekPagerAdapter extends CalendarAdapter {
 	@Override
 	public int getCount() {
 		return mCount;
+	}
+	
+////======================================================================================
+//// OnCalendarControllerChangeListener
+////======================================================================================
+
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarController.OnCalendarControllerChangeListener#onChange(me.jmhend.ui.calendar_viewer.CalendarController, java.lang.Object, java.lang.String)
+	 */
+	@Override
+	public void onChange(CalendarController controller, Object obj, String tag) {
+		if (CalendarController.FIRST_DAY_OF_WEEK.equals(tag)
+				|| CalendarController.START_DAY.equals(tag)
+				|| CalendarController.END_DAY.equals(tag)) {
+			calculateCount();
+			updateFromController(controller);
+		}
+		if (CalendarController.SELECTED_DAY.equals(tag)) {
+			CalendarDay selectedDay = (CalendarDay) obj;
+			if (selectedDay != null) {
+				getViewPager().setCurrentDay(selectedDay);
+			}
+		}
+		updateViewPager();
 	}
 }

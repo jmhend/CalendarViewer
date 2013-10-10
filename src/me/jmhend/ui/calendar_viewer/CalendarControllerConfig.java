@@ -12,9 +12,9 @@ import android.os.Parcelable;
  * 
  * @author jmhend
  */
-public class CalendarViewerConfig implements Parcelable {
+public class CalendarControllerConfig implements Parcelable {
 	
-	private static final String TAG = CalendarViewerConfig.class.getSimpleName();
+	private static final String TAG = CalendarControllerConfig.class.getSimpleName();
 	
 ////===========================================================================================
 //// Static constants.
@@ -39,24 +39,24 @@ public class CalendarViewerConfig implements Parcelable {
 	/**
 	 * @return A Builder to build a CalendarViewerConfig.
 	 */
-	public static CalendarViewerConfig.Builder startBuilding() {
-		return new CalendarViewerConfig.Builder();
+	public static CalendarControllerConfig.Builder startBuilding() {
+		return new CalendarControllerConfig.Builder();
 	}
 	
 	/**
 	 * @return The default configuration for a CalendarViewer.
 	 */
-	public static CalendarViewerConfig getDefault() {
+	public static CalendarControllerConfig getDefault() {
 		CalendarDay startDay = CalendarDay.currentDay();
 		Calendar cal = startDay.toCalendar();
 		cal.add(Calendar.YEAR, 1);
 		CalendarDay endDay = CalendarDay.fromCalendar(cal);
-		return new CalendarViewerConfig.Builder().starts(startDay).ends(endDay).build();
+		return new CalendarControllerConfig.Builder().starts(startDay).ends(endDay).build();
 	}
 
 	/**
 	 */
-	public CalendarViewerConfig(CalendarDay startDay, CalendarDay endDay, CalendarDay selectedDay, int firstDayOfWeek, Mode mode) {
+	public CalendarControllerConfig(CalendarDay startDay, CalendarDay endDay, CalendarDay selectedDay, int firstDayOfWeek, Mode mode) {
 		mFirstDayOfWeek = firstDayOfWeek;
 		mStartDay = startDay;
 		mEndDay = endDay;
@@ -147,11 +147,11 @@ public class CalendarViewerConfig implements Parcelable {
 			return this;
 		}
 		
-		public CalendarViewerConfig build() {
+		public CalendarControllerConfig build() {
 			if (mStartDay == null || mEndDay == null) {
 				throw new IllegalStateException("Start Day and End Day must be set!");
 			}
-			return new CalendarViewerConfig(mStartDay, mEndDay, mSelectedDay, mFirstDayOfWeek, mMode);
+			return new CalendarControllerConfig(mStartDay, mEndDay, mSelectedDay, mFirstDayOfWeek, mMode);
 		}
 	}
 	
@@ -185,7 +185,7 @@ public class CalendarViewerConfig implements Parcelable {
 	 * Parcel constructor.
 	 * @param in
 	 */
-	public CalendarViewerConfig(Parcel in) {
+	public CalendarControllerConfig(Parcel in) {
 		mFirstDayOfWeek = in.readInt();
 		mStartDay = in.readParcelable(CalendarDay.class.getClassLoader());
 		mEndDay = in.readParcelable(CalendarDay.class.getClassLoader());
@@ -193,14 +193,14 @@ public class CalendarViewerConfig implements Parcelable {
 		mMode = Mode.ofValue(in.readInt());
 	}
 	
-	public static final Parcelable.Creator<CalendarViewerConfig> CREATOR = new Parcelable.Creator<CalendarViewerConfig>() {
+	public static final Parcelable.Creator<CalendarControllerConfig> CREATOR = new Parcelable.Creator<CalendarControllerConfig>() {
 		@Override
-		public CalendarViewerConfig createFromParcel(Parcel source) {
-			return new CalendarViewerConfig(source);
+		public CalendarControllerConfig createFromParcel(Parcel source) {
+			return new CalendarControllerConfig(source);
 		}
 		@Override
-		public CalendarViewerConfig[] newArray(int size) {
-			return new CalendarViewerConfig[size];
+		public CalendarControllerConfig[] newArray(int size) {
+			return new CalendarControllerConfig[size];
 		}		
 	};
 }

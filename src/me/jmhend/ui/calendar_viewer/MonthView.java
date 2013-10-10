@@ -9,9 +9,11 @@ import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import me.jmhend.ui.calendar_viewer.CalendarViewerDecorator.ApplyLevel;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 /**
  * View that displays a month of days.
@@ -35,6 +37,9 @@ public class MonthView extends CalendarView {
 ////==================================================================================================
 //// Member variables.
 ////==================================================================================================
+	
+	// Dimen
+	protected int mMaxHeight;
 	
 	// Time
 	protected int mMonth;
@@ -109,7 +114,7 @@ public class MonthView extends CalendarView {
 	protected void onDraw(Canvas canvas) {
 		calculateDayPoints();
 		applyDecorators(canvas, ApplyLevel.BELOW);
-		drawMonthTitle(canvas);
+//		drawMonthTitle(canvas);
 		drawDayOfWeekLabels(canvas);
 		drawDates(canvas);
 		applyDecorators(canvas, ApplyLevel.TOP);
@@ -122,7 +127,7 @@ public class MonthView extends CalendarView {
 	@Override
 	protected void onMeasure(int widthMeaureSpec, int heightMeasureSpec) {
 		final int width = MeasureSpec.getSize(widthMeaureSpec);
-		final int height = mRowHeight * mNumRows + mMonthHeaderHeight + mBottomPadding;
+		final int height = mRowHeight * mNumRows + mBottomPadding;
 		setMeasuredDimension(width, height);
 	}
 	
@@ -171,11 +176,32 @@ public class MonthView extends CalendarView {
 ////==================================================================================================
 
 	/**
+	 * @return
+	 */
+	public int getMaxHeight() {
+		return mMaxHeight;
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getRowHeight() {
+		return mRowHeight;
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getDayTextSize() {
+		return mDayTextSize;
+	}
+	
+	/**
 	 * Calculates the (x,y) coordinates of each day in the month.
 	 */
 	protected void calculateDayPoints() {
 		clearDayArrays();
-		int y = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH + mMonthHeaderHeight;
+		int y = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH;
 		int paddingDay = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
 		int dayOffset = findDayOffset();
 		int day = 1;
@@ -302,9 +328,9 @@ public class MonthView extends CalendarView {
 			return null;
 		}
 		
-		if (y < mMonthHeaderHeight) {
-			return null;
-		}
+//		if (y < mMonthHeaderHeight) {
+//			return null;
+//		}
 		
 		int yDay = (int) (y - mMonthHeaderHeight) / mRowHeight;
 		int day = 1 + ((int) ((x - padding) * this.mDaysPerWeek / (this.mWidth - padding - this.mPadding)) - findDayOffset()) + yDay * this.mDaysPerWeek;
@@ -368,6 +394,8 @@ public class MonthView extends CalendarView {
 		}
 		mNumCells = Utils.getDaysInMonth(mMonth, mYear);
 		mNumRows = calculateNumRows();
+		
+		mMaxHeight = mRowHeight * mNumRows + mBottomPadding;
 	}
 	
 ////==================================================================================================

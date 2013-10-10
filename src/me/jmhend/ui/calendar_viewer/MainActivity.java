@@ -9,11 +9,9 @@ import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
 import me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks;
 import me.jmhend.ui.calendar_viewer.CalendarViewer.Mode;
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +40,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	
 	private CalendarViewer mCalendarViewer;
 	private CalendarViewerCallbacks mCallback;
+	private ListView mBehindList;
 	
 ////==========================================================================================
 //// Activity lifecycle.
@@ -86,13 +85,13 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	
 	private void addFragment() {
 		CalendarDay start = new CalendarDay(2013, Calendar.SEPTEMBER, 10);
-		CalendarDay end = new CalendarDay(2014, Calendar.SEPTEMBER, 15);
-		CalendarViewerConfig.Builder builder = CalendarViewerConfig.startBuilding()
+		CalendarDay end = new CalendarDay(2014, Calendar.OCTOBER, 31);
+		CalendarControllerConfig.Builder builder = CalendarControllerConfig.startBuilding()
 				.starts(start)
 				.ends(end)
-				.mode(Mode.MONTH);
+				.mode(Mode.WEEK);
 		
-		mCalendarViewer = CalendarViewer.newInstance(null);
+		mCalendarViewer = CalendarViewer.newInstance(builder.build());
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.calendar_viewer_container, mCalendarViewer);
 		ft.commit();
@@ -161,7 +160,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 ////==========================================================================================
 
 	private void setActionBarTitle(String title) {
-		getActionBar().setTitle("Monday, October 13");
+		getActionBar().setTitle(title);
 	}
 	
 	private void setActionBarSubtitle(String title) {
@@ -187,7 +186,8 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onDaySelected(CalendarView view, CalendarDay day) {
-				setActionBarTitle(day.toString());
+				String title = CalendarView.MONTHS[day.month] + " " + day.dayOfMonth + ", " + day.year;
+				setActionBarTitle(title);
 			}
 
 			/*
@@ -218,12 +218,14 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onResized(CalendarViewer viewer, int top, int width, int height) {
-				// TODO Auto-generated method stub
+				mBehindList.setPadding(0, top + height, 0, 0);
 			}
 
 		};
 		mCalendarViewer.setCallback(mCallback);
 	}
+	
+	int lol = 1000;
 	
 	/**
 	 * Sets up the ListView that sits behind the CalendarViewer.
@@ -235,21 +237,24 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			strings.add("Marketing Team Meeting");
 		}
 		
-		ListView listView = (ListView) findViewById(R.id.behind_list);
-		listView.setClipToPadding(false);
-		listView.setPadding(0, 92 * 3, 0, 0);
-		listView.setAdapter(new BehindCalendarListAdapter(this, strings));
-		listView.setOnItemClickListener(new OnItemClickListener() {
+		mBehindList = (ListView) findViewById(R.id.behind_list);
+		mBehindList.setClipToPadding(false);
+		mBehindList.setPadding(0, 92 * 3, 0, 0);
+		mBehindList.setAdapter(new BehindCalendarListAdapter(this, strings));
+		mBehindList.setOnItemClickListener(new OnItemClickListener() {
 			/*
 			 * (non-Javadoc)
 			 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
 			 */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Log.i(TAG, "Title: " + mCalendarViewer.getTitle());
+				mCalendarViewer.changeHeight(p -= 0.05f);
 			}
 		});
 	}
+	
+	private float p = 1f;
+	
 	/**
 	 * Adapter for ListView that sits behind the CalendarViewer.
 	 * @author jmhend

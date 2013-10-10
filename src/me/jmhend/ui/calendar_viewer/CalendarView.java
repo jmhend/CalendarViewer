@@ -37,7 +37,7 @@ public abstract class CalendarView extends View {
 	public static final String KEY_CURRENT_YEAR = "current_year";
 	public static final String KEY_CURRENT_DAY_OF_MONTH = "current_day_of_month";
 	
-	protected static final int DAY_SEPARATOR_WIDTH = 1;
+	public static final int DAY_SEPARATOR_WIDTH = 1;
 	protected static final int MIN_HEIGHT = 10;
 	protected static final int DEFAULT_FIRST_WEEKDAY = Calendar.SUNDAY;
 	protected static final int DEFAULT_DAYS_PER_WEEK = 7;
@@ -164,6 +164,7 @@ public abstract class CalendarView extends View {
 	protected int mDaysPerWeek = DEFAULT_DAYS_PER_WEEK;
 	protected int mNumRows = DEFAULT_NUM_ROWS;
 	protected int mNumCells;
+	protected boolean mDrawDayOfWeekLabels;
 	
 	// TouchEvents
 	protected float mLastTouchX;
@@ -236,6 +237,7 @@ public abstract class CalendarView extends View {
 		mSelectedCircleStrokeWidth = r.getDimensionPixelSize(R.dimen.selected_circle_stroke_width);
 		mBottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
 		mRowHeight = (r.getDimensionPixelOffset(R.dimen.monthview_height) - mMonthHeaderHeight) / 6;
+		mDrawDayOfWeekLabels = r.getBoolean(R.bool.draw_day_labels);
 	}
 
 	/**
@@ -327,7 +329,10 @@ public abstract class CalendarView extends View {
 	 * @param canvas
 	 */
 	protected void drawDayOfWeekLabels(Canvas canvas) {
-		final int y = mMonthHeaderHeight - mDayOfWeekTextSize / 2;
+		if (!mDrawDayOfWeekLabels) {
+			return;
+		}
+		final int y = mMonthHeaderHeight / 2 + mDayOfWeekTextSize / 2 ;
 		final int spacing = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
 		for (int day = 0; day < mDaysPerWeek; day++) {
 			int dayOfWeek = (day + mWeekStart) % mDaysPerWeek;
