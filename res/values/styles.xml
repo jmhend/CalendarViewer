@@ -29,7 +29,8 @@
     </style>  
     
     <style name="BlueLightSubtext" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
-    	<item name="android:textColor">#FF7fcde9</item>
+    	<item name="android:textColor">#FFFFFFFF</item>
+    	<!-- #FF7fcde9 -->
     </style>  
 
 </resources>

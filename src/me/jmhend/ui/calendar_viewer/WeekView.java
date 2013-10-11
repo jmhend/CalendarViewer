@@ -151,7 +151,6 @@ public class WeekView extends CalendarView {
 	protected void onDraw(Canvas canvas) {
 		calculateDayPoints();
 		applyDecorators(canvas, ApplyLevel.BELOW);
-//		drawTitle(canvas);
 		drawDayOfWeekLabels(canvas);
 		drawDates(canvas);
 		applyDecorators(canvas, ApplyLevel.TOP);

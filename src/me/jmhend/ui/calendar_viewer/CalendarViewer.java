@@ -4,17 +4,17 @@ import me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay;
 import me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener;
 import me.jmhend.ui.calendar_viewer.CalendarViewPager.OnPageSelectedListener;
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 
 /**
@@ -57,7 +57,8 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 	public static enum Mode {
 		CLOSED(0),
 		WEEK(1),
-		MONTH(2);
+		MONTH(2),
+		TRANSITION(3);
 		
 		private int mNum;
 		
@@ -74,6 +75,7 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 			case 0: return CLOSED;
 			case 1: return WEEK;
 			case 2: return MONTH;
+			case 3: return TRANSITION;
 			default: return CLOSED;
 			}
 		}
@@ -99,6 +101,10 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 	private Mode mMode;
 	
 	private CalendarController mController;
+	
+	private int mHeight;
+	private int mMaxHeight;
+	private int mWeekBottom;
 	
 ////====================================================================================
 //// Constructor/Instantiation
@@ -150,7 +156,6 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 		
 		CalendarControllerConfig config = getArguments().getParcelable(EXTRA_CONFIG);
 		mController = new CalendarController(config);
-		mMode = config.getMode();
 	}
 	
 	/*
@@ -175,36 +180,222 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 		mMonthPager.setOnDayClickListener(this);
 		mMonthPager.setCurrentDay(mController.getCurrentDay());
 		
-		transitionMode(null, mMode);
+		initDimens();
+		
+		CalendarControllerConfig config = getArguments().getParcelable(EXTRA_CONFIG);
+		setMode(layout, config.getMode());
 		
 		return layout;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onResume()
+	/**
+	 * Initialize CalendarViewer dimensions.
 	 */
-	@Override
-	public void onResume() {
-		super.onResume();
+	private void initDimens() {
+		Resources r = getActivity().getResources();
+		int monthMaxHeight = r.getDimensionPixelOffset(R.dimen.monthview_height);
+		int bottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
+		int dayLabelsHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
+		
+		mMaxHeight = monthMaxHeight + bottomPadding;
+		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight;
+		mHeight = mMaxHeight;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onPause()
+	/**
+	 * Transitions the CalendarViewer to the Mode.
 	 */
-	@Override
-	public void onPause() {
-		super.onPause();
+	public void transitionMode(Mode mode) {
+		transitionMode(mode, true);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onDestroy()
+	/**
+	 * Transitions the CalendarViewer to the Mode, with the possibility
+	 * of smoothly doing so.
+	 * @param from
+	 * @param to
+	 * @param smooth
 	 */
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
+	public void transitionMode(final Mode mode, boolean smooth) {
+		if (mMode == mode) {
+			return;
+		}
+		mWeekPager.setCurrentDay(mController.getSelectedDay());
+		mMonthPager.setCurrentDay(mController.getSelectedDay());
+		
+		if (!smooth) {
+			setMode(mode);
+			return;
+		}
+		
+		final int startHeight = mHeight;
+		final int targetHeight = getHeightForMode(mode);
+		
+		Animation animation = new Animation() {
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.animation.Animation#applyTransformation(float, android.view.animation.Transformation)
+			 */
+			@Override
+			public void applyTransformation(float interpolatedTime, Transformation t) {
+				int height = ((int) (interpolatedTime * (targetHeight - startHeight))) + startHeight;
+				setHeight(getView(), height);
+			}
+		};
+		animation.setAnimationListener(new AnimationListener() {
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.animation.Animation.AnimationListener#onAnimationStart(android.view.animation.Animation)
+			 */
+			@Override
+			public void onAnimationStart(Animation animation) {
+				getView().setEnabled(false);
+				setMode(Mode.TRANSITION);
+			}
+			
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.animation.Animation.AnimationListener#onAnimationEnd(android.view.animation.Animation)
+			 */
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				getView().setEnabled(true);
+				setMode(mode);
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.animation.Animation.AnimationListener#onAnimationRepeat(android.view.animation.Animation)
+			 */
+			@Override
+			public void onAnimationRepeat(Animation animation) { }
+			
+		});
+		animation.setDuration(200L);
+		animation.setInterpolator(new DecelerateInterpolator());
+		getView().startAnimation(animation);
+	}
+	
+	/**
+	 * Sets the height of the CalendarView from a percentage of the maximum height.
+	 * @param percent
+	 */
+	public void setHeightPercent(float percent) {
+		setHeight(getView(), (int) (percent * mMaxHeight));
+	}
+	
+	/**
+	 * Sets the height of the CalendarView.
+	 * @param height
+	 */
+	public void setHeight(View view, int height) {
+		mHeight = height;
+		
+		LayoutParams p = view.getLayoutParams();
+		p.height = mHeight;
+		view.setLayoutParams(p);
+		
+		onHeightChanged(view, mHeight);
+	}
+	
+	/**
+	 * @param mode
+	 * @return The height for the Mode.
+	 */
+	public int getHeightForMode(Mode mode) {
+		int targetHeight = mHeight;
+		if (mode == Mode.CLOSED) {
+			targetHeight = 1;
+		} else if (mode == Mode.WEEK) {
+			targetHeight = mWeekBottom;
+		} else if (mode == Mode.MONTH) {
+			targetHeight = mMaxHeight;
+		}
+		return targetHeight;
+	}
+	
+	/**
+	 * The percentage of the content View's max height past the Week height threshold.
+	 */
+	private float getBelowWeekHeightPercent() {
+		return ((float) (mHeight - mWeekBottom)) / ((float) (mMaxHeight - mWeekBottom));
+	}
+	
+	/**
+	 * Called when the height of the CalendarViewer is changed.
+	 * @param view
+	 * @param height
+	 */
+	private void onHeightChanged(View view, int height) {
+		float alphaWeek = 0f;
+		float alphaMonth = 0f;
+		int transYWeek = 0;
+		boolean hideWeekInMonth = false;
+		int weekVis = View.VISIBLE;
+		int weekYInMonth = this.calculateWeekDestinationY();
+		
+		switch (mMode) {
+		case CLOSED:
+			break;
+		case WEEK:
+			transYWeek = 0;
+			alphaWeek = 1f;
+			alphaMonth = 0f;
+			mCurrentPager = mWeekPager;
+			break;
+		case MONTH:
+			alphaWeek = 0f;
+			alphaMonth = 1f;
+			hideWeekInMonth = false;
+			weekVis = View.GONE;
+			mCurrentPager = mMonthPager;
+			break;
+		case TRANSITION:
+			if (height <= mWeekBottom) {
+				transYWeek = 0;
+				alphaWeek = 1f;
+				alphaMonth = 0f;
+			} else {
+				float hPercent = getBelowWeekHeightPercent();
+				transYWeek = (int) (hPercent * weekYInMonth);
+				alphaWeek = 1f;
+				alphaMonth = hPercent;
+				hideWeekInMonth = true;
+			}
+			break;
+		}
+		
+		// Update Views
+		mWeekPager.setVisibility(weekVis);
+		mWeekPager.setTranslationY(transYWeek);
+		mWeekPager.setAlpha(alphaWeek);
+		mMonthPager.setAlpha(alphaMonth);
+
+		MonthView monthView = (MonthView) mMonthPager.getCurrentView();
+		if (monthView != null) {
+			monthView.setHideSelectedWeek(hideWeekInMonth);
+		}
+		
+		// Notify callbacks.
+		if (mCallback != null) {
+			if (view != null) {
+				mCallback.onResized(this, view.getTop(), view.getWidth(), mHeight);
+			}
+		}
+	}
+	
+	public void startTransition() {
+		setMode(Mode.TRANSITION);
+	}
+	
+	public void endTransition(int loc) {
+		if (loc < 2) {
+			setMode(Mode.CLOSED);
+		} else if (loc > 70) {
+			setMode(Mode.MONTH);
+		} else {
+			setMode(Mode.WEEK);
+		}
 	}
 	
 ////====================================================================================
@@ -233,15 +424,21 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 	 * @param mode
 	 */
 	public void setMode(Mode mode) {
-		transitionMode(mMode, mode);
+		setMode(getView(), mode);
+	}
+	
+	/**
+	 * Sets the display Mode of the CalendarViewer.
+	 * @param mode
+	 */
+	public void setMode(View content, Mode mode) {
+		if (mMode == mode) {
+			return;
+		}
 		mMode = mode;
 		
-		mWeekPager.setVisibility(View.VISIBLE);
-		mMonthPager.setVisibility(View.VISIBLE);
-		int offset = calculateWeekDestinationY();
-		Log.i(TAG, "Offset: " + offset);
-		
-		mWeekPager.setTranslationY(offset);
+		int height = getHeightForMode(mode);
+		setHeight(content, height);
 		
 		if (mCallback != null) {
 			mCallback.onModeChanged(this, mMode);
@@ -252,67 +449,7 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 //// State
 ////====================================================================================
 	
-	/**
-	 * Transitions the CalendarViewer from Mode to Mode.
-	 * @param from
-	 * @param to
-	 */
-	private void transitionMode(Mode from, Mode to) {
-		if (from == to) {
-			return;
-		}
-		switch (to) {
-		case CLOSED:
-			mWeekPager.setVisibility(View.GONE);
-			mMonthPager.setVisibility(View.GONE);
-			mCurrentPager = null;
-			break;
-		case WEEK:
-			mMonthPager.setCurrentDay(mController.getSelectedDay());
-			mWeekPager.setVisibility(View.VISIBLE);
-			mMonthPager.setVisibility(View.GONE);
-			mCurrentPager = mWeekPager;
-			if (mCallback != null) {
-				mCallback.onResized(this, mWeekPager.getTop(), mWeekPager.getWidth(), mWeekPager.getHeight());
-			}
-			break;
-		case MONTH:
-			mWeekPager.setCurrentDay(mController.getSelectedDay());
-			mWeekPager.setVisibility(View.GONE);
-			mMonthPager.setVisibility(View.VISIBLE);
-			mCurrentPager = mMonthPager;
-			if (mCallback != null) {
-				mCallback.onResized(this, mMonthPager.getTop(), mMonthPager.getWidth(), mMonthPager.getHeight());
-			}
-			break;
-		}
-	}
-	
-	public void animateMyView() {
-		final int max = mMonthPager.getHeight();
-		final int min = mWeekPager.getHeight();
-		
-		final View view  = getView();
-		
-		
-		Animation anim = new Animation() {
-			@Override
-			protected void applyTransformation(float interpolatedTime, Transformation t) {
-				LayoutParams p = view.getLayoutParams();
-				int height = (int) (max * (1f - interpolatedTime));
-				p.height = height;
-				view.setLayoutParams(p);
-				if (mCallback != null) {
-					mCallback.onResized(CalendarViewer.this, mMonthPager.getTop(), mMonthPager.getWidth(), height);
-				}
-		    }
-		};
-		anim.setDuration(20000);
-		view.startAnimation(anim);
-		
-	}
-	
-	
+
 ////====================================================================================
 //// OnPageSelectedListener
 ////====================================================================================
@@ -361,103 +498,14 @@ public class CalendarViewer extends Fragment implements OnPageSelectedListener, 
 ////====================================================================================
 //// Animation
 ////====================================================================================
-	
-	int currY = 0;
-	public void go() {
-		int minY = 0;
-		int maxY = calculateWeekDestinationY();
-		Log.e(TAG, "maxY: " + maxY);
-		
-		float per = 0;
-		if (maxY == 0) {
-			per = 0;
-		} else if (currY > maxY) {
-			per = 0;
-		} else {
-			per = ((float) (currY - minY)) / ((float) (maxY - minY));
-		}
-		
-		Log.e(TAG, "currY: " + currY);
-		Log.e(TAG, "Percent: " + per);
-		adjustAnimatedViews(mWeekPager, mMonthPager, minY, maxY, per);
-		
-		currY += 1;
-	}
-	
-	private int monthDayY;
-	
-	public void changeHeight(float percentage) {
-		Log.d(TAG, "ChangeHeight: " + percentage);
-		final int max = mMonthPager.getTop() + mMonthPager.getHeight();
-		
-		View view = getView();
-		LayoutParams p = view.getLayoutParams();
-		int height = (int) (percentage * max);
-		p.height = height;
-		
-		onHeightChanged(view, 0, max, height);
-	}
-	
-	
-	private void onHeightChanged(View view, int minHeight, int maxHeight, int height) {
-		float percent = ((float) (height - minHeight)) / ((float) maxHeight - minHeight);
-		
-		int transY = (int) (percent * maxHeight);
-		mWeekPager.setTranslationY(transY);
-		
-		mMonthPager.setAlpha(percent);
-	}
-	
-	int y;
-	int startY;
-	
-	private void adjustAnimatedViews(CalendarViewPager week, CalendarViewPager month, int minY, int maxY, float percentMax) {
-		month.setAlpha(percentMax);
-//		week.setAlpha(1f - percentMax);
-		
-		getView().setOnTouchListener(new OnTouchListener() {
 
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getActionMasked()) {
-				case MotionEvent.ACTION_DOWN:
-					startY = 0;
-					break;
-				case MotionEvent.ACTION_UP:
-					startY = -1;
-					break;
-				case MotionEvent.ACTION_MOVE:
-					y = (int) event.getY();
-					int diff = Math.abs(startY - y);
-					float percent = ((float) diff) / ((float) mMonthPager.getTop() + mMonthPager.getHeight() - 0);
-					changeHeight(percent);
-					break;
-				case MotionEvent.ACTION_CANCEL:
-					startY = -1;
-					break;
-				}
-				return false;
-			}
-			
-		});
-		
-		int translate = (int) (percentMax * maxY);
-		week.setTranslationY(translate);
-	}
-	
 	private int calculateWeekDestinationY() {
-		if (mMode == Mode.WEEK) {
+		MonthView view = (MonthView) mMonthPager.getViewForDay(mController.getSelectedDay());
+		if (view == null) {
 			return 0;
 		}
-		if (mMode == Mode.MONTH) {
-			MonthView view = (MonthView) mMonthPager.getViewForDay(mController.getSelectedDay());
-			if (view == null) {
-				return 0;
-			}
-			int y = view.getYForDay(mController.getSelectedDay());
-			int yy = y - ((view.getRowHeight() + view.getDayTextSize()) / 2 - MonthView.DAY_SEPARATOR_WIDTH);
-			return yy;
-		}
-		return 0;
+		int y = view.getYForDay(mController.getSelectedDay());
+		int yy = y - ((view.getRowHeight() + view.getDayTextSize()) / 2 - MonthView.DAY_SEPARATOR_WIDTH);
+		return yy;
 	}
 }

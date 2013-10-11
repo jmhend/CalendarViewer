@@ -12,6 +12,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +23,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 
@@ -58,29 +61,6 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		
 		addFragment();
 		setCallbacks();
-		
-//		// MonthListAdapter setup.
-//		CalendarDay today = CalendarDay.currentDay();
-		
-//		MonthPagerAdapter pagerAdapter = new MonthPagerAdapter(this, builder.build());
-//		mMonthPager = (CalendarViewPager) findViewById(R.id.pager);
-//		mMonthPager.setAdapter(pagerAdapter);
-//		mMonthPager.setOnDayClickListener(this);
-//		mMonthPager.setCurrentItem(pagerAdapter.getPositionForDay(today));
-//		
-//		WeekPagerAdapter weekAdapter = new WeekPagerAdapter(this, builder.build());
-//		mWeekPager = (CalendarViewPager) findViewById(R.id.week_pager);
-//		mWeekPager.setAdapter(weekAdapter);
-//		mWeekPager.setOnDayClickListener(this);
-//		mWeekPager.setCurrentDay(today);
-//		
-//		
-//		// ListView setup.
-//		MonthListAdapter monthAdapter = new MonthListAdapter(this, builder.build(), this);
-//		mListView = (MonthListView) findViewById(R.id.month_list);
-//		mListView.setAdapter(monthAdapter);
-//		mListView.postSetSelection(monthAdapter.getPositionForDay(today));
-
 	}
 	
 	private void addFragment() {
@@ -120,13 +100,13 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	    	case R.id.menu_closed:
-	    		mCalendarViewer.setMode(Mode.CLOSED);
+	    		mCalendarViewer.transitionMode(Mode.CLOSED);
 	    		return true;
 	        case R.id.menu_week:
-	        	mCalendarViewer.setMode(Mode.WEEK);
+	        	mCalendarViewer.transitionMode(Mode.WEEK);
 	            return true;
 	        case R.id.menu_month:
-	        	mCalendarViewer.setMode(Mode.MONTH);
+	        	mCalendarViewer.transitionMode(Mode.MONTH);
 	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
@@ -208,6 +188,16 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onModeChanged(CalendarViewer viewer, Mode newMode) {
+				String text = "";
+				if (newMode == Mode.WEEK) {
+					
+				} else if (newMode == Mode.MONTH) {
+					
+				} else if (newMode == Mode.CLOSED) {
+					String title = CalendarView.MONTHS[day.month] + " " + day.dayOfMonth + ", " + day.year;
+					setActionBarTitle(title);
+				}
+				
 				setActionBarSubtitle(viewer.getTitle());
 			}
 
@@ -248,7 +238,6 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				mCalendarViewer.changeHeight(p -= 0.05f);
 			}
 		});
 	}

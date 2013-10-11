@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="day_text_active">#bbffffff</color>
+    <color name="day_text_active">#FFffffff</color>
     <color name="day_text_inactive">#88dddddd</color>
     <color name="day_text_today">#ffffffff</color>
     <color name="selected_highlight">#CCffffff</color>

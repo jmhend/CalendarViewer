@@ -122,6 +122,13 @@ public class DayOfWeekLabelView extends View {
 //// Measure
 ////======================================================================================
 	
+	/**
+	 * @return Max height of this View.
+	 */
+	public int getMaxHeight() {
+		return mHeight;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see android.view.View#onMeasure(int, int)

@@ -54,6 +54,8 @@ public class MonthView extends CalendarView {
 	private final int[] mDayXs = new int[MAX_DAYS];
 	private final int[] mDayYs = new int[MAX_DAYS];
 	private final boolean[] mDayActives = new boolean[MAX_DAYS];
+	private boolean mHideSelectedWeek = false;
+	private int mSelectedDayY = 0;
 	
 	private StringBuilder mStringBuilder;
 	private Formatter mFormatter;
@@ -114,7 +116,6 @@ public class MonthView extends CalendarView {
 	protected void onDraw(Canvas canvas) {
 		calculateDayPoints();
 		applyDecorators(canvas, ApplyLevel.BELOW);
-//		drawMonthTitle(canvas);
 		drawDayOfWeekLabels(canvas);
 		drawDates(canvas);
 		applyDecorators(canvas, ApplyLevel.TOP);
@@ -153,6 +154,12 @@ public class MonthView extends CalendarView {
 			final int x = mDayXs[day-1];
 			final int y = mDayYs[day-1];
 			
+			// Hiding this week.
+			if (mHideSelectedWeek && y == mSelectedDayY) {
+				continue;
+			}
+			
+			// Show the day as selected.
 			if (mSelectedDayOfWeek == day) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
 			}
@@ -175,6 +182,23 @@ public class MonthView extends CalendarView {
 //// Logic
 ////==================================================================================================
 
+	/**
+	 * @return
+	 */
+	public boolean willHideSelectedWeek() {
+		return mHideSelectedWeek;
+	}
+	
+	/**
+	 * @param hide
+	 */
+	public void setHideSelectedWeek(boolean hide) {
+		if (mHideSelectedWeek != hide) {
+			mHideSelectedWeek = hide;
+			invalidate();
+		}
+	}
+	
 	/**
 	 * @return
 	 */
@@ -210,6 +234,10 @@ public class MonthView extends CalendarView {
 			int x = paddingDay * (1 + 2 * dayOffset) + mPadding;
 			mDayXs[day-1] = x;
 			mDayYs[day-1] = y;
+			
+			if (mSelectedDayOfWeek == day) {
+				mSelectedDayY = y;
+			}
 			
 			boolean active = (mTodayOfWeek == day) || isCurrentDayOrLater(day);
 			mDayActives[day-1] = active;

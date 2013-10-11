@@ -186,6 +186,14 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 //// Views
 ////=============================================================================
 	
+	/** 
+	 * @return This ViewPager's currently displayed child View.
+	 */
+	public View getCurrentView() {
+		int pos = getCurrentItem();
+		return getViewAtPosition(pos);
+	}
+	
 	/**
 	 * Searches the children Views for the child whose adapter position is 'position'
 	 * @param position
