@@ -4,19 +4,19 @@
     android:layout_height="wrap_content"
     android:background="#EE008dd0" >
     
-    <me.jmhend.ui.calendar_viewer.DayOfWeekLabelView 
+    <me.jmhend.CalendarViewer.DayOfWeekLabelView 
         android:id="@+id/day_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     
-    <me.jmhend.ui.calendar_viewer.CalendarViewPager
+    <me.jmhend.CalendarViewer.CalendarViewPager
 	    android:id="@+id/month_pager"
 	    android:layout_width="match_parent"
 	    android:layout_height="224dp"
 	    android:layout_below="@id/day_labels"
 	    android:visibility="visible" />
     
-    <me.jmhend.ui.calendar_viewer.CalendarViewPager
+    <me.jmhend.CalendarViewer.CalendarViewPager
         android:id="@+id/week_pager"
         android:layout_width="match_parent"
         android:layout_height="42dp"
