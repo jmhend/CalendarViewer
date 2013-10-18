@@ -119,7 +119,7 @@ public class CalendarControllerConfig implements Parcelable {
 		public Builder() {
 			mFirstDayOfWeek = DEFAULT_FIRST_WEEKDAY;
 			mSelectedDay = CalendarDay.currentDay();
-			mMode = Mode.CLOSED;
+			mMode = Mode.WEEK;
 		}
 		
 		public Builder firstDayOfWeek(int firstDayOfWeek) {

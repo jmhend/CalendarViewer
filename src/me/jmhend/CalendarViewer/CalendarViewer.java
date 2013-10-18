@@ -148,16 +148,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	}
 	
 ////====================================================================================
-//// Fragment lifecycle.
+//// Init.
 ////====================================================================================
-	
-	/**
-	 * Sets the CalendarControllerConfig of this CalendarViewer.
-	 * @param config
-	 */
-	public void setConfig(CalendarControllerConfig config) {
-		mController = new CalendarController(config);
-	}
 	
 	/**
 	 * Initialize Views.
@@ -205,6 +197,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight;
 		mHeight = mMaxHeight;
 	}
+	
+////====================================================================================
+//// Transitions.
+////====================================================================================
 	
 	/**
 	 * Transitions the CalendarViewer to the Mode.
@@ -423,6 +419,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	public void setCallback(CalendarViewerCallbacks callback) {
 		mCallback = callback;
 	}
+	
+	/**
+	 * This CalendarViewer's View.
+	 */
+	public View getView() {
+		return mView;
+	}
 
 	/**
 	 * Sets the display Mode of the CalendarViewer.
@@ -448,6 +451,14 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		if (mCallback != null) {
 			mCallback.onModeChanged(this, mMode);
 		}
+	}
+	
+	/**
+	 * Sets the CalendarControllerConfig of this CalendarViewer.
+	 * @param config
+	 */
+	public void setConfig(CalendarControllerConfig config) {
+		mController = new CalendarController(config);
 	}
 
 ////====================================================================================
