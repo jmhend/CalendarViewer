@@ -119,6 +119,7 @@ public abstract class CalendarView extends View {
 	protected int mInactiveDayTextColor;
 	protected int mMonthTitleColor;
 	protected int mTodayNumberColor;
+	protected int mSelectedDayColor;
 	protected int mSelectedCircleColor;
 	
 	// Typeface
@@ -198,6 +199,7 @@ public abstract class CalendarView extends View {
 		mActiveDayTextColor = r.getColor(R.color.day_text_active);
 		mInactiveDayTextColor = r.getColor(R.color.day_text_inactive);
 		mTodayNumberColor = r.getColor(R.color.day_text_today);
+		mSelectedDayColor = r.getColor(R.color.day_text_selected);
 		mMonthTitleColor = r.getColor(R.color.calendar_text_title);
 		mSelectedCircleColor = r.getColor(R.color.selected_highlight);
 		mDayTextSize = r.getDimensionPixelSize(R.dimen.day_text_size);
@@ -225,8 +227,7 @@ public abstract class CalendarView extends View {
 		mSelectedCirclePaint = new Paint();
 		mSelectedCirclePaint.setAntiAlias(true);
 		mSelectedCirclePaint.setColor(mSelectedCircleColor);
-		mSelectedCirclePaint.setStyle(Paint.Style.STROKE);
-		mSelectedCirclePaint.setStrokeWidth(mSelectedCircleStrokeWidth);
+		mSelectedCirclePaint.setStyle(Paint.Style.FILL);
 		mMonthDayLabelPaint = new Paint();
 		mMonthDayLabelPaint.setAntiAlias(true);
 		mMonthDayLabelPaint.setTextSize(mDayOfWeekTextSize);
@@ -386,7 +387,7 @@ public abstract class CalendarView extends View {
 	}
 
 ////==================================================================================================
-////Decorators
+//// Decorators
 ////==================================================================================================
 	
 	/**

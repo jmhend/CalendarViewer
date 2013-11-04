@@ -160,11 +160,15 @@ public class MonthView extends CalendarView {
 			}
 			
 			// Show the day as selected.
+			
 			if (mSelectedDayOfWeek == day) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
 			}
+			
 			int textColor;
-			if (mTodayOfWeek == day) {
+			if (mSelectedDayOfWeek == day) {
+				textColor = mSelectedDayColor;
+			} else if (mTodayOfWeek == day) {
 				textColor = mTodayNumberColor;
 			} else if (mDayActives[day-1]) {
 				textColor = mActiveDayTextColor;

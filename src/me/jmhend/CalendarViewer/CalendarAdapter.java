@@ -143,14 +143,22 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 		 */
 		public Calendar toCalendar() {
 			Calendar cal = Calendar.getInstance();
+			fillCalendar(cal);
+			return cal;
+		}
+		
+		/**
+		 * Fills the Calendar with this CalendarDay's day.
+		 * @param cal
+		 */
+		public void fillCalendar(Calendar cal) {
 			cal.set(Calendar.MILLISECOND, 0);
 			cal.set(Calendar.SECOND, 0);
 			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.HOUR, 0);
+			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 			cal.set(Calendar.MONTH, month);
 			cal.set(Calendar.YEAR, year);
-			return cal;
 		}
 		
 		/**

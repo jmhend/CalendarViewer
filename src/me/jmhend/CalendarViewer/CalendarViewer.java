@@ -1,12 +1,14 @@
 package me.jmhend.CalendarViewer;
 
+import java.util.Calendar;
+
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +113,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 //// Static constants.
 ////====================================================================================
 	
-	private static final String EXTRA_CONFIG = "config";
 	private static final long TRANSITION_DURATION = 200L;
 	
 ////====================================================================================
@@ -133,6 +134,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private int mHeight;
 	private int mMaxHeight;
 	private int mWeekBottom;
+	
+	private Calendar mScratchCalendar = Calendar.getInstance();
 	
 ////====================================================================================
 //// Constructor/Instantiation
@@ -407,10 +410,23 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @return The title of the currently displayed View.
 	 */
 	public String getTitle() {
+		if (mMode == Mode.CLOSED) {
+			CalendarDay day = mController.getSelectedDay();
+			day.fillCalendar(mScratchCalendar);
+			return Long.toString(mScratchCalendar.getTimeInMillis());
+		}
 		if (mCurrentPager != null) {
 			return mCurrentPager.getCurrentItemTitle();
 		}
 		return "";
+	}
+	
+	/**
+	 * Sets the CalenderViewer's selected day.
+	 * @param day
+	 */
+	public void setSelectedDay(CalendarDay day) {
+		mController.setSelectedDay(day);
 	}
 	
 	/**
@@ -425,6 +441,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	public View getView() {
 		return mView;
+	}
+	
+	/**
+	 * @return Display Mode of the CalendarViewer.
+	 */
+	public Mode getMode() {
+		return mMode;
 	}
 
 	/**

@@ -214,6 +214,10 @@ public class WeekView extends CalendarView {
 				tf = mTypeface;
 			}
 			
+			if (i == mSelectedDayPosition) {
+				textColor = mSelectedDayColor;
+			}
+			
 			mMonthNumPaint.setTypeface(tf);
 			mMonthNumPaint.setColor(textColor);
 			canvas.drawText(DAYS[mDayOfMonths[i]], x, y, mMonthNumPaint);

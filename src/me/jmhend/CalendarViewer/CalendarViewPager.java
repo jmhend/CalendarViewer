@@ -55,6 +55,8 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	private OnPageSelectedListener mPageSelectedListener;
 	private OnDayClickListener mDayClickListener;
 	
+	private boolean mFadeViews = true;
+	
 ////=====================================================================================
 //// Constructor
 ////=====================================================================================
@@ -99,7 +101,9 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 */
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				fadeEdges(position, positionOffset, positionOffsetPixels);
+				if (mFadeViews) {
+					fadeEdges(position, positionOffset, positionOffsetPixels);
+				}
 			}
 
 			/*
@@ -160,6 +164,13 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	 */
 	public void setOnPageSelectedListener(OnPageSelectedListener listener) {
 		mPageSelectedListener = listener;
+	}
+	
+	/**
+	 * @param fade
+	 */
+	public void setFadeViews(boolean fade) {
+		mFadeViews = fade;
 	}
 	
 	/**

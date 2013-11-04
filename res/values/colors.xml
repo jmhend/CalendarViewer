@@ -2,8 +2,9 @@
 <resources>
     <color name="day_text_active">#FFffffff</color>
     <color name="day_text_inactive">#88dddddd</color>
-    <color name="day_text_today">#ffffffff</color>
-    <color name="selected_highlight">#CCffffff</color>
+    <color name="day_text_today">#FFffffff</color>
+    <color name="day_text_selected">#ff008dd0</color>
+    <color name="selected_highlight">#ffffffff</color>
     <color name="calendar_text_title">#ddffffff</color>
     
 </resources>
