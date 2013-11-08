@@ -35,7 +35,7 @@ public interface EventDrawable {
 	/**
 	 * @return Title.
 	 */
-	public String getDrawableTitle();
+	public String getDrawablingTitle();
 	
 	/**
 	 * @return Location
