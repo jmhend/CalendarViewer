@@ -5,7 +5,7 @@ package me.jmhend.CalendarViewer;
  * @author jmhend
  *
  */
-public interface EventDrawable {
+public interface Event {
 	
 	/**
 	 * @return Start time in millis of the event.

@@ -43,8 +43,9 @@ public class Utils {
 			case 10:
 				return 30;
 			case 1:
-				if(year % 4 == 0)
+				if (year % 4 == 0) {
 					return 29;
+				}
 				return 28;
 			default:
 				throw new IllegalArgumentException("Invalid Month");

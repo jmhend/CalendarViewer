@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -43,9 +45,11 @@ public class DayView extends View {
 //// Member variables.
 ////============================================================================
 	
-	private List<EventDrawable> mEvents;
-	private Map<EventDrawable, Rect> mRectMap = new HashMap<EventDrawable, Rect>();
-	private EventDrawable mPressedEvent;
+	private Map<Event, Rect> mRectMap = new HashMap<Event, Rect>();
+	private Event mPressedEvent;
+	
+	private DayPagerAdapter mAdapter;
+	private CalendarModel mModel;
 	
 	private int mWidth;
 	private int mHourWidth;
@@ -73,6 +77,8 @@ public class DayView extends View {
 	private Paint mEventTitlePaint;
 	private Paint mEventLocationPaint;
 	
+	private long mDayStart;
+	private long mDayEnd;
 	private Calendar mCalendar;
 	
 	private ScaleGestureDetector mScaleDetector;
@@ -88,11 +94,11 @@ public class DayView extends View {
 	 */
     private class ClickRunnable implements Runnable {
 
-    	public ClickRunnable(EventDrawable e) {
+    	public ClickRunnable(Event e) {
     		mEvent = e;
     	}
     	
-    	private EventDrawable mEvent;
+    	private Event mEvent;
     	/*
     	 * (non-Javadoc)
     	 * @see java.lang.Runnable#run()
@@ -114,11 +120,11 @@ public class DayView extends View {
      */
     private class ClearRunnable implements Runnable {
     	
-    	public ClearRunnable(EventDrawable e) {
+    	public ClearRunnable(Event e) {
     		mEvent = e;
     	}
     	
-    	private EventDrawable mEvent;
+    	private Event mEvent;
 
     	/*
     	 * (non-Javadoc)
@@ -172,6 +178,9 @@ public class DayView extends View {
 //// Initialization
 ////============================================================================
 	
+	/**
+	 * Initttt.
+	 */
 	private void init() {
 		mPaddingTop = 80;
 		mHourWidth = 140;
@@ -186,8 +195,8 @@ public class DayView extends View {
 		mTapDelay = ViewConfiguration.getTapTimeout();
 		
 		mHourTextSize = 40;
-		mTitleTextSize = 40;
-		mLocationTextSize = 30;
+		mTitleTextSize = 32;
+		mLocationTextSize = 32;
 		
 		mLinePaint = new Paint();
 		mLinePaint.setAntiAlias(true);
@@ -219,7 +228,7 @@ public class DayView extends View {
 		mEventLocationPaint.setColor(0xAAFFFFFF);
 		mEventLocationPaint.setTextAlign(Paint.Align.LEFT);
 		mEventLocationPaint.setStyle(Style.FILL);
-		mEventLocationPaint.setTextSize(mTitleTextSize * .8f);
+		mEventLocationPaint.setTextSize(mLocationTextSize);
 		mEventLocationPaint.setTypeface(Typeface.DEFAULT);
 		
 		mCalendar = Calendar.getInstance();
@@ -252,6 +261,30 @@ public class DayView extends View {
 			}
 			
 		});
+	}
+	
+////============================================================================
+//// Getters/Setters
+////============================================================================
+	
+	/**
+	 * @param adapter
+	 */
+	public void setAdapter(DayPagerAdapter adapter) {
+		mAdapter = adapter;
+	}
+	
+	/**
+	 * @param model
+	 */
+	public void setModel(CalendarModel model) {
+		mModel = model;
+	}
+	
+	public void setDayBounds(long dayStart, long dayEnd) {
+		mDayStart = dayStart;
+		mDayEnd = dayEnd;
+		calculateEventRects();
 	}
 	
 ////============================================================================
@@ -309,19 +342,20 @@ public class DayView extends View {
 	 * Draws each event Rect to the canvas.
 	 */
 	private void drawEventRects(Canvas canvas) {
-		// TODO: Don't allocate memory in onDraw()!
-		
-		if (mEvents == null) {
-			return;
-		}
-		for (EventDrawable event : mEvents) {
+		List<Event> events = getEvents();
+
+		for (Event event : events) {
 			Rect rect = mRectMap.get(event);
 			if (rect != null) {
 				// Draw transluscent background.
 				int color = event.getDrawingColor();
+				if (color == 0) {
+					color = 0xFFFF6600;
+				}
 				if (event == mPressedEvent) {
 					color = lightenBy(color, 0.5f);
 				}
+				color = setAlpha(.6f, color);
 				mEventPaint.setColor(color);
 				canvas.drawRect(rect, mEventPaint);
 				
@@ -354,6 +388,9 @@ public class DayView extends View {
 	 */
 	private String clipText(String text, Paint p, int maxWidth) {
 		int breakpoint = p.breakText(text, true, maxWidth, null);
+		if (text.length() <= breakpoint) {
+			return text;
+		}
 		String clipped;
 		if (breakpoint == 3) {
 			clipped = "...";
@@ -398,14 +435,14 @@ public class DayView extends View {
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		mScaleDetector.onTouchEvent(e);
-		if (mScaleDetector.isInProgress()) {
-			return true;
-		}
+//		mScaleDetector.onTouchEvent(e);
+//		if (mScaleDetector.isInProgress()) {
+//			return true;
+//		}
 		
 		int action = e.getActionMasked();
 		if (action == MotionEvent.ACTION_DOWN) {
-			EventDrawable event = eventAtPosition((int) e.getX(), (int) e.getY());
+			Event event = eventAtPosition((int) e.getX(), (int) e.getY());
 			if (event != null) {
 				mCanSelect = true;
 				mTouchDown = System.currentTimeMillis();
@@ -421,7 +458,7 @@ public class DayView extends View {
 			return true;
 		}
 		if (action == MotionEvent.ACTION_UP) {
-			EventDrawable event = eventAtPosition((int) e.getX(), (int) e.getY());
+			Event event = eventAtPosition((int) e.getX(), (int) e.getY());
 			if (event != null) {
 				long clearDelay = (CLICK_DISPLAY_DURATION + mTapDelay) - (System.currentTimeMillis() - mTouchDown);
 				if (clearDelay > 0) {
@@ -435,8 +472,11 @@ public class DayView extends View {
 		return false;
 	}
 	
-	private void onEventClick(EventDrawable e) {
-		Toast.makeText(getContext(), e.getDrawablingTitle(), Toast.LENGTH_SHORT).show();
+	/**
+	 * Called when an Event is clicked.
+	 * @param e
+	 */
+	private void onEventClick(Event e) {
 	}
 	
 	/**
@@ -445,14 +485,14 @@ public class DayView extends View {
 	 * @param y
 	 * @return
 	 */
-	public EventDrawable eventAtPosition(int x, int y) {
-		List<EventDrawable> events = getEvents();
+	public Event eventAtPosition(int x, int y) {
+		List<Event> events = getEvents();
 		int size = events.size();
 		
 		// Reverse iterate so that events drawn later (higher z-position)
 		// are found first.
 		for (int i = size - 1; i >= 0; i--) {
-			EventDrawable e = events.get(i);
+			Event e = events.get(i);
 			Rect r = mRectMap.get(e);
 			if (r != null) {
 				if (r.contains(x, y)) {
@@ -464,7 +504,6 @@ public class DayView extends View {
 	}
 	
 	
-	
 ////============================================================================
 //// Event positioning.
 ////============================================================================
@@ -472,11 +511,12 @@ public class DayView extends View {
 	/**
 	 * @return The EventDrawables to draw on this DayView.
 	 */
-	private List<EventDrawable> getEvents() {
-		if (mEvents == null) {
-			mEvents = getTestEvents();
+	@SuppressWarnings("unchecked")
+	private List<Event> getEvents() {
+		if (mModel == null) {
+			return new ArrayList<Event>();
 		}
-		return mEvents;
+		return (List<Event>) mModel.getEventsOnDay(mDayStart);
 	}
 	
 	/**
@@ -484,7 +524,7 @@ public class DayView extends View {
 	 */
 	protected void calculateEventRects() {
 		mRectMap.clear();
-		List<EventDrawable> events = getEvents();
+		List<Event> events = getEvents();
 		int i = 0;
 		int size = events.size();
 		int minY = -1;
@@ -492,13 +532,33 @@ public class DayView extends View {
 		List<Rect> groupedRects = new ArrayList<Rect>();
 		
 		while (i < size) {
-			EventDrawable event = events.get(i);
+			Event event = events.get(i);
 			if (!willDrawEvent(event)) {
+				i++;
 				continue;
 			}
 			
-			int topY = getYForTime(event.getDrawingStartTime());
-			int bottomY = getYForTime(event.getDrawingEndTime());
+			int topY = 0;
+			int bottomY = 0;
+			long startTime = event.getDrawingStartTime();
+			long endTime = event.getDrawingEndTime();
+			
+			// Event started before this day.
+			if (startTime < mDayStart) {
+				topY = 0;
+			// Event started this day;
+			} else {
+				topY = getYForTime(startTime) + 1;
+			}
+			
+			// Event ends after this day.
+			if (endTime > mDayEnd) {
+				bottomY = (int) ((mHourHeight * 24 * mScale) + mPaddingTop);
+			// Event ends this day.
+			} else {
+				bottomY = getYForTime(endTime) - 1;
+			}
+			
 			int textBottom = topY + getTextHeight(event);
 			
 			// minY hasn't been set yet.
@@ -509,6 +569,7 @@ public class DayView extends View {
 			// New collision group; layout previous group.
 			if (topY > minY) {
 				layoutGroupRects(groupedRects);
+				groupedRects.clear();
 			}
 			
 			if (bottomY - topY < mMinEventHeight) {
@@ -524,6 +585,7 @@ public class DayView extends View {
 			// End of events.
 			if (i == (size - 1)) {
 				layoutGroupRects(groupedRects);
+				groupedRects.clear();
 			}
 			
 			minY = Math.max(minY, textBottom);
@@ -547,7 +609,7 @@ public class DayView extends View {
 			er.left = startX;
 			er.right = endX;
 		}
-		groupedRects.clear();
+		
 	}
 	
 	/**
@@ -564,7 +626,7 @@ public class DayView extends View {
 	/**
  	 * @return The height needed to display the EventDrawable's text.
 	 */
-	private int getTextHeight(EventDrawable e) {
+	private int getTextHeight(Event e) {
 		if (e.getTextLinesCount() == 2) {
 			return mEventTitleHeight + mEventLocationHeight;
 		}
@@ -574,14 +636,26 @@ public class DayView extends View {
 	/**
 	 * @return True if the EventDrawable will be drawn in this DayView, false otherwise.
 	 */
-	private boolean willDrawEvent(EventDrawable e) {
+	private boolean willDrawEvent(Event e) {
 		return true;
+//		return e.getDrawingColor() != 0;
 	}
 	
 	
 ////============================================================================
 //// Utils.
 ////============================================================================
+	
+	/**
+	 * Sets the alpha of color.
+	 * @param alpha
+	 * @param color
+	 * @return
+	 */
+	public static int setAlpha(float alpha, int color) {
+		int alphaInt = (int) (alpha * 255);
+		return Color.argb(alphaInt, Color.red(color), Color.green(color), Color.blue(color));
+	}
 	
 	/**
 	 * Lightens the color by 'amount'
@@ -598,181 +672,5 @@ public class DayView extends View {
 		hsv[1] *= (1f - amount);
 		hsv[2] *= (1f + amount);
 		return Color.HSVToColor(hsv);
-	}
-	
-////============================================================================
-//// Test
-////============================================================================
-
-	private List<EventDrawable> getTestEvents() {
-		List<EventDrawable> events = new ArrayList<EventDrawable>();
-		events.add(new TestEvent.Builder()
-			.title("Check to make sure I'm asleep.")
-			.start(1383888600000L)
-			.end(1383894000000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("Terrible seminar on synergy or something.")
-			.location("Conference Room Soulkiller 2B")
-			.lines(2)
-			.start(1383832800000L)
-			.end(1383865200000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("Grandpa's Ballet Recital")
-			.location("Florida")
-			.lines(2)
-			.start(1383840000000L)
-			.end(1383865200000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("Bored Meeting")
-			.start(1383847200000L)
-			.end(1383850800000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("DVR Spongebob")
-			.lines(2)
-			.location("Bikini Bottom")
-			.start(1383847200000L)
-			.end(1383854300000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("Rap Battle")
-			.location("Lincoln Memorial")
-			.lines(2)
-			.start(1383848100000L)
-			.end(1383854300000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("M@dison Building Teardown")
-			.location("1555 Broadway, Detroit, MI 48226")
-			.lines(2)
-			.start(1383937200000L)
-			.end(1383938100000L)
-			.build());
-		events.add(new TestEvent.Builder()
-			.title("Unscheduled Time")
-			.start(1383854400000L)
-			.end(1383863400000L)
-			.build());
-		return events;
-	}
-	
-	private static class TestEvent implements EventDrawable {
-		
-		public long start;
-		public long end;
-		public String title;
-		public String location;
-		public boolean allDay;
-		public int color;
-		public int lines;
-		
-		public TestEvent(long start, long end) {
-			this.start = start;
-			this.end = end;
-		}
-		
-		public static class Builder {
-			public long start;
-			public long end;
-			public String title;
-			public String location;
-			public boolean allDay;
-			public int color;
-			public int lines;
-			
-			public Builder() {
-				title = "";
-				location = "";
-				lines = 1;
-				
-				color = 0x660088CC;
-				Random r = new Random();
-				int x = r.nextInt();
-				if (x % 2 == 0) {
-//					color = 0x6644AA00;
-				}
-			}
-			
-			public Builder start(long start) {
-				this.start = start;
-				return this;
-			}
-			
-			public Builder end(long end) {
-				this.end = end;
-				return this;
-			}
-			
-			public Builder title(String title) {
-				this.title = title;
-				return this;
-			}
-			
-			public Builder location(String location) {
-				this.location = location;
-				return this;
-			}
-			
-			public Builder allDay(boolean allDay) {
-				this.allDay = allDay;
-				return this;
-			}
-			
-			public Builder color(int color) {
-				this.color = color;
-				return this;
-			}
-			
-			public Builder lines(int lines) {
-				this.lines = lines;
-				return this;
-			}
-			
-			public TestEvent build() {
-				TestEvent e = new TestEvent(start, end);
-				e.title = title;
-				e.location = location;
-				e.allDay = allDay;
-				e.color = color;
-				e.lines = lines;
-				return e;
-			}
-			
-			
-		}
-
-		@Override
-		public long getDrawingStartTime() {
-			return start;
-		}
-		@Override
-		public long getDrawingEndTime() {
-			return end;
-		}
-		@Override
-		public boolean isDrawingAllDay() {
-			return allDay;
-		}
-		@Override
-		public int getDrawingColor() {
-			return color;
-		}
-		@Override
-		public int getTextLinesCount() {
-			return lines;
-		}
-
-		@Override
-		public String getDrawablingTitle() {
-			return title;
-		}
-
-		@Override
-		public String getDrawingLocation() {
-			return location;
-		}
 	}
 }

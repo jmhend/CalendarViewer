@@ -22,6 +22,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	
 	private final Context mContext;
 	private final CalendarController mController;
+	private final CalendarModel mModel;
 	private int mCount;
 	
 	private Map<Integer, HeatDecorator> mDecoratorsMap = new HashMap<Integer, HeatDecorator>();
@@ -35,10 +36,11 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	 * @param context
 	 * @param controller
 	 */
-	public MonthPagerAdapter(Context context, CalendarController controller) {
+	public MonthPagerAdapter(Context context, CalendarModel model, CalendarController controller) {
 		mContext = context.getApplicationContext();
 		mController = controller;
 		mController.registerListener(this);
+		mModel = model;
 		calculateCount();
 	}
 
@@ -88,7 +90,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void updateView(int position, CalendarView view) {
+	public void updateView(int position, View view) {
 		MonthView monthView = (MonthView) view;
 		Map<String, Integer> params = (Map<String, Integer>) monthView.getTag();
 		if (params == null) {

@@ -36,6 +36,7 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 	private final Context mContext;
 	private final Calendar mCalendar;
 	private final CalendarController mController;
+	private final CalendarModel mModel;
 	private CalendarDay mFirstVisibleDay;
 	private int mCount;
 	
@@ -50,10 +51,11 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 	 * @param context
 	 * @param controller
 	 */
-	public WeekPagerAdapter(Context context, CalendarController controller) {
+	public WeekPagerAdapter(Context context, CalendarModel model, CalendarController controller) {
 		mContext = context.getApplicationContext();
 		mController = controller;
 		mController.registerListener(this);
+		mModel = model;
 		mCalendar = Calendar.getInstance();
 		mCalendar.set(Calendar.MILLISECOND, 0);
 		mCalendar.set(Calendar.SECOND, 0);
@@ -86,7 +88,7 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void updateView(int position, CalendarView view) {
+	public void updateView(int position, View view) {
 		WeekView weekView = (WeekView) view;
 		Map<String, Integer> params = (Map<String, Integer>) weekView.getTag();
 		if (params == null) {

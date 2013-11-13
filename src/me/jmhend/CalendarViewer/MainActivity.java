@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
-		mCalendarViewer = new CalendarViewer(this, container, builder.build());
+		mCalendarViewer = new CalendarViewer(this, container, null, builder.build());
 	}
 	
 ////==========================================================================================

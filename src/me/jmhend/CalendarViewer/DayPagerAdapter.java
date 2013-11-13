@@ -1,5 +1,7 @@
 package me.jmhend.CalendarViewer;
 
+import java.util.Calendar;
+
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
@@ -8,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 /**
  * PagerAdapter for displaying DayViews.
@@ -29,7 +32,11 @@ public class DayPagerAdapter extends CalendarAdapter {
 	private Context mContext;
 	private LayoutInflater mInflater;
 	private CalendarController mController;
+	private final CalendarModel mModel;
+	private final Calendar mCalendar;
 	private int mCount;
+	
+	
 	
 ////==================================================================================
 //// Constructor
@@ -39,10 +46,13 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 * @param context
 	 * @param controller
 	 */
-	public DayPagerAdapter(Context context, CalendarController controller) {
+	public DayPagerAdapter(Context context, CalendarModel model, CalendarController controller) {
 		mContext = context.getApplicationContext();
 		mInflater = LayoutInflater.from(mContext);
 		mController = controller;
+		mCalendar = Calendar.getInstance();
+		mModel = model;
+		resetCalendar();
 		calculateCount();
 	}
 	
@@ -55,8 +65,15 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 * @see me.jmhend.CalendarViewer.CalendarAdapter#updateView(int, me.jmhend.CalendarViewer.CalendarView)
 	 */
 	@Override
-	public void updateView(int position, CalendarView view) {
-		// TODO Auto-generated method stub
+	public void updateView(int position, View view) {
+		DayView dayView = (DayView) view;
+		dayView.setAdapter(this);
+		dayView.setModel(mModel);
+		
+		long start = getDayStartForPosition(position);
+		long end = getDayEndForPosition(position);
+		dayView.setDayBounds(start, end);
+		dayView.invalidate();
 	}
 
 	/*
@@ -65,8 +82,13 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 */
 	@Override
 	public int getPositionForDay(CalendarDay day) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (day.isBeforeDay(mController.getStartDay()) || day.isAfterDay(mController.getEndDay())) {
+			return -1;
+		}
+		DateTime dtStart = mController.getStartDay().toDateTime();
+		DateTime dtDay = day.toDateTime();
+		int position = Days.daysBetween(dtStart, dtDay).getDays();
+		return position;
 	}
 
 	/*
@@ -75,8 +97,6 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 */
 	@Override
 	public void setSelectedDay(CalendarDay day) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	/*
@@ -85,11 +105,12 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup container) {
+		DayView dayView;
 		if (convertView == null) {
 			convertView = mInflater.inflate(R.layout.day_view, container, false);
-		}
-//		CalendarView view = (CalendarView) convertView;
-//		updateView(position, view);
+		} 
+		dayView = ((DayView) convertView.findViewById(R.id.day));
+		updateView(position, dayView);
 		return convertView;
 	}
 
@@ -114,7 +135,36 @@ public class DayPagerAdapter extends CalendarAdapter {
 		DateTime dtEnd = mController.getEndDay().toDateTime();
 		int numDays = Days.daysBetween(dtStart, dtEnd).getDays();
 		mCount = numDays + 1;
-		Log.e(TAG, "Count: " + mCount);
+	}
+	
+	/**
+	 * @param position
+	 * @return The day start time at position.
+	 */
+	private long getDayStartForPosition(int position) {
+		resetCalendar();
+		mCalendar.add(Calendar.DAY_OF_YEAR, position);
+		return mCalendar.getTimeInMillis();
+	}
+	
+	/**
+	 * @param position
+	 * @return The day end time at position;
+	 */
+	private long getDayEndForPosition(int position) {
+		resetCalendar();
+		mCalendar.add(Calendar.DAY_OF_YEAR, position);
+		mCalendar.set(Calendar.SECOND, 59);
+		mCalendar.set(Calendar.MINUTE, 59);
+		mCalendar.set(Calendar.HOUR_OF_DAY, 23);
+		return mCalendar.getTimeInMillis();
+	}
+	
+	/**
+	 * Resets mCalendar to be the starting day.
+	 */
+	private void resetCalendar() {
+		mController.getStartDay().fillCalendar(mCalendar);
 	}
 
 }

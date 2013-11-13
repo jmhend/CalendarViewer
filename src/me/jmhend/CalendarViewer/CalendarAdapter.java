@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.view.View;
 
 /**
  * Abstract class for providing Views for a collection of Calendar days.
@@ -30,7 +31,7 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 	 * @param position
 	 * @param view
 	 */
-	public abstract void updateView(int position, CalendarView view);
+	public abstract void updateView(int position, View view);
 	
 	/**
 	 * Returns the position in the associated ViewGroup of 'day'

@@ -8,11 +8,12 @@ import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
-import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
@@ -86,7 +87,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		CLOSED(0),
 		WEEK(1),
 		MONTH(2),
-		TRANSITION(3);
+		DAY(3),
+		TRANSITION(4);
 		
 		private int mNum;
 		
@@ -103,7 +105,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			case 0: return CLOSED;
 			case 1: return WEEK;
 			case 2: return MONTH;
-			case 3: return TRANSITION;
+			case 3: return DAY;
+			case 4: return TRANSITION;
 			default: return CLOSED;
 			}
 		}
@@ -125,14 +128,18 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private CalendarViewPager mCurrentPager;
 	private CalendarViewPager mWeekPager;
 	private CalendarViewPager mMonthPager;
+	private CalendarViewPager mDayPager;
 	private CalendarAdapter mMonthAdapter;
 	private CalendarAdapter mWeekAdapter;
+	private CalendarAdapter mDayAdapter;
 	private Mode mMode;
 	
 	private CalendarController mController;
+	private CalendarModel mModel;
 	
 	private int mHeight;
-	private int mMaxHeight;
+	private int mMonthHeight;
+	private int mParentHeight;
 	private int mWeekBottom;
 	
 	private Calendar mScratchCalendar = Calendar.getInstance();
@@ -144,10 +151,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	/**
 	 * Default constructor.
 	 */
-	public CalendarViewer(Context context, ViewGroup parent, CalendarControllerConfig config) {
+	public CalendarViewer(Context context, ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
 		mContext = context;
 		mController = new CalendarController(config);
-		initView(parent, config);
+		mModel = model;
+		initView(parent, model, config);
 	}
 	
 ////====================================================================================
@@ -158,11 +166,25 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * Initialize Views.
 	 * @param config
 	 */
-	public void initView(ViewGroup parent, CalendarControllerConfig config) {
+	public void initView(final ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
 		mView = LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
 		
-		mWeekAdapter = new WeekPagerAdapter(mContext, mController);
-		mMonthAdapter = new MonthPagerAdapter(mContext, mController);
+		parent.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
+			 */
+			@Override
+			public void onGlobalLayout() {
+				parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				mParentHeight = parent.getHeight();
+			}
+			
+		});
+
+		mWeekAdapter = new WeekPagerAdapter(mContext, mModel, mController);
+		mMonthAdapter = new MonthPagerAdapter(mContext, mModel, mController);
+		mDayAdapter = new DayPagerAdapter(mContext, mModel, mController);
 		mWeekPager = (CalendarViewPager) mView.findViewById(R.id.week_pager);
 		mWeekPager.setAdapter(mWeekAdapter);
 		mWeekPager.setOnPageSelectedListener(this);
@@ -173,6 +195,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mMonthPager.setOnPageSelectedListener(this);
 		mMonthPager.setOnDayClickListener(this);
 		mMonthPager.setCurrentDay(mController.getCurrentDay());
+		
+		mDayPager = (CalendarViewPager) mView.findViewById(R.id.day_pager);
+		mDayPager.setAdapter(mDayAdapter);
+		mDayPager.setFadeViews(false);
+		mDayPager.setCurrentDay(mController.getCurrentDay());
 		
 		initDimens();
 		
@@ -196,9 +223,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		int bottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
 		int dayLabelsHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
 		
-		mMaxHeight = monthMaxHeight + bottomPadding;
+		mMonthHeight = monthMaxHeight + bottomPadding;
 		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight;
-		mHeight = mMaxHeight;
+		mHeight = mMonthHeight;
 	}
 	
 ////====================================================================================
@@ -228,6 +255,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		
 		if (!smooth) {
 			setMode(mode);
+			return;
+		}
+		
+		// Don't translate between DAY mode, just make it appear/disappear
+		if (mode == Mode.DAY || mMode == Mode.DAY) {
+			setMode(mode);
+			mDayPager.setVisibility(mode == Mode.DAY ? View.VISIBLE : View.GONE);
 			return;
 		}
 		
@@ -299,7 +333,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param percent
 	 */
 	public void setHeightPercent(float percent) {
-		setHeight(mView, (int) (percent * mMaxHeight));
+		setHeight(mView, (int) (percent * mMonthHeight));
 	}
 	
 	/**
@@ -327,7 +361,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		} else if (mode == Mode.WEEK) {
 			targetHeight = mWeekBottom;
 		} else if (mode == Mode.MONTH) {
-			targetHeight = mMaxHeight;
+			targetHeight = mMonthHeight;
+		} else if (mode == Mode.DAY) {
+			targetHeight = mParentHeight;
 		}
 		return targetHeight;
 	}
@@ -336,7 +372,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * The percentage of the content View's max height past the Week height threshold.
 	 */
 	private float getBelowWeekHeightPercent() {
-		return ((float) (mHeight - mWeekBottom)) / ((float) (mMaxHeight - mWeekBottom));
+		return ((float) (mHeight - mWeekBottom)) / ((float) (mMonthHeight - mWeekBottom));
 	}
 	
 	/**
@@ -410,7 +446,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @return The title of the currently displayed View.
 	 */
 	public String getTitle() {
-		if (mMode == Mode.CLOSED) {
+		if (mMode == Mode.CLOSED || mMode == Mode.DAY) {
 			CalendarDay day = mController.getSelectedDay();
 			day.fillCalendar(mScratchCalendar);
 			return Long.toString(mScratchCalendar.getTimeInMillis());
