@@ -83,14 +83,14 @@ public abstract class CalendarView extends View {
 		 * @param calendarView
 		 * @param day
 		 */
-		public void onDayClick(CalendarView calendarView, CalendarDay day);
+		public void onDayClick(View calendarView, CalendarDay day);
 		
 		/**
 		 * Called when a day is long-clicked on a calendar View.
 		 * @param calendarView
 		 * @param day
 		 */
-		public void onDayLongClick(CalendarView calendarView, CalendarDay day);
+		public void onDayLongClick(View calendarView, CalendarDay day);
 	}
 	
 ////===================================================================================

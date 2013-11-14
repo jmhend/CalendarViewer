@@ -5,10 +5,10 @@ import java.util.Calendar;
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
+import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +23,7 @@ import android.view.animation.Transformation;
  * 
  * @author jmhend
  */
-public class CalendarViewer implements OnPageSelectedListener, OnDayClickListener {
+public class CalendarViewer implements OnPageSelectedListener, OnDayClickListener, OnEventClickListener {
 	
 	private static final String TAG = CalendarViewer.class.getSimpleName();
 	
@@ -48,14 +48,14 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		 * @param view
 		 * @param day
 		 */
-		public void onDaySelected(CalendarView view, CalendarDay day);
+		public void onDaySelected(View view, CalendarDay day);
 		
 		/**
 		 * Called when a CalendarDay is long-pressed.
 		 * @param view
 		 * @param day
 		 */
-		public void onDayLongPressed(CalendarView view, CalendarDay day);
+		public void onDayLongPressed(View view, CalendarDay day);
 		
 		/**
 		 * Called when the CalendarViewer changes its mode.
@@ -64,6 +64,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		 * @param newMode
 		 */
 		public void onModeChanged(CalendarViewer viewer, Mode newMode);
+		
+		/**
+		 * Called when an Event is clicked
+		 * @param view
+		 * @param event
+		 */
+		public void onEventClick(View view, Event event);
 		
 		/**
 		 * Called when the CalendarViewers View size changes.
@@ -128,10 +135,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private CalendarViewPager mCurrentPager;
 	private CalendarViewPager mWeekPager;
 	private CalendarViewPager mMonthPager;
-	private CalendarViewPager mDayPager;
+	private DayViewPager mDayPager;
 	private CalendarAdapter mMonthAdapter;
 	private CalendarAdapter mWeekAdapter;
-	private CalendarAdapter mDayAdapter;
+	private DayPagerAdapter mDayAdapter;
 	private Mode mMode;
 	
 	private CalendarController mController;
@@ -185,21 +192,25 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mWeekAdapter = new WeekPagerAdapter(mContext, mModel, mController);
 		mMonthAdapter = new MonthPagerAdapter(mContext, mModel, mController);
 		mDayAdapter = new DayPagerAdapter(mContext, mModel, mController);
+		
 		mWeekPager = (CalendarViewPager) mView.findViewById(R.id.week_pager);
 		mWeekPager.setAdapter(mWeekAdapter);
 		mWeekPager.setOnPageSelectedListener(this);
 		mWeekPager.setOnDayClickListener(this);
 		mWeekPager.setCurrentDay(mController.getCurrentDay());
+		
 		mMonthPager = (CalendarViewPager) mView.findViewById(R.id.month_pager);
 		mMonthPager.setAdapter(mMonthAdapter);
 		mMonthPager.setOnPageSelectedListener(this);
 		mMonthPager.setOnDayClickListener(this);
 		mMonthPager.setCurrentDay(mController.getCurrentDay());
 		
-		mDayPager = (CalendarViewPager) mView.findViewById(R.id.day_pager);
+		mDayPager = (DayViewPager) mView.findViewById(R.id.day_pager);
 		mDayPager.setAdapter(mDayAdapter);
-		mDayPager.setFadeViews(false);
+		mDayPager.setOnPageSelectedListener(this);
+		mDayPager.setOnDayClickListener(this);
 		mDayPager.setCurrentDay(mController.getCurrentDay());
+		mDayAdapter.setOnEventClickListener(this);
 		
 		initDimens();
 		
@@ -233,6 +244,15 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 ////====================================================================================
 	
 	/**
+	 * Updates each CalendarViewer collection.
+	 */
+	public void updateAllCollections() {
+		mMonthPager.updateVisiblePages();
+		mWeekPager.updateVisiblePages();
+		mDayPager.updateVisiblePages();
+	}
+	
+	/**
 	 * Transitions the CalendarViewer to the Mode.
 	 */
 	public void transitionMode(Mode mode) {
@@ -253,15 +273,16 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mWeekPager.setCurrentDay(mController.getSelectedDay());
 		mMonthPager.setCurrentDay(mController.getSelectedDay());
 		
-		if (!smooth) {
-			setMode(mode);
-			return;
-		}
-		
 		// Don't translate between DAY mode, just make it appear/disappear
 		if (mode == Mode.DAY || mMode == Mode.DAY) {
 			setMode(mode);
 			mDayPager.setVisibility(mode == Mode.DAY ? View.VISIBLE : View.GONE);
+			mDayPager.setCurrentDay(mController.getSelectedDay());
+			return;
+		}
+		
+		if (!smooth) {
+			setMode(mode);
 			return;
 		}
 		
@@ -541,11 +562,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 
 	/*
 	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.CalendarView.OnDayClickListener#
-	 * onDayClick(me.jmhend.ui.calendar_viewer.CalendarView, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+	 * @see me.jmhend.CalendarViewer.CalendarView.OnDayClickListener#
+	 * onDayClick(me.jmhend.CalendarViewer.CalendarView, me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayClick(View calendarView, CalendarDay day) {
 		if (mCallback != null) {
 			mCallback.onDaySelected(calendarView, day);
 		}
@@ -557,9 +578,20 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * onDayLongClick(me.jmhend.ui.calendar_viewer.CalendarView, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayLongClick(View calendarView, CalendarDay day) {
 		if (mCallback != null) {
 			mCallback.onDayLongPressed(calendarView, day);
 		}	
+	}
+	
+////====================================================================================
+//// OnEventClickListener
+////====================================================================================
+
+	@Override
+	public void onEventClick(DayView view, Event event) {
+		if (mCallback != null) {
+			mCallback.onEventClick(view, event);
+		}
 	}
 }

@@ -76,10 +76,13 @@ public class DayView extends View {
 	private Paint mEventPaint;
 	private Paint mEventTitlePaint;
 	private Paint mEventLocationPaint;
+	private Paint mCurrentTimePaint;
 	
 	private long mDayStart;
 	private long mDayEnd;
 	private Calendar mCalendar;
+	
+	private OnEventClickListener mEventClickListener;
 	
 	private ScaleGestureDetector mScaleDetector;
 	private float mScale = 1f;
@@ -87,6 +90,24 @@ public class DayView extends View {
 ////============================================================================
 //// Runnables
 ////============================================================================
+	
+////============================================================================
+//// OnEventClick
+////============================================================================
+	
+	/**
+	 * Listens for when Events are clicked in a DayView.
+	 * @author jmhend
+	 *
+	 */
+	public static interface OnEventClickListener {
+		/**
+		 * Called when a DayView Event is clicked.
+		 * @param view
+		 * @param event
+		 */
+		public void onEventClick(DayView view, Event event);
+	}
 	
 	/**
 	 * Handles a delayed click event.
@@ -203,6 +224,11 @@ public class DayView extends View {
 		mLinePaint.setColor(0xFFCCCCCC);
 		mLinePaint.setStyle(Style.FILL);
 		
+		mCurrentTimePaint = new Paint();
+		mCurrentTimePaint.setAntiAlias(true);
+		mCurrentTimePaint.setColor(0xFFFF0000);
+		mCurrentTimePaint.setStyle(Style.FILL);
+		
 		mHourPaint = new Paint();
 		mHourPaint.setAntiAlias(true);
 		mHourPaint.setColor(0xFF666666);
@@ -281,10 +307,22 @@ public class DayView extends View {
 		mModel = model;
 	}
 	
+	/**
+	 * Sets the time bounds of this DayView's day.
+	 * @param dayStart
+	 * @param dayEnd
+	 */
 	public void setDayBounds(long dayStart, long dayEnd) {
 		mDayStart = dayStart;
 		mDayEnd = dayEnd;
 		calculateEventRects();
+	}
+	
+	/**
+	 * @param listener
+	 */
+	public void setOnEventClickListener(OnEventClickListener listener) {
+		mEventClickListener = listener;
 	}
 	
 ////============================================================================
@@ -324,6 +362,7 @@ public class DayView extends View {
 	public void onDraw(Canvas canvas) {
 		drawHoursAndLines(canvas);
 		drawEventRects(canvas);
+		drawCurrentTimeLine(canvas);
 	}
 	
 	/**
@@ -336,6 +375,19 @@ public class DayView extends View {
 			canvas.drawLine(mHourWidth, y, mWidth, y + mLineHeight, mLinePaint);
 			canvas.drawText(getHourAtLinePosition(i), mHourWidth - mEventPadding, y + mHourTextSize / 3, mHourPaint);
 		}
+	}
+	
+	/**
+	 * Draws the line representing the current time.
+	 * @param canvas
+	 */
+	private void drawCurrentTimeLine(Canvas canvas) {
+		long now = System.currentTimeMillis();
+		if (now < mDayStart || now > mDayEnd) {
+			return;
+		}
+		long y = getYForTime(now);
+		canvas.drawRect(mHourWidth, y, mWidth, y + 2 * mLineHeight, mCurrentTimePaint);
 	}
 	
 	/**
@@ -477,6 +529,9 @@ public class DayView extends View {
 	 * @param e
 	 */
 	private void onEventClick(Event e) {
+		if (mEventClickListener != null) {
+			mEventClickListener.onEventClick(this, e);
+		}
 	}
 	
 	/**

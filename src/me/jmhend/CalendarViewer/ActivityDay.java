@@ -27,7 +27,6 @@ public class ActivityDay extends Activity {
 		setContentView(R.layout.activity_day);
 		
 		CalendarViewPager pager = (CalendarViewPager) findViewById(R.id.day_pager);
-		pager.setFadeViews(false);
 		
 		CalendarControllerConfig config = CalendarControllerConfig.getDefault();
 		CalendarController controller = new CalendarController(config);

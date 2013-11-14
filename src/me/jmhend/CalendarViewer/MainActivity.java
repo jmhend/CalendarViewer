@@ -118,7 +118,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayClick(android.view.View, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayClick(View calendarView, CalendarDay day) {
 //		Toast.makeText(this, "Click: " + day.toString(), Toast.LENGTH_SHORT).show();
 	}
 
@@ -127,7 +127,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayLongClick(android.view.View, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayLongClick(View calendarView, CalendarDay day) {
 //		Toast.makeText(this, "Long-click: " + day.toString(), Toast.LENGTH_SHORT).show();
 	}
 	
@@ -161,7 +161,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 * onDaySelected(me.jmhend.ui.calendar_viewer.CalendarView, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 			 */
 			@Override
-			public void onDaySelected(CalendarView view, CalendarDay day) {
+			public void onDaySelected(View view, CalendarDay day) {
 				String title = "Title";
 				setActionBarTitle(title);
 			}
@@ -172,9 +172,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 * onDayLongPressed(me.jmhend.ui.calendar_viewer.CalendarView, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 			 */
 			@Override
-			public void onDayLongPressed(CalendarView view, CalendarDay day) {
-				// TODO Auto-generated method stub
-				
+			public void onDayLongPressed(View view, CalendarDay day) {
 			}
 
 			/*
@@ -184,17 +182,15 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onModeChanged(CalendarViewer viewer, Mode newMode) {
-				String text = "";
-//				if (newMode == Mode.WEEK) {
-//					
-//				} else if (newMode == Mode.MONTH) {
-//					
-//				} else if (newMode == Mode.CLOSED) {
-//					String title = CalendarView.MONTHS[day.month] + " " + day.dayOfMonth + ", " + day.year;
-//					setActionBarTitle(title);
-//				}
-				
 				setActionBarSubtitle(viewer.getTitle());
+			}
+			
+			/*
+			 * (non-Javadoc)
+			 * @see me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks#onEventClick(android.view.View, me.jmhend.CalendarViewer.Event)
+			 */
+			@Override
+			public void onEventClick(View view, Event event) {
 			}
 
 			/*
@@ -206,6 +202,8 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			public void onResized(CalendarViewer viewer, int top, int width, int height) {
 				mBehindList.setPadding(0, top + height, 0, 0);
 			}
+
+			
 
 		};
 		mCalendarViewer.setCallback(mCallback);

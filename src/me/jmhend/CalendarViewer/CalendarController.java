@@ -145,7 +145,7 @@ public class CalendarController {
 		/**
 		 * Called when a CalendarController field changes.
 		 * @param obj The new field Object.
-		 * @param tag Tag describing labeling field changed.
+		 * @param tag Tag describing field changed.
 		 */
 		public void onChange(CalendarController controller, Object obj, String tag);
 	}

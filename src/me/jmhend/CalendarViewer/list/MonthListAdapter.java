@@ -230,7 +230,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayClick(View calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;
@@ -247,7 +247,7 @@ public class MonthListAdapter extends BaseAdapter implements OnDayClickListener 
 	 * @see me.jmhend.ui.calendar_viewer.MonthView.OnDayClickListener#onDayLongClick(me.jmhend.ui.calendar_viewer.MonthView, me.jmhend.ui.calendar_viewer.MonthListAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayLongClick(View calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;

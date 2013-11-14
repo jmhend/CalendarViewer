@@ -1,29 +1,28 @@
 package me.jmhend.CalendarViewer;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import me.jmhend.CalendarViewer.CalendarController.OnCalendarControllerChangeListener;
+import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 /**
  * PagerAdapter for displaying DayViews.
  * @author jmhend
  *
  */
-public class DayPagerAdapter extends CalendarAdapter {
+public class DayPagerAdapter extends CalendarAdapter implements OnCalendarControllerChangeListener {
 
 	private static final String TAG = DayPagerAdapter.class.getSimpleName();
-	
-////==================================================================================
-//// Static constants.
-////==================================================================================
 	
 ////==================================================================================
 //// Member variables.
@@ -36,7 +35,7 @@ public class DayPagerAdapter extends CalendarAdapter {
 	private final Calendar mCalendar;
 	private int mCount;
 	
-	
+	private OnEventClickListener mEventClickListener;
 	
 ////==================================================================================
 //// Constructor
@@ -57,6 +56,17 @@ public class DayPagerAdapter extends CalendarAdapter {
 	}
 	
 ////==================================================================================
+//// Getters/Setters
+////==================================================================================
+	
+	/**
+	 * @param l
+	 */
+	public void setOnEventClickListener(OnEventClickListener l) {
+		mEventClickListener = l;
+	}
+	
+////==================================================================================
 //// CalendarAdapter
 ////==================================================================================
 	
@@ -69,6 +79,15 @@ public class DayPagerAdapter extends CalendarAdapter {
 		DayView dayView = (DayView) view;
 		dayView.setAdapter(this);
 		dayView.setModel(mModel);
+		dayView.setOnEventClickListener(mEventClickListener);
+		
+		// Necessary to identify Views in CalendarViewPager.
+		Map<String, Integer> params = (Map<String, Integer>) dayView.getTag();
+		if (params == null) {
+			params = new HashMap<String, Integer>();
+		}
+		params.put(CalendarAdapter.KEY_POSITION, Integer.valueOf(position));
+		dayView.setTag(params);
 		
 		long start = getDayStartForPosition(position);
 		long end = getDayEndForPosition(position);
@@ -97,8 +116,10 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 */
 	@Override
 	public void setSelectedDay(CalendarDay day) {
+		mController.setSelectedDay(day);
+		updateViewPager();
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see me.jmhend.CalendarViewer.RecyclingPagerAdapter#getView(int, android.view.View, android.view.ViewGroup)
@@ -141,7 +162,7 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 * @param position
 	 * @return The day start time at position.
 	 */
-	private long getDayStartForPosition(int position) {
+	public long getDayStartForPosition(int position) {
 		resetCalendar();
 		mCalendar.add(Calendar.DAY_OF_YEAR, position);
 		return mCalendar.getTimeInMillis();
@@ -151,7 +172,7 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 * @param position
 	 * @return The day end time at position;
 	 */
-	private long getDayEndForPosition(int position) {
+	public long getDayEndForPosition(int position) {
 		resetCalendar();
 		mCalendar.add(Calendar.DAY_OF_YEAR, position);
 		mCalendar.set(Calendar.SECOND, 59);
@@ -165,6 +186,31 @@ public class DayPagerAdapter extends CalendarAdapter {
 	 */
 	private void resetCalendar() {
 		mController.getStartDay().fillCalendar(mCalendar);
+	}
+	
+	
+////====================================================================================
+//// OnCalendarControllerChangeListener
+////====================================================================================
+
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.ui.calendar_viewer.CalendarController.OnCalendarControllerChangeListener#onChange(me.jmhend.ui.calendar_viewer.CalendarController, java.lang.Object, java.lang.String)
+	 */
+	@Override
+	public void onChange(CalendarController controller, Object obj, String tag) {
+		if (CalendarController.FIRST_DAY_OF_WEEK.equals(tag)
+				|| CalendarController.START_DAY.equals(tag)
+				|| CalendarController.END_DAY.equals(tag)) {
+			calculateCount();
+		}
+		if (CalendarController.SELECTED_DAY.equals(tag)) {
+			CalendarDay selectedDay = (CalendarDay) obj;
+			if (selectedDay != null) {
+				getViewPager().setCurrentDay(selectedDay);
+			}
+		}
+		updateViewPager();
 	}
 
 }

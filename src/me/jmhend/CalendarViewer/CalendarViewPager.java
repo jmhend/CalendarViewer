@@ -50,12 +50,10 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 //// Member variables.
 ////=====================================================================================
 	
-	private CalendarAdapter mAdapter;
-	private OnPageChangeListener mPageChangeListener;
-	private OnPageSelectedListener mPageSelectedListener;
-	private OnDayClickListener mDayClickListener;
-	
-	private boolean mFadeViews = true;
+	protected CalendarAdapter mAdapter;
+	protected OnPageChangeListener mPageChangeListener;
+	protected OnPageSelectedListener mPageSelectedListener;
+	protected OnDayClickListener mDayClickListener;
 	
 ////=====================================================================================
 //// Constructor
@@ -101,9 +99,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 */
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				if (mFadeViews) {
-					fadeEdges(position, positionOffset, positionOffsetPixels);
-				}
+				fadeEdges(position, positionOffset, positionOffsetPixels);
 			}
 
 			/*
@@ -167,13 +163,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	}
 	
 	/**
-	 * @param fade
-	 */
-	public void setFadeViews(boolean fade) {
-		mFadeViews = fade;
-	}
-	
-	/**
 	 * Sets the current day of the ViewPager.
 	 * @param day
 	 */
@@ -213,7 +202,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	public View getViewAtPosition(int position) {
 		int childCount = getChildCount();
 		for (int i = 0; i < childCount; i++) {
-			View child = getChildAt(i);
+			View child = getCalendarChildAt(i);
 			int childPosition = getPositionFromTag(child);
 			if (childPosition == position) {
 				return child;
@@ -277,12 +266,20 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	public void updateVisiblePages() {
 		int childCount = getChildCount();
 		for (int i = 0; i < childCount; i++) {
-			CalendarView child = (CalendarView) getChildAt(i);
+			View child = getCalendarChildAt(i);
 			int childPosition = getPositionFromTag(child);
 			if (childPosition != -1) {
 				mAdapter.updateView(childPosition, child);
 			}
 		}
+	}
+	
+	/**
+	 * @param position
+	 * @return The CalendarView-like View at position.
+	 */
+	protected View getCalendarChildAt(int position) {
+		return getChildAt(position);
 	}
 	
 ////=============================================================================
@@ -311,7 +308,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			primaryAlpha = MIN_PAGE_OPACITY;
 		}
 		for (int i = 0; i < getChildCount(); i++) {
-			final View child = getChildAt(i);
+			final View child = getCalendarChildAt(i);
 			final int childPos = getPositionFromTag(child);
 			if (childPos == position) {
 				child.setAlpha(primaryAlpha);
@@ -327,10 +324,11 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayClick(android.view.View, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
+	 * @see me.jmhend.CalendarViewer.CalendarView.OnDayClickListener#
+	 * onDayClick(me.jmhend.CalendarViewer.CalendarView, me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayClick(View calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;
@@ -347,7 +345,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	 * @see me.jmhend.ui.calendar_viewer.OnDayClickListener#onDayLongClick(android.view.View, me.jmhend.ui.calendar_viewer.CalendarAdapter.CalendarDay)
 	 */
 	@Override
-	public void onDayLongClick(CalendarView calendarView, CalendarDay day) {
+	public void onDayLongClick(View calendarView, CalendarDay day) {
 		if (day != null) {
 			if (!Utils.isDayCurrentOrFuture(day)) {
 				return;
