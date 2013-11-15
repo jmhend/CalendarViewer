@@ -373,7 +373,7 @@ public class DayView extends View {
 		for (int i = 0; i < 24; i++) {
 			int y = (int) ((i * mHourHeight + mPaddingTop) * mScale);
 			canvas.drawLine(mHourWidth, y, mWidth, y + mLineHeight, mLinePaint);
-			canvas.drawText(getHourAtLinePosition(i), mHourWidth - mEventPadding, y + mHourTextSize / 3, mHourPaint);
+			canvas.drawText(getHourAtLinePosition(i), mHourWidth - 2 * mEventPadding, y + mHourTextSize / 3, mHourPaint);
 		}
 	}
 	
@@ -387,7 +387,8 @@ public class DayView extends View {
 			return;
 		}
 		long y = getYForTime(now);
-		canvas.drawRect(mHourWidth, y, mWidth, y + 2 * mLineHeight, mCurrentTimePaint);
+		canvas.drawRect(mHourWidth, y, mWidth, y + mLineHeight, mCurrentTimePaint);
+		canvas.drawCircle(mHourWidth + mEventBorderWidth / 2, y + mLineHeight / 2, 8, mCurrentTimePaint);
 	}
 	
 	/**
