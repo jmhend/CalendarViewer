@@ -27,9 +27,23 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static int activity_horizontal_margin=0x7f050009;
+        public static int activity_horizontal_margin=0x7f050015;
         public static int day_of_week_text_size=0x7f050003;
         public static int day_text_size=0x7f050007;
+        public static int dayview_event_border_width=0x7f050011;
+        public static int dayview_event_location_height=0x7f05000e;
+        public static int dayview_event_location_size=0x7f050014;
+        public static int dayview_event_margin=0x7f050010;
+        public static int dayview_event_padding=0x7f05000f;
+        public static int dayview_event_title_height=0x7f05000d;
+        public static int dayview_event_title_size=0x7f050013;
+        public static int dayview_hour_height=0x7f05000b;
+        public static int dayview_hour_label_size=0x7f050012;
+        public static int dayview_hour_label_width=0x7f05000a;
+        public static int dayview_line_height=0x7f05000c;
+        /**  DayView 
+         */
+        public static int dayview_padding_top=0x7f050009;
         public static int month_bottom_padding=0x7f050008;
         public static int month_list_item_header_height=0x7f050002;
         public static int month_title_text_size=0x7f050006;

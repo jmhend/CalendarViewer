@@ -5,11 +5,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-
-import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,7 +21,6 @@ import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.Toast;
 
 /**
  * A View displaying the Events of a day.
@@ -40,6 +37,7 @@ public class DayView extends View {
 ////============================================================================
 	
 	private static final int CLICK_DISPLAY_DURATION = 50;
+	private static final int DEFAULT_COLOR = 0xFFFF6600;
 	
 ////============================================================================
 //// Member variables.
@@ -48,7 +46,6 @@ public class DayView extends View {
 	private Map<Event, Rect> mRectMap = new HashMap<Event, Rect>();
 	private Event mPressedEvent;
 	
-	private DayPagerAdapter mAdapter;
 	private CalendarModel mModel;
 	
 	private int mWidth;
@@ -84,13 +81,6 @@ public class DayView extends View {
 	
 	private OnEventClickListener mEventClickListener;
 	
-	private ScaleGestureDetector mScaleDetector;
-	private float mScale = 1f;
-	
-////============================================================================
-//// Runnables
-////============================================================================
-	
 ////============================================================================
 //// OnEventClick
 ////============================================================================
@@ -108,6 +98,10 @@ public class DayView extends View {
 		 */
 		public void onEventClick(DayView view, Event event);
 	}
+	
+////============================================================================
+//// Runnables
+////============================================================================
 	
 	/**
 	 * Handles a delayed click event.
@@ -203,21 +197,20 @@ public class DayView extends View {
 	 * Initttt.
 	 */
 	private void init() {
-		mPaddingTop = 80;
-		mHourWidth = 140;
-		mHourHeight = 200;
-		mLineHeight = 3;
-		mEventTitleHeight = 60;
-		mEventLocationHeight = 45;
-		mEventPadding = 10;
-		mEventMargin = 6;
-		mEventBorderWidth = 10;
+		Resources r = getContext().getResources();
 		
-		mTapDelay = ViewConfiguration.getTapTimeout();
-		
-		mHourTextSize = 40;
-		mTitleTextSize = 32;
-		mLocationTextSize = 32;
+		mPaddingTop = r.getDimensionPixelSize(R.dimen.dayview_padding_top);
+		mHourWidth = r.getDimensionPixelSize(R.dimen.dayview_hour_label_width);
+		mHourHeight = r.getDimensionPixelSize(R.dimen.dayview_hour_height);
+		mLineHeight = r.getDimensionPixelSize(R.dimen.dayview_line_height);
+		mEventTitleHeight = r.getDimensionPixelSize(R.dimen.dayview_event_title_height);
+		mEventLocationHeight = r.getDimensionPixelSize(R.dimen.dayview_event_location_height);
+		mEventPadding = r.getDimensionPixelSize(R.dimen.dayview_event_padding);
+		mEventMargin = r.getDimensionPixelSize(R.dimen.dayview_event_margin);
+		mEventBorderWidth = r.getDimensionPixelSize(R.dimen.dayview_event_border_width);
+		mHourTextSize = r.getDimensionPixelSize(R.dimen.dayview_hour_label_size);
+		mTitleTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_title_size);
+		mLocationTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_location_size);
 		
 		mLinePaint = new Paint();
 		mLinePaint.setAntiAlias(true);
@@ -264,42 +257,13 @@ public class DayView extends View {
 		int y2 = this.getYForTime(1383913800000L);
 		mMinEventHeight = y2 - y;
 		
-		mScaleDetector = new ScaleGestureDetector(getContext(), new OnScaleGestureListener() {
-
-			@Override
-			public boolean onScale(ScaleGestureDetector detector) {
-				float scale = detector.getScaleFactor();
-				Log.e(TAG, "Scale: " + scale);
-				mScale = Math.max(1f, scale);
-				DayView.this.requestLayout();
-				return false;
-			}
-
-			@Override
-			public boolean onScaleBegin(ScaleGestureDetector detector) {
-				Log.w(TAG, "Scale begin");
-				return true;
-			}
-
-			@Override
-			public void onScaleEnd(ScaleGestureDetector detector) {
-				Log.w(TAG, "Scale end");
-			}
-			
-		});
+		mTapDelay = ViewConfiguration.getTapTimeout();
 	}
 	
 ////============================================================================
 //// Getters/Setters
 ////============================================================================
-	
-	/**
-	 * @param adapter
-	 */
-	public void setAdapter(DayPagerAdapter adapter) {
-		mAdapter = adapter;
-	}
-	
+
 	/**
 	 * @param model
 	 */
@@ -346,7 +310,7 @@ public class DayView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		final int width = MeasureSpec.getSize(widthMeasureSpec);
-		final int height = (int) ((mHourHeight * 24 * mScale) + mPaddingTop);
+		final int height = (int) ((mHourHeight * 24) + mPaddingTop);
 		setMeasuredDimension(width, height);
 	}
 	
@@ -371,7 +335,7 @@ public class DayView extends View {
 	 */
 	private void drawHoursAndLines(Canvas canvas) {
 		for (int i = 0; i < 24; i++) {
-			int y = (int) ((i * mHourHeight + mPaddingTop) * mScale);
+			int y = (int) (i * mHourHeight + mPaddingTop);
 			canvas.drawLine(mHourWidth, y, mWidth, y + mLineHeight, mLinePaint);
 			canvas.drawText(getHourAtLinePosition(i), mHourWidth - 2 * mEventPadding, y + mHourTextSize / 3, mHourPaint);
 		}
@@ -400,10 +364,11 @@ public class DayView extends View {
 		for (Event event : events) {
 			Rect rect = mRectMap.get(event);
 			if (rect != null) {
+				
 				// Draw transluscent background.
 				int color = event.getDrawingColor();
 				if (color == 0) {
-					color = 0xFFFF6600;
+					color = DEFAULT_COLOR;
 				}
 				if (event == mPressedEvent) {
 					color = lightenBy(color, 0.5f);
@@ -413,20 +378,20 @@ public class DayView extends View {
 				canvas.drawRect(rect, mEventPaint);
 				
 				// Draw border
-				Rect border = new Rect(rect);
-				border.right = border.left + mEventBorderWidth;
-				canvas.drawRect(border, mEventPaint);
-				canvas.drawRect(border, mEventPaint);
+				final int borderRight = rect.left + mEventBorderWidth;
+				color = setAlpha(.9f, color);
+				mEventPaint.setColor(color);
+				canvas.drawRect(rect.left, rect.top, borderRight, rect.bottom, mEventPaint);
 				
 				// Draw Title
 				int width = rect.right - rect.left - 2 * mEventPadding;
 				String title = clipText(event.getDrawablingTitle(), mEventTitlePaint, width);
-				canvas.drawText(title, border.right + mEventPadding, rect.top + (mTitleTextSize) + mEventPadding, mEventTitlePaint);
+				canvas.drawText(title, borderRight + mEventPadding, rect.top + (mTitleTextSize) + mEventPadding, mEventTitlePaint);
 				
 				// Draw Location.
 				if (event.getTextLinesCount() == 2) {
 					String location = clipText(event.getDrawingLocation(), mEventLocationPaint, width);
-					canvas.drawText(location, border.right + mEventPadding, rect.top + 2 * mTitleTextSize + mEventPadding, mEventLocationPaint);
+					canvas.drawText(location, borderRight + mEventPadding, rect.top + 2 * mTitleTextSize + mEventPadding, mEventLocationPaint);
 				}
 			}
 		}
@@ -488,11 +453,6 @@ public class DayView extends View {
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-//		mScaleDetector.onTouchEvent(e);
-//		if (mScaleDetector.isInProgress()) {
-//			return true;
-//		}
-		
 		int action = e.getActionMasked();
 		if (action == MotionEvent.ACTION_DOWN) {
 			Event event = eventAtPosition((int) e.getX(), (int) e.getY());
@@ -609,7 +569,7 @@ public class DayView extends View {
 			
 			// Event ends after this day.
 			if (endTime > mDayEnd) {
-				bottomY = (int) ((mHourHeight * 24 * mScale) + mPaddingTop);
+				bottomY = (int) ((mHourHeight * 24) + mPaddingTop);
 			// Event ends this day.
 			} else {
 				bottomY = getYForTime(endTime) - 1;
@@ -676,7 +636,7 @@ public class DayView extends View {
 		int hourY = mCalendar.get(Calendar.HOUR_OF_DAY) * mHourHeight + mPaddingTop;
 		float offsetPercent = ((float) mCalendar.get(Calendar.MINUTE) / (float) 60f);
 		int minOffset = (int) (offsetPercent * mHourHeight);
-		return (int) ((hourY + minOffset) * mScale);
+		return (int) (hourY + minOffset);
 	}
 	
 	/**
@@ -694,7 +654,6 @@ public class DayView extends View {
 	 */
 	private boolean willDrawEvent(Event e) {
 		return true;
-//		return e.getDrawingColor() != 0;
 	}
 	
 	

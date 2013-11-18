@@ -77,7 +77,6 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 	@Override
 	public void updateView(int position, View view) {
 		DayView dayView = (DayView) view;
-		dayView.setAdapter(this);
 		dayView.setModel(mModel);
 		dayView.setOnEventClickListener(mEventClickListener);
 		

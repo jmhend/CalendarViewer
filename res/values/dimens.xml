@@ -1,12 +1,26 @@
 <resources>
-    <dimen name="monthview_height">240.0dip</dimen>
-    <dimen name="weekview_height">60dip</dimen>
-    <dimen name="month_list_item_header_height">24.0dip</dimen>
+    <dimen name="monthview_height">240.0dp</dimen>
+    <dimen name="weekview_height">60dp</dimen>
+    <dimen name="month_list_item_header_height">24.0dp</dimen>
     <dimen name="day_of_week_text_size">10.0sp</dimen>
-    <dimen name="selected_circle_radius">16.0dip</dimen>
-    <dimen name="selected_circle_stroke_width">2.0dip</dimen>
+    <dimen name="selected_circle_radius">16.0dp</dimen>
+    <dimen name="selected_circle_stroke_width">2.0dp</dimen>
     <dimen name="month_title_text_size">16.0sp</dimen>
     <dimen name="day_text_size">16.0sp</dimen>
     <dimen name="month_bottom_padding">6.0dp</dimen>
     <bool name="draw_day_labels">false</bool>
+    
+    <!-- DayView -->
+    <dimen name="dayview_padding_top">28dp</dimen>
+    <dimen name="dayview_hour_label_width">45dp</dimen>
+    <dimen name="dayview_hour_height">80dp</dimen>
+    <dimen name="dayview_line_height">1dp</dimen>
+    <dimen name="dayview_event_title_height">20dp</dimen>
+    <dimen name="dayview_event_location_height">15dp</dimen>
+    <dimen name="dayview_event_padding">3dp</dimen>
+    <dimen name="dayview_event_margin">2dp</dimen>
+    <dimen name="dayview_event_border_width">3dp</dimen>
+    <dimen name="dayview_hour_label_size">14sp</dimen>
+    <dimen name="dayview_event_title_size">12sp</dimen>
+    <dimen name="dayview_event_location_size">12sp</dimen>
 </resources>
