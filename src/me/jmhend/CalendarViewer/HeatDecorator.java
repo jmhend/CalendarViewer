@@ -119,12 +119,13 @@ public class HeatDecorator implements CalendarViewerDecorator {
 			
 			int x = view.getXForDay(day);
 			int y = view.getYForDay(day);
+			y += mRadius;
 			if (y <= 0 || x <= 0) {
 				return;
 			}
 			
-			mPaint.setColor(color);
-			canvas.drawCircle(x,  y - mRadius / 3, mRadius, mPaint);
+			mPaint.setColor(0xFFFFFFFF);
+			canvas.drawCircle(x,  y - mRadius / 3, mRadius / 3, mPaint);
 		}
 	}
 }

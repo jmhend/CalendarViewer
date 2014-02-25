@@ -238,7 +238,6 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 	 */
 	@Override
 	public void onChange(CalendarController controller, Object obj, String tag) {
-		Log.e(TAG, "onChange!");
 		if (CalendarController.FIRST_DAY_OF_WEEK.equals(tag)
 				|| CalendarController.START_DAY.equals(tag)
 				|| CalendarController.END_DAY.equals(tag)) {

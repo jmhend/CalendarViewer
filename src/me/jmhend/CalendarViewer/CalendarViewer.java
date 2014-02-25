@@ -9,6 +9,7 @@ import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
+import android.widget.RelativeLayout;
 
 /**
  * 
@@ -130,7 +132,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 ////====================================================================================
 	
 	private Context mContext;
-	private View mView;
+	private RelativeLayout mView;
 	private CalendarViewerCallbacks mCallback;
 	private CalendarViewPager mCurrentPager;
 	private CalendarViewPager mWeekPager;
@@ -174,7 +176,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param config
 	 */
 	public void initView(final ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
-		mView = LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
+		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
 		
 		parent.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 			/*
@@ -297,6 +299,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				int height = ((int) (interpolatedTime * (targetHeight - startHeight))) + startHeight;
+				Log.i(TAG, "setHeight from applyTransformation");
 				setHeight(mView, height);
 			}
 		};
@@ -310,7 +313,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 				mView.setEnabled(false);
 				setMode(Mode.TRANSITION);
 			}
-			
+
 			/*
 			 * (non-Javadoc)
 			 * @see android.view.animation.Animation.AnimationListener#onAnimationEnd(android.view.animation.Animation)
@@ -318,6 +321,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				mView.setEnabled(true);
+				Log.w(TAG, "onAnimationEnd: " + mode);
 				setMode(mode);
 			}
 
@@ -326,7 +330,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			 * @see android.view.animation.Animation.AnimationListener#onAnimationRepeat(android.view.animation.Animation)
 			 */
 			@Override
-			public void onAnimationRepeat(Animation animation) { 
+			public void onAnimationRepeat(Animation animation) {
 				mView.clearAnimation();
 			}
 			
@@ -402,6 +406,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param height
 	 */
 	private void onHeightChanged(View view, int height) {
+		Log.d(TAG, "onHeightChanged: " + height);
 		float alphaWeek = 0f;
 		float alphaMonth = 0f;
 		int transYWeek = 0;
@@ -454,6 +459,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		// Notify callbacks.
 		if (mCallback != null) {
 			if (view != null) {
+				Log.d(TAG, "callback to " + mCallback.getClass().getCanonicalName());
 				mCallback.onResized(this, view.getTop(), view.getWidth(), mHeight);
 			}
 		}
@@ -519,7 +525,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * Sets the display Mode of the CalendarViewer.
 	 * @param mode
 	 */
-	public void setMode(View content, Mode mode) {
+	public void setMode(View content, Mode mode) { 
+		Log.i(TAG, "setMode: " + mode);
 		if (mMode == mode) {
 			return;
 		}
