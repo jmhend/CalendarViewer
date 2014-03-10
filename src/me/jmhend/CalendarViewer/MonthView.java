@@ -54,11 +54,14 @@ public class MonthView extends CalendarView {
 	private final int[] mDayXs = new int[MAX_DAYS];
 	private final int[] mDayYs = new int[MAX_DAYS];
 	private final boolean[] mDayActives = new boolean[MAX_DAYS];
+	private final boolean[] mDayHasEvents = new boolean[MAX_DAYS];
 	private boolean mHideSelectedWeek = false;
 	private int mSelectedDayY = 0;
 	
 	private StringBuilder mStringBuilder;
 	private Formatter mFormatter;
+	
+	private CalendarModel mModel;
 
 ////==================================================================================================
 //// Constructor.
@@ -160,9 +163,12 @@ public class MonthView extends CalendarView {
 			}
 			
 			// Show the day as selected.
-			
 			if (mSelectedDayOfWeek == day) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
+				
+			// Draw Day Marker if there are Events this day and the selected circle isn't drawn;
+			} else if (mDayHasEvents[day-1]) {
+				canvas.drawCircle(x, y + mDayTextSize / 2, mDayMarkerRadius, mDayMarkerPaint);
 			}
 			
 			int textColor;
@@ -375,6 +381,14 @@ public class MonthView extends CalendarView {
 	}
 	
 	/**
+	 * Sets the CalendarModel.
+	 * @param model
+	 */
+	public void setModel(CalendarModel model) {
+		mModel = model;
+	}
+	
+	/**
 	 * Sets the month parameters that customize the MonthView's data.
 	 * @param params
 	 */
@@ -419,6 +433,18 @@ public class MonthView extends CalendarView {
 		mNumRows = calculateNumRows();
 		
 		mMaxHeight = mRowHeight * mNumRows + mBottomPadding;
+		
+		// Mark which days have Events.
+		clearHasEventsArray();
+		int dayOfMonth = 1;
+		CalendarDay day = new CalendarDay(mYear, mMonth, dayOfMonth);
+		while (dayOfMonth <= mNumCells) {
+			boolean hasEvents = mModel.hasEventsOnDay(day);
+			mDayHasEvents[dayOfMonth-1] = hasEvents;
+			dayOfMonth++;
+			day.dayOfMonth = dayOfMonth;
+		}
+		
 	}
 	
 ////==================================================================================================
@@ -435,4 +461,13 @@ public class MonthView extends CalendarView {
 			mDayActives[i] = false;
 		}
 	}	
+	
+	/**
+	 * Zero-out hasEvents array.
+	 */
+	private void clearHasEventsArray() {
+		for (int i = 0; i < MAX_DAYS; i++) {
+			mDayHasEvents[i] = false;
+		}
+	}
 }

@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+
 import android.app.Activity;
 import android.os.Bundle;
 
@@ -73,6 +75,17 @@ public class ActivityDay extends Activity {
 		public void unregisterObserver(CalendarModelObserver observer) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public boolean hasEventsOnDay(CalendarDay day) {
+			return false;
+		}
+
+		@Override
+		public boolean shouldDrawEvent(Event event) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 		
 	}

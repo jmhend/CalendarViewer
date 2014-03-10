@@ -653,7 +653,7 @@ public class DayView extends View {
 	 * @return True if the EventDrawable will be drawn in this DayView, false otherwise.
 	 */
 	private boolean willDrawEvent(Event e) {
-		return true;
+		return mModel.shouldDrawEvent(e);
 	}
 	
 	

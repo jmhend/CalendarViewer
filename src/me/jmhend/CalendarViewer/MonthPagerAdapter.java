@@ -93,6 +93,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	@Override
 	public void updateView(int position, View view) {
 		MonthView monthView = (MonthView) view;
+		monthView.setModel(mModel);
 		Map<String, Integer> params = (Map<String, Integer>) monthView.getTag();
 		if (params == null) {
 			params = new HashMap<String, Integer>();
@@ -111,17 +112,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 		params.put(MonthView.KEY_CURRENT_MONTH, Integer.valueOf(mController.getCurrentDay().month));
 		params.put(MonthView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mController.getCurrentDay().dayOfMonth));
 
-		HeatDecorator dec;
-		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
-			dec = mDecoratorsMap.get(Integer.valueOf(position));
-		} else {
-			dec = new HeatDecorator(year, month);
-			mDecoratorsMap.put(Integer.valueOf(position), dec);
-		}
-		
 		monthView.reset();
-//		monthView.clearDecorators();
-//		monthView.addDecorator(dec);
 		monthView.setParams(params);
 		monthView.setHideSelectedWeek(false);
 		monthView.invalidate();

@@ -2,6 +2,8 @@ package me.jmhend.CalendarViewer;
 
 import java.util.List;
 
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+
 
 /**
  * Model to query against for Calendar and Event data.
@@ -12,6 +14,10 @@ public interface CalendarModel {
 	public List<? extends Event> getEvents();
 	
 	public List<? extends Event> getEventsOnDay(long dayStart);
+	
+	public boolean hasEventsOnDay(CalendarDay day);
+	
+	public boolean shouldDrawEvent(Event event);
 	
 	public int getHeat(long dayStart);
 	

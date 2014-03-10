@@ -91,6 +91,7 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 	@Override
 	public void updateView(int position, View view) {
 		WeekView weekView = (WeekView) view;
+		weekView.setModel(mModel);
 		Map<String, Integer> params = (Map<String, Integer>) weekView.getTag();
 		if (params == null) {
 			params = new HashMap<String, Integer>();
@@ -114,17 +115,7 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 		params.put(WeekView.KEY_CURRENT_MONTH, Integer.valueOf(mController.getCurrentDay().month));
 		params.put(WeekView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mController.getCurrentDay().dayOfMonth));
 
-		HeatDecorator dec;
-		if (mDecoratorsMap.containsKey(Integer.valueOf(position))) {
-			dec = mDecoratorsMap.get(Integer.valueOf(position));
-		} else {
-			dec = new HeatDecorator(startDay.year, startDay.month);
-			mDecoratorsMap.put(Integer.valueOf(position), dec);
-		}
-		
 		weekView.reset();
-//		weekView.clearDecorators();
-//		weekView.addDecorator(dec);
 		weekView.setParams(params);
 		weekView.invalidate();
 	}

@@ -77,6 +77,7 @@ public class WeekView extends CalendarView {
 	private final int[] mDayOfMonths = new int[MAX_DAYS];
 	private final int[] mMonths = new int[MAX_DAYS];
 	private final int[] mYears = new int[MAX_DAYS];
+	private final boolean[] mDayHasEvents = new boolean[MAX_DAYS];
 	
 	private CalendarDay mStartDay;
 	private CalendarDay mEndDay;
@@ -88,6 +89,8 @@ public class WeekView extends CalendarView {
 	
 	private StringBuilder mStringBuilder;
 	private Formatter mFormatter;
+	
+	private CalendarModel mModel;
 
 ////======================================================================================
 //// Constructor.
@@ -200,8 +203,14 @@ public class WeekView extends CalendarView {
 		for (int i = 0; i < mDayOfMonths.length; i++) {
 			int x = mDayXs[i];
 			int y = mDayY;
+			
+			
 			if (i == mSelectedDayPosition) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
+				
+			// Draw Day Marker if there are Events this day and the selected circle isn't drawn;
+			} else if (mDayHasEvents[i]) {
+				canvas.drawCircle(x, y + mDayTextSize / 2, mDayMarkerRadius, mDayMarkerPaint);
 			}
 			
 			int textColor;
@@ -299,6 +308,13 @@ public class WeekView extends CalendarView {
 	}
 	
 	/**
+	 * @param model
+	 */
+	public void setModel(CalendarModel model) {
+		mModel = model;
+	}
+	
+	/**
 	 * Set the parameters that define how his WeekView should display itself.
 	 * @param params
 	 */
@@ -347,11 +363,22 @@ public class WeekView extends CalendarView {
 		mCurrentDayPosition = -1;
 		mSelectedDayPosition = -1;
 		
+		final CalendarDay day = new CalendarDay();
+		clearHasEventsArray();
+		
 		// Calculate which date to display in the week.
 		for (int i = 0; i < MAX_DAYS; i++) {
-			mYears[i] = mCalendar.get(Calendar.YEAR);
-			mMonths[i] = mCalendar.get(Calendar.MONTH);
-			mDayOfMonths[i] = mCalendar.get(Calendar.DAY_OF_MONTH);
+			int year = mCalendar.get(Calendar.YEAR);
+			int month = mCalendar.get(Calendar.MONTH);
+			int dayOfMonth = mCalendar.get(Calendar.DAY_OF_MONTH);
+			mYears[i] = year;
+			mMonths[i] = month;
+			mDayOfMonths[i] = dayOfMonth;
+			day.year = year;
+			day.month = month;
+			day.dayOfMonth = dayOfMonth;
+			boolean hasEvents = mModel.hasEventsOnDay(day);
+			mDayHasEvents[i] = hasEvents;
 			
 			// Check if and where current day is in this week.
 			if (mCurrentDayPosition == -1 && mCurrentDay.isSameDay(mCalendar)) {
@@ -413,6 +440,15 @@ public class WeekView extends CalendarView {
 		for (int i = 0; i < MAX_DAYS; i++) {
 			mDayXs[i] = 0;
 			mDayActives[i] = false;
+		}
+	}
+	
+	/**
+	 * Zero-out hasEvents array.
+	 */
+	private void clearHasEventsArray() {
+		for (int i = 0; i < MAX_DAYS; i++) {
+			mDayHasEvents[i] = false;
 		}
 	}
 }

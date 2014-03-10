@@ -108,6 +108,7 @@ public abstract class CalendarView extends View {
 	protected int mPadding = 0;
 	protected int mWidth;
 	protected int mRowHeight;
+	protected int mDayMarkerRadius;
 	
 	// Time
 	protected Calendar mCalendar;
@@ -131,6 +132,7 @@ public abstract class CalendarView extends View {
 	protected Paint mMonthNumPaint;
 	protected Paint mMonthTitlePaint;
 	protected Paint mSelectedCirclePaint;
+	protected Paint mDayMarkerPaint;
 
 	// Geometry
 	protected int mDaysPerWeek = DEFAULT_DAYS_PER_WEEK;
@@ -196,6 +198,10 @@ public abstract class CalendarView extends View {
 	protected void initResources() {
 		Resources r = getContext().getResources();
 		mCalendar = Calendar.getInstance();
+		mCalendar.set(Calendar.HOUR_OF_DAY, 0);
+		mCalendar.set(Calendar.MINUTE, 0);
+		mCalendar.set(Calendar.SECOND, 0);
+		mCalendar.set(Calendar.MILLISECOND, 0);
 		mActiveDayTextColor = r.getColor(R.color.day_text_active);
 		mInactiveDayTextColor = r.getColor(R.color.day_text_inactive);
 		mTodayNumberColor = r.getColor(R.color.day_text_today);
@@ -211,6 +217,7 @@ public abstract class CalendarView extends View {
 		mBottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
 		mRowHeight = (r.getDimensionPixelOffset(R.dimen.monthview_height) - mMonthHeaderHeight) / 6;
 		mDrawDayOfWeekLabels = r.getBoolean(R.bool.draw_day_labels);
+		mDayMarkerRadius = r.getDimensionPixelSize(R.dimen.day_marker_radius);
 	}
 
 	/**
@@ -239,6 +246,10 @@ public abstract class CalendarView extends View {
 		mMonthNumPaint.setTextSize(mDayTextSize);
 		mMonthNumPaint.setStyle(Paint.Style.FILL);
 		mMonthNumPaint.setTextAlign(Paint.Align.CENTER);
+		mDayMarkerPaint = new Paint();
+		mDayMarkerPaint.setAntiAlias(true);
+		mDayMarkerPaint.setColor(mInactiveDayTextColor);
+		mDayMarkerPaint.setStyle(Paint.Style.FILL);
 		
 		setOnClickListener(new OnClickListener() {
 			/*

@@ -8,6 +8,7 @@
     <dimen name="month_title_text_size">16.0sp</dimen>
     <dimen name="day_text_size">16.0sp</dimen>
     <dimen name="month_bottom_padding">6.0dp</dimen>
+    <dimen name="day_marker_radius">3.0dp</dimen>
     <bool name="draw_day_labels">false</bool>
     
     <!-- DayView -->

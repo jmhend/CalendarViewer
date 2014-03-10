@@ -8,8 +8,8 @@ import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
 import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -183,9 +183,14 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			 * (non-Javadoc)
 			 * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
 			 */
+			@SuppressWarnings("deprecation")
 			@Override
 			public void onGlobalLayout() {
-				parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+				    parent.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+				} else {
+					parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				}
 				mParentHeight = parent.getHeight();
 			}
 			
@@ -299,7 +304,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				int height = ((int) (interpolatedTime * (targetHeight - startHeight))) + startHeight;
-				Log.i(TAG, "setHeight from applyTransformation");
 				setHeight(mView, height);
 			}
 		};
@@ -321,7 +325,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				mView.setEnabled(true);
-				Log.w(TAG, "onAnimationEnd: " + mode);
 				setMode(mode);
 			}
 
@@ -406,7 +409,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param height
 	 */
 	private void onHeightChanged(View view, int height) {
-		Log.d(TAG, "onHeightChanged: " + height);
 		float alphaWeek = 0f;
 		float alphaMonth = 0f;
 		int transYWeek = 0;
@@ -459,7 +461,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		// Notify callbacks.
 		if (mCallback != null) {
 			if (view != null) {
-				Log.d(TAG, "callback to " + mCallback.getClass().getCanonicalName());
 				mCallback.onResized(this, view.getTop(), view.getWidth(), mHeight);
 			}
 		}
@@ -526,7 +527,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param mode
 	 */
 	public void setMode(View content, Mode mode) { 
-		Log.i(TAG, "setMode: " + mode);
 		if (mMode == mode) {
 			return;
 		}

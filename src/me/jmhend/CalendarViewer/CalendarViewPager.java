@@ -99,7 +99,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 */
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				fadeEdges(position, positionOffset, positionOffsetPixels);
+//				fadeEdges(position, positionOffset, positionOffsetPixels);
 			}
 
 			/*
