@@ -80,7 +80,11 @@ public class DayViewPager extends CalendarViewPager {
 				long dayStart = ((DayPagerAdapter) getAdapter()).getDayStartForPosition(position);
 				mRecycle.setTimeInMillis(dayStart);
 				
-				View dayView = DayViewPager.this.getViewAtPosition(position).findViewById(R.id.day);
+				View container = DayViewPager.this.getViewAtPosition(position);
+				if (container == null) {
+					return;
+				}
+				View dayView = container.findViewById(R.id.day);
 				DayViewPager.this.onDayClick(dayView, CalendarDay.fromCalendar(mRecycle));
 				
 				if (mPageSelectedListener != null) {
