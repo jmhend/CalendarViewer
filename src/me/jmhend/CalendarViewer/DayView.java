@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.TextView;
 
 /**
  * A View displaying the Events of a day.
@@ -77,6 +78,8 @@ public class DayView extends View {
 	private long mDayStart;
 	private long mDayEnd;
 	private Calendar mCalendar;
+	
+	private int mAllDayCount = 0;
 	
 	private int mFirstEventY = -1;
 	
@@ -212,6 +215,7 @@ public class DayView extends View {
 		mHourTextSize = r.getDimensionPixelSize(R.dimen.dayview_hour_label_size);
 		mTitleTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_title_size);
 		mLocationTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_location_size);
+		int hourColor = r.getColor(R.color.hour_color);
 		
 		mLinePaint = new Paint();
 		mLinePaint.setAntiAlias(true);
@@ -225,10 +229,10 @@ public class DayView extends View {
 		
 		mHourPaint = new Paint();
 		mHourPaint.setAntiAlias(true);
-		mHourPaint.setColor(0xFF666666);
 		mHourPaint.setTextSize(mHourTextSize);
 		mHourPaint.setTypeface(Typeface.DEFAULT);
 		mHourPaint.setTextAlign(Paint.Align.RIGHT);
+		mHourPaint.setColor(hourColor);
 		
 		mEventPaint = new Paint();
 		mEventPaint.setAntiAlias(true);
@@ -288,6 +292,13 @@ public class DayView extends View {
 	 */
 	public void setOnEventClickListener(OnEventClickListener listener) {
 		mEventClickListener = listener;
+	}
+	
+	/**
+	 * @param allDayCount
+	 */
+	public void setAllDayCount(int allDayCount) {
+		mAllDayCount = allDayCount;
 	}
 	
 ////============================================================================
@@ -614,6 +625,7 @@ public class DayView extends View {
 		}
 		
 		mFirstEventY = calculateYForEarliestEvent();
+		updateEventCount(events.size());
 	}
 	
 	/**
@@ -651,7 +663,6 @@ public class DayView extends View {
 		if (y == getHeight() + 1) {
 			y = -1;
 		}
-		Log.e(TAG, "earliest Y: " + y);
 		return y;
 	}
 	
@@ -701,6 +712,21 @@ public class DayView extends View {
 		return true;
 	}
 	
+	/**
+	 * Updates the count of Events on this Day.
+	 * @param count
+	 */
+	private void updateEventCount(int count) {
+		count += mAllDayCount;
+		
+		TextView countView = (TextView) ((View) getParent().getParent()).findViewById(R.id.events_count);
+		if (count == 0) {
+			countView.setVisibility(View.GONE);
+		} else {
+			countView.setVisibility(View.VISIBLE);
+			countView.setText(count + " event" + ((count == 1)? "" : "s"));
+		}
+	}
 	
 ////============================================================================
 //// Utils.

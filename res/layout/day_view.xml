@@ -7,17 +7,35 @@
     <ListView 
         android:id="@+id/all_day_list"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="0dp"
         android:background="#FF00AA00"/>
     
-	<ScrollView 
-	    android:id="@+id/scroll_view"
-	    android:layout_width="match_parent"
+    <RelativeLayout 
+        android:layout_width="match_parent"
 	    android:layout_height="match_parent">
-	    
-	    <me.jmhend.CalendarViewer.DayView 
-	        android:id="@+id/day"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"/>
-	</ScrollView>
+    
+		<ScrollView 
+		    android:id="@+id/scroll_view"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent">
+		    <me.jmhend.CalendarViewer.DayView 
+		        android:id="@+id/day"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"/>
+		</ScrollView>
+		
+		<TextView
+		    android:id="@+id/events_count"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentTop="true"
+		    android:layout_alignParentRight="true"
+		    android:layout_marginTop="12dp"
+		    android:layout_marginRight="12dp"
+		    android:clickable="false"
+		    android:focusable="false"
+		    android:visibility="gone"
+		    android:textSize="16sp"
+		    android:textColor="#FFCCCCCC"/>
+	</RelativeLayout>
 </LinearLayout>

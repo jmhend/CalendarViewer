@@ -116,15 +116,12 @@ public class DayViewPager extends CalendarViewPager {
 	 */
 	private void scrollToEventAtY(DayView dayView, int y) {
 		final ScrollView scrollView = (ScrollView) dayView.getParent();
-		
-		Log.e(TAG, "Scrolling to " + y);
 		int height = scrollView.getHeight();
 		int offset = height / 4;
 		int scrollToY = y - offset;
 		if (scrollToY < 0) {
 			scrollToY = 0;
 		}
-		
 		scrollView.smoothScrollTo(0, scrollToY);
 	}
 	
@@ -142,8 +139,6 @@ public class DayViewPager extends CalendarViewPager {
 		}
 		View dayView = container.findViewById(R.id.day);
 		DayViewPager.this.onDayClick(dayView, CalendarDay.fromCalendar(mRecycle));
-		
-		Log.e(TAG, "Scrolling to: " + CalendarDay.fromCalendar(mRecycle));
 		
 		if (mPageSelectedListener != null) {
 			mPageSelectedListener.onPageSelected(DayViewPager.this, position);

@@ -6,5 +6,6 @@
     <color name="day_text_selected">#ff008dd0</color>
     <color name="selected_highlight">#ffffffff</color>
     <color name="calendar_text_title">#ddffffff</color>
+    <color name="hour_color">#FFAAAAAA</color>
     
 </resources>

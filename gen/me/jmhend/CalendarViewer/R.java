@@ -19,6 +19,7 @@ public final class R {
         public static int day_text_inactive=0x7f040001;
         public static int day_text_selected=0x7f040003;
         public static int day_text_today=0x7f040002;
+        public static int hour_color=0x7f040006;
         public static int selected_highlight=0x7f040004;
     }
     public static final class dimen {
@@ -64,12 +65,13 @@ public final class R {
         public static int day=0x7f0a0008;
         public static int day_labels=0x7f0a0003;
         public static int day_pager=0x7f0a0000;
-        public static int menu_closed=0x7f0a000a;
-        public static int menu_month=0x7f0a000c;
-        public static int menu_week=0x7f0a000b;
+        public static int events_count=0x7f0a0009;
+        public static int menu_closed=0x7f0a000b;
+        public static int menu_month=0x7f0a000d;
+        public static int menu_week=0x7f0a000c;
         public static int month_pager=0x7f0a0004;
         public static int scroll_view=0x7f0a0007;
-        public static int text=0x7f0a0009;
+        public static int text=0x7f0a000a;
         public static int week_pager=0x7f0a0005;
     }
     public static final class layout {

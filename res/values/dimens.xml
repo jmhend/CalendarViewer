@@ -13,7 +13,7 @@
     
     <!-- DayView -->
     <dimen name="dayview_padding_top">28dp</dimen>
-    <dimen name="dayview_hour_label_width">45dp</dimen>
+    <dimen name="dayview_hour_label_width">48dp</dimen>
     <dimen name="dayview_hour_height">72dp</dimen>
     <dimen name="dayview_line_height">1dp</dimen>
     <dimen name="dayview_event_title_height">20dp</dimen>
