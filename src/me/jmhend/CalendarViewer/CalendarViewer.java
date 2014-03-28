@@ -320,8 +320,17 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 					 */
 					@Override
 					public void run() {
-						Log.e(TAG, "SelectedDay: " + mController.getSelectedDay());
 						mDayPager.setCurrentDay(mController.getSelectedDay(), false);
+						mDayPager.post(new Runnable() {
+							/*
+							 * (non-Javadoc)
+							 * @see java.lang.Runnable#run()
+							 */
+							@Override
+							public void run() {
+								mDayPager.scrollCurrentViewToEventAtY();
+							}
+						});
 					}
 				});
 			}

@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -17,8 +18,6 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.View;
 import android.view.ViewConfiguration;
 
@@ -78,6 +77,8 @@ public class DayView extends View {
 	private long mDayStart;
 	private long mDayEnd;
 	private Calendar mCalendar;
+	
+	private int mFirstEventY = -1;
 	
 	private OnEventClickListener mEventClickListener;
 	
@@ -346,11 +347,10 @@ public class DayView extends View {
 	 * @param canvas
 	 */
 	private void drawCurrentTimeLine(Canvas canvas) {
-		long now = System.currentTimeMillis();
-		if (now < mDayStart || now > mDayEnd) {
+		if (!isCurrentDay()) {
 			return;
 		}
-		long y = getYForTime(now);
+		int y = getYForTime(System.currentTimeMillis());
 		canvas.drawRect(mHourWidth, y, mWidth, y + mLineHeight, mCurrentTimePaint);
 		canvas.drawCircle(mHourWidth + mEventBorderWidth / 2, y + mLineHeight / 2, 8, mCurrentTimePaint);
 	}
@@ -532,7 +532,16 @@ public class DayView extends View {
 		if (mModel == null) {
 			return new ArrayList<Event>();
 		}
-		return (List<Event>) mModel.getEventsOnDay(mDayStart);
+		List<Event> allEvents = (List<Event>) mModel.getEventsOnDay(mDayStart);
+		
+		// Filter out Events not to be drawn.
+		List<Event> events = new ArrayList<Event>();
+		for (Event e : allEvents) {
+			if (this.willDrawEvent(e)) {
+				events.add(e);
+			}
+		}
+		return events;
 	}
 	
 	/**
@@ -549,10 +558,6 @@ public class DayView extends View {
 		
 		while (i < size) {
 			Event event = events.get(i);
-			if (!willDrawEvent(event)) {
-				i++;
-				continue;
-			}
 			
 			int topY = 0;
 			int bottomY = 0;
@@ -607,6 +612,8 @@ public class DayView extends View {
 			minY = Math.max(minY, textBottom);
 			i++;
 		}
+		
+		mFirstEventY = calculateYForEarliestEvent();
 	}
 	
 	/**
@@ -625,7 +632,34 @@ public class DayView extends View {
 			er.left = startX;
 			er.right = endX;
 		}
-		
+	}
+	
+	/**
+	 * @return The Y position of the earliest occuring Event.
+	 */
+	private int calculateYForEarliestEvent() {
+		if (isCurrentDay()) {
+			return getYForTime(System.currentTimeMillis());
+		}
+		int y = getHeight() + 1;
+		for (Entry<Event, Rect>  entry: mRectMap.entrySet()) {
+			Rect rect = entry.getValue();
+			if (rect.top < y) {
+				y = rect.top;
+			}
+		}
+		if (y == getHeight() + 1) {
+			y = -1;
+		}
+		Log.e(TAG, "earliest Y: " + y);
+		return y;
+	}
+	
+	/**
+	 * @return The Y position of the earliest occuring Event.
+	 */
+	public int getYForEarliestEvent() {
+		return mFirstEventY;
 	}
 	
 	/**
@@ -654,6 +688,17 @@ public class DayView extends View {
 	 */
 	private boolean willDrawEvent(Event e) {
 		return mModel.shouldDrawEvent(e);
+	}
+	
+	/**
+	 * @return True if this DayView is of the current Day.
+	 */
+	private boolean isCurrentDay() {
+		long now = System.currentTimeMillis();
+		if (now < mDayStart || now > mDayEnd) {
+			return false;
+		}
+		return true;
 	}
 	
 	

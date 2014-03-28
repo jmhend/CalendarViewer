@@ -91,6 +91,10 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		long start = getDayStartForPosition(position);
 		long end = getDayEndForPosition(position);
 		dayView.setDayBounds(start, end);
+		
+		// TODO: AllDay ListView:
+		
+		
 		dayView.invalidate();
 	}
 

@@ -3,12 +3,11 @@ package me.jmhend.CalendarViewer;
 import java.util.Calendar;
 
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
-import me.jmhend.CalendarViewer.CalendarViewer.Mode;
 import android.content.Context;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.ScrollView;
 
 /**
  * CalendarViewPager for DayViews.
@@ -80,8 +79,8 @@ public class DayViewPager extends CalendarViewPager {
 				long dayStart = ((DayPagerAdapter) getAdapter()).getDayStartForPosition(position);
 				mRecycle.setTimeInMillis(dayStart);
 				
-				View container = DayViewPager.this.getViewAtPosition(position);
-				if (container == null) {
+				DayView dayView = (DayView) DayViewPager.this.getViewAtPosition(position);
+				if (dayView == null) {
 					return;
 				}
 				mAdapter.setSelectedDay(CalendarDay.fromCalendar(mRecycle));
@@ -89,11 +88,49 @@ public class DayViewPager extends CalendarViewPager {
 				if (mPageSelectedListener != null) {
 					mPageSelectedListener.onPageSelected(DayViewPager.this, position);
 				}
+				
+				int earliestY = dayView.getYForEarliestEvent();
+				if (earliestY != -1) {
+					scrollToEventAtY(dayView, earliestY);
+				}
 			}
 		};
 		setOnPageChangeListener(mPageChangeListener);
 	}
 	
+	/**
+	 * Scrolls the ViewPager's current DayView to show the Event at its y-position nicely.
+	 */
+	public void scrollCurrentViewToEventAtY() {
+		DayView dayView = (DayView) this.getCurrentView();
+		int earliestY = dayView.getYForEarliestEvent();
+		if (earliestY != -1) {
+			scrollToEventAtY(dayView, earliestY);
+		}
+	}
+	
+	/**
+	 * Scrolls the DayView to show the Event at the y-position nicely.
+	 * @param dayView
+	 * @param y
+	 */
+	private void scrollToEventAtY(DayView dayView, int y) {
+		final ScrollView scrollView = (ScrollView) dayView.getParent();
+		
+		Log.e(TAG, "Scrolling to " + y);
+		int height = scrollView.getHeight();
+		int offset = height / 4;
+		int scrollToY = y - offset;
+		if (scrollToY < 0) {
+			scrollToY = 0;
+		}
+		
+		scrollView.smoothScrollTo(0, scrollToY);
+	}
+	
+	/**
+	 * Signal all the CalendarViewer callbacks to fire.
+	 */
 	public void fireCallbacksAtCurrentPosition() {
 		int position = this.getCurrentItem();
 		long dayStart = ((DayPagerAdapter) getAdapter()).getDayStartForPosition(position);
