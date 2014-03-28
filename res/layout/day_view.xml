@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <me.jmhend.CalendarViewer.DayView 
-        android:id="@+id/day"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <ListView 
+        android:id="@+id/all_day_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</ScrollView>
+        android:layout_height="64dp"
+        android:background="#FF00AA00"/>
+    
+	<ScrollView 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	    
+	    <me.jmhend.CalendarViewer.DayView 
+	        android:id="@+id/day"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"/>
+	</ScrollView>
+</LinearLayout>

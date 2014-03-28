@@ -58,16 +58,17 @@ public final class R {
         public static int ic_notification_transluscent=0x7f020001;
     }
     public static final class id {
+        public static int all_day_list=0x7f0a0006;
         public static int behind_list=0x7f0a0001;
         public static int calendar_viewer_container=0x7f0a0002;
-        public static int day=0x7f0a0006;
+        public static int day=0x7f0a0007;
         public static int day_labels=0x7f0a0003;
         public static int day_pager=0x7f0a0000;
-        public static int menu_closed=0x7f0a0008;
-        public static int menu_month=0x7f0a000a;
-        public static int menu_week=0x7f0a0009;
+        public static int menu_closed=0x7f0a0009;
+        public static int menu_month=0x7f0a000b;
+        public static int menu_week=0x7f0a000a;
         public static int month_pager=0x7f0a0004;
-        public static int text=0x7f0a0007;
+        public static int text=0x7f0a0008;
         public static int week_pager=0x7f0a0005;
     }
     public static final class layout {

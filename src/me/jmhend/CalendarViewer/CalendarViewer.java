@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -282,9 +283,49 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		
 		// Don't translate between DAY mode, just make it appear/disappear
 		if (mode == Mode.DAY || mMode == Mode.DAY) {
-			setMode(mode);
-			mDayPager.setVisibility(mode == Mode.DAY ? View.VISIBLE : View.GONE);
-			mDayPager.setCurrentDay(mController.getSelectedDay());
+			final Mode prevMode = mMode;
+			
+			// Navigating away from DAY, so updating the other CalendarViewer positions and callbacks.
+			if (prevMode == Mode.DAY) {
+				int height = this.getHeightForMode(mode);
+				
+				// Because of View timing, trick the callback into processing the onResize early,
+				// so there's no View jump after the Runnable runs.
+				if (mCallback != null) {
+					mCallback.onResized(this, 0, mView.getWidth(), height);
+				}
+				
+				mView.post(new Runnable() {
+					/*
+					 * (non-Javadoc)
+					 * @see java.lang.Runnable#run()
+					 */
+					@Override
+					public void run() {
+						setMode(mode);
+						mDayPager.fireCallbacksAtCurrentPosition();
+						mDayPager.setVisibility(View.GONE);
+					}
+				});
+				
+			// Navigating to DAY.
+			} else {
+				setMode(mode);
+				mDayPager.setVisibility(View.VISIBLE);
+				
+				mView.post(new Runnable() {
+					/*
+					 * (non-Javadoc)
+					 * @see java.lang.Runnable#run()
+					 */
+					@Override
+					public void run() {
+						Log.e(TAG, "SelectedDay: " + mController.getSelectedDay());
+						mDayPager.setCurrentDay(mController.getSelectedDay(), false);
+					}
+				});
+			}
+			
 			return;
 		}
 		

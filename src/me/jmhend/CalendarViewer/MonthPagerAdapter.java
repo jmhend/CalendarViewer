@@ -192,7 +192,8 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 
 	/*
 	 * (non-Javadoc)
-	 * @see me.jmhend.ui.calendar_viewer.CalendarController.OnCalendarControllerChangeListener#onChange(me.jmhend.ui.calendar_viewer.CalendarController, java.lang.Object, java.lang.String)
+	 * @see me.jmhend.CalendarViewer.CalendarController.OnCalendarControllerChangeListener
+	 * #onChange(me.jmhend.CalendarViewer.CalendarController, java.lang.Object, java.lang.String)
 	 */
 	@Override
 	public void onChange(CalendarController controller, Object obj, String tag) {

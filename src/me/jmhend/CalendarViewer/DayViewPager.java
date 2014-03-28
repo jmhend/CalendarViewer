@@ -84,8 +84,7 @@ public class DayViewPager extends CalendarViewPager {
 				if (container == null) {
 					return;
 				}
-				View dayView = container.findViewById(R.id.day);
-				DayViewPager.this.onDayClick(dayView, CalendarDay.fromCalendar(mRecycle));
+				mAdapter.setSelectedDay(CalendarDay.fromCalendar(mRecycle));
 				
 				if (mPageSelectedListener != null) {
 					mPageSelectedListener.onPageSelected(DayViewPager.this, position);
@@ -93,6 +92,25 @@ public class DayViewPager extends CalendarViewPager {
 			}
 		};
 		setOnPageChangeListener(mPageChangeListener);
+	}
+	
+	public void fireCallbacksAtCurrentPosition() {
+		int position = this.getCurrentItem();
+		long dayStart = ((DayPagerAdapter) getAdapter()).getDayStartForPosition(position);
+		mRecycle.setTimeInMillis(dayStart);
+		
+		View container = DayViewPager.this.getViewAtPosition(position);
+		if (container == null) {
+			return;
+		}
+		View dayView = container.findViewById(R.id.day);
+		DayViewPager.this.onDayClick(dayView, CalendarDay.fromCalendar(mRecycle));
+		
+		Log.e(TAG, "Scrolling to: " + CalendarDay.fromCalendar(mRecycle));
+		
+		if (mPageSelectedListener != null) {
+			mPageSelectedListener.onPageSelected(DayViewPager.this, position);
+		}
 	}
 	
 ////========================================================================================

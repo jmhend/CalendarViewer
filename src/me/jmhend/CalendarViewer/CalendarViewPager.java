@@ -98,9 +98,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled(int, float, int)
 			 */
 			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//				fadeEdges(position, positionOffset, positionOffsetPixels);
-			}
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
 			/*
 			 * (non-Javadoc)
@@ -166,7 +164,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	 * Sets the current day of the ViewPager.
 	 * @param day
 	 */
-	public void setCurrentDay(CalendarDay day) {
+	public void setCurrentDay(CalendarDay day, final boolean smooth) {
 		final int position = mAdapter.getPositionForDay(day);
 		if (position != -1) {
 			post(new Runnable() {
@@ -176,10 +174,18 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 				 */
 				@Override
 				public void run() {
-					setCurrentItem(position);
+					setCurrentItem(position, smooth);
 				}
 			});
 		}
+	}
+	
+	/**
+	 * Sets the current day of the ViewPager.
+	 * @param day
+	 */
+	public void setCurrentDay(CalendarDay day) {
+		setCurrentDay(day, true);
 	}
 	
 ////=============================================================================
