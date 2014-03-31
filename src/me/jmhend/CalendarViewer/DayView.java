@@ -36,14 +36,16 @@ public class DayView extends View {
 //// Static constants.
 ////============================================================================
 	
-	private static final int CLICK_DISPLAY_DURATION = 50;
-	private static final int DEFAULT_COLOR = 0xFFFF6600;
+	public static final int CLICK_DISPLAY_DURATION = 50;
+	public static final int DEFAULT_COLOR = 0xFF2691C8;
 	
 ////============================================================================
 //// Member variables.
 ////============================================================================
 	
 	private Map<Event, Rect> mRectMap = new HashMap<Event, Rect>();
+	private List<Event> mDrawableEvents = new ArrayList<Event>();
+	private List<Event> mAllDayEvents = new ArrayList<Event>();
 	private Event mPressedEvent;
 	
 	private CalendarModel mModel;
@@ -288,10 +290,32 @@ public class DayView extends View {
 	}
 	
 	/**
+	 * @return The UNIX start time of this DayView's day.
+	 */ 
+	public long getDayStart() {
+		return mDayStart;
+	}
+	
+	/**
 	 * @param listener
 	 */
 	public void setOnEventClickListener(OnEventClickListener listener) {
 		mEventClickListener = listener;
+	}
+	
+	/**
+	 * @return Events to go into the All Day box at the top of the View.
+	 */
+	public List<Event> getAllDayEvents() {
+		return mAllDayEvents;
+	}
+	
+	/**
+	 * @param allDayEvents Events to go into the All Day box at the top of the View.
+	 */
+	public void setAllDayEvents(List<Event> allDayEvents) {
+		mAllDayEvents = allDayEvents;
+		setAllDayCount(mAllDayEvents.size());
 	}
 	
 	/**
@@ -396,7 +420,7 @@ public class DayView extends View {
 				
 				// Draw Title
 				int width = rect.right - rect.left - 2 * mEventPadding;
-				String title = clipText(event.getDrawablingTitle(), mEventTitlePaint, width);
+				String title = clipText(event.getDrawingTitle(), mEventTitlePaint, width);
 				canvas.drawText(title, borderRight + mEventPadding, rect.top + (mTitleTextSize) + mEventPadding, mEventTitlePaint);
 				
 				// Draw Location.
@@ -500,7 +524,7 @@ public class DayView extends View {
 	 * Called when an Event is clicked.
 	 * @param e
 	 */
-	private void onEventClick(Event e) {
+	public void onEventClick(Event e) {
 		if (mEventClickListener != null) {
 			mEventClickListener.onEventClick(this, e);
 		}
@@ -540,19 +564,19 @@ public class DayView extends View {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<Event> getEvents() {
+		mDrawableEvents.clear();
 		if (mModel == null) {
-			return new ArrayList<Event>();
+			return mDrawableEvents;
 		}
 		List<Event> allEvents = (List<Event>) mModel.getEventsOnDay(mDayStart);
 		
 		// Filter out Events not to be drawn.
-		List<Event> events = new ArrayList<Event>();
 		for (Event e : allEvents) {
-			if (this.willDrawEvent(e)) {
-				events.add(e);
+			if (willDrawEvent(e)) {
+				mDrawableEvents.add(e);
 			}
 		}
-		return events;
+		return mDrawableEvents;
 	}
 	
 	/**
@@ -698,7 +722,7 @@ public class DayView extends View {
 	 * @return True if the EventDrawable will be drawn in this DayView, false otherwise.
 	 */
 	private boolean willDrawEvent(Event e) {
-		return mModel.shouldDrawEvent(e);
+		return !e.isDrawingAllDay() && mModel.shouldDrawEvent(e);
 	}
 	
 	/**

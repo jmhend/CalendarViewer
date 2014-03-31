@@ -4,11 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <ListView 
+    <me.jmhend.CalendarViewer.AllDayListView
         android:id="@+id/all_day_list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#FF00AA00"/>
+        android:layout_height="@dimen/all_day_row_height"
+        android:layout_marginBottom="2dp"
+        android:divider="@color/all_day_list_div"
+        android:dividerHeight="@dimen/all_day_divider_height"
+        android:background="@color/all_day_list_div"/>
     
     <RelativeLayout 
         android:layout_width="match_parent"
@@ -28,14 +31,16 @@
 		    android:id="@+id/events_count"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:layout_alignParentTop="true"
+		    android:layout_alignParentBottom="true"
 		    android:layout_alignParentRight="true"
-		    android:layout_marginTop="12dp"
-		    android:layout_marginRight="12dp"
+		    android:layout_marginRight="2dp"
+		    android:padding="6dp"
+		    android:gravity="right|center_vertical"
 		    android:clickable="false"
 		    android:focusable="false"
 		    android:visibility="gone"
-		    android:textSize="16sp"
-		    android:textColor="#FFCCCCCC"/>
+		    android:textSize="12sp"
+		    android:textColor="#FFFFFFFF"
+		    android:background="#22000000"/>
 	</RelativeLayout>
 </LinearLayout>

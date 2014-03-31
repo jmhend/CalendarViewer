@@ -35,7 +35,7 @@ public interface Event {
 	/**
 	 * @return Title.
 	 */
-	public String getDrawablingTitle();
+	public String getDrawingTitle();
 	
 	/**
 	 * @return Location

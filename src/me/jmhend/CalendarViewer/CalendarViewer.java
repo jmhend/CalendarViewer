@@ -149,8 +149,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	
 	private int mHeight;
 	private int mMonthHeight;
-	private int mParentHeight;
+	private int mDayHeight;
 	private int mWeekBottom;
+	private int mDayBottomPadding;
 	
 	private Calendar mScratchCalendar = Calendar.getInstance();
 	
@@ -192,7 +193,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 				} else {
 					parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 				}
-				mParentHeight = parent.getHeight();
+				mDayHeight = parent.getHeight() - mDayBottomPadding;
+				if (mDayHeight < 0) {
+					Log.e(TAG, "mDayHeight invalid: " + mDayHeight + " pixels.");
+					mDayHeight = 0;
+				}
 			}
 			
 		});
@@ -218,6 +223,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mDayPager.setOnPageSelectedListener(this);
 		mDayPager.setOnDayClickListener(this);
 		mDayPager.setCurrentDay(mController.getCurrentDay());
+		mDayPager.setPageMargin(mContext.getResources().getDimensionPixelSize(R.dimen.day_pager_margin));
 		mDayAdapter.setOnEventClickListener(this);
 		
 		initDimens();
@@ -241,10 +247,12 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		int monthMaxHeight = r.getDimensionPixelOffset(R.dimen.monthview_height);
 		int bottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
 		int dayLabelsHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
+		int dayBottomPadding = r.getDimensionPixelSize(R.dimen.dayview_bottom_padding);
 		
 		mMonthHeight = monthMaxHeight + bottomPadding;
 		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight;
 		mHeight = mMonthHeight;
+		mDayBottomPadding = dayBottomPadding;
 	}
 	
 ////====================================================================================
@@ -441,7 +449,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		} else if (mode == Mode.MONTH) {
 			targetHeight = mMonthHeight;
 		} else if (mode == Mode.DAY) {
-			targetHeight = mParentHeight;
+			targetHeight = mDayHeight;
 		}
 		return targetHeight;
 	}

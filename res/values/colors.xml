@@ -8,4 +8,6 @@
     <color name="calendar_text_title">#ddffffff</color>
     <color name="hour_color">#FFAAAAAA</color>
     
+    <color name="all_day_list_div">#FFFFFFFF</color>
+    
 </resources>

@@ -264,7 +264,7 @@ public class ActivityDay extends Activity {
 		}
 
 		@Override
-		public String getDrawablingTitle() {
+		public String getDrawingTitle() {
 			return title;
 		}
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/all_day_row_height"
+    android:padding="@dimen/dayview_event_padding"
+    android:gravity="center_vertical"
+    android:orientation="vertical" >
+    
+    <TextView 
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="#CCFFFFFF"
+        android:textSize="@dimen/dayview_event_title_size" 
+        android:textStyle="bold"/>
+    
+    <TextView 
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="#AAFFFFFF"
+        android:textSize="@dimen/dayview_event_location_size" />
+
+</LinearLayout>

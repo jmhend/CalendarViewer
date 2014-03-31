@@ -2,8 +2,10 @@ package me.jmhend.CalendarViewer;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import me.jmhend.CalendarViewer.AllDayListView.AllDayAdapter;
 import me.jmhend.CalendarViewer.CalendarController.OnCalendarControllerChangeListener;
 import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 
@@ -11,9 +13,12 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * PagerAdapter for displaying DayViews.
@@ -92,10 +97,63 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		long end = getDayEndForPosition(position);
 		dayView.setDayBounds(start, end);
 		
-		// TODO: AllDay ListView:
-		
+		// All day View.
+		updateAllDayView(position, dayView);
 		
 		dayView.invalidate();
+	}
+	
+	/**
+	 * Updates the all day Events View part of the DayView.
+	 * @param position
+	 * @param dayView
+	 */
+	@SuppressWarnings("unchecked")
+	private void updateAllDayView(int position, final DayView dayView) {
+		final List<Event> allDayEvents = dayView.getAllDayEvents();
+		allDayEvents.clear();
+		
+		// dayView.mDayStart must be set prior to this.
+		long dayStart = dayView.getDayStart();
+		
+		// Filter out all day Events.
+		List<Event> events = (List<Event>) mModel.getEventsOnDay(dayStart);
+		for (Event event : events) {
+			if (event.isDrawingAllDay() && mModel.shouldDrawEvent(event)) {
+				allDayEvents.add(event);
+			}
+		}
+		
+		dayView.setAllDayEvents(allDayEvents);
+		
+		AllDayListView listView = getAllDayViewForDayView(dayView);
+		AllDayAdapter adapter = (AllDayAdapter) listView.getAdapter();
+		if (adapter == null) {
+			adapter = new AllDayAdapter(mContext, allDayEvents);
+			listView.setAdapter(adapter);
+			listView.setOnItemClickListener(new OnItemClickListener() {
+				/*
+				 * (non-Javadoc)
+				 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+				 */
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					Event event = (Event) parent.getAdapter().getItem(position);
+					dayView.onEventClick(event);
+				}
+				
+			});
+		} else {
+			adapter.replaceContent(allDayEvents);
+		}
+	}
+	
+	/**
+	 * @param dayView
+	 * @return The AllDayListView of the DayView.
+	 */
+	private AllDayListView getAllDayViewForDayView(DayView dayView) {
+		return (AllDayListView) ((View) dayView.getParent().getParent().getParent()).findViewById(R.id.all_day_list);
 	}
 
 	/*
@@ -135,6 +193,7 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		} 
 		dayView = ((DayView) convertView.findViewById(R.id.day));
 		updateView(position, dayView);
+		convertView.findViewById(R.id.all_day_list).requestLayout();
 		return convertView;
 	}
 

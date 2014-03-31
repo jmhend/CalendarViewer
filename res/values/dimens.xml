@@ -9,6 +9,8 @@
     <dimen name="day_text_size">16.0sp</dimen>
     <dimen name="month_bottom_padding">6.0dp</dimen>
     <dimen name="day_marker_radius">3.0dp</dimen>
+    <dimen name="all_day_row_height">36dp</dimen>
+    <dimen name="all_day_divider_height">1dp</dimen>
     <bool name="draw_day_labels">false</bool>
     
     <!-- DayView -->
@@ -24,4 +26,6 @@
     <dimen name="dayview_hour_label_size">14sp</dimen>
     <dimen name="dayview_event_title_size">12sp</dimen>
     <dimen name="dayview_event_location_size">12sp</dimen>
+    <dimen name="dayview_bottom_padding">48dp</dimen>
+    <dimen name="day_pager_margin">2dp</dimen>
 </resources>
