@@ -250,6 +250,7 @@ public abstract class CalendarView extends View {
 		mDayMarkerPaint.setAntiAlias(true);
 		mDayMarkerPaint.setColor(mInactiveDayTextColor);
 		mDayMarkerPaint.setStyle(Paint.Style.FILL);
+		mDayMarkerPaint.setStrokeWidth(mSelectedCircleStrokeWidth);
 		
 		setOnClickListener(new OnClickListener() {
 			/*

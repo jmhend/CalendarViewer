@@ -9,6 +9,7 @@ import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarViewerDecorator.ApplyLevel;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint.Style;
 import android.graphics.Typeface;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
@@ -204,12 +205,18 @@ public class WeekView extends CalendarView {
 			int x = mDayXs[i];
 			int y = mDayY;
 			
-			
+			// Selected day.
 			if (i == mSelectedDayPosition) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
 				
+			// Today
+			} else if (i == mCurrentDayPosition) {
+				mDayMarkerPaint.setStyle(Style.STROKE);
+				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius - mSelectedCircleStrokeWidth, mDayMarkerPaint);
+				
 			// Draw Day Marker if there are Events this day and the selected circle isn't drawn;
-			} else if (mDayHasEvents[i]) {
+			} else 	if (mDayHasEvents[i]) {
+				mDayMarkerPaint.setStyle(Style.FILL);
 				canvas.drawCircle(x, y + mDayTextSize / 2, mDayMarkerRadius, mDayMarkerPaint);
 			}
 			

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.Paint.Style;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -162,12 +163,19 @@ public class MonthView extends CalendarView {
 				continue;
 			}
 			
-			// Show the day as selected.
+			
+			// Selected day.
 			if (mSelectedDayOfWeek == day) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
 				
+			// Today
+			} else if (mTodayOfWeek == day) {
+				mDayMarkerPaint.setStyle(Style.STROKE);
+				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius - mSelectedCircleStrokeWidth, mDayMarkerPaint);
+				
 			// Draw Day Marker if there are Events this day and the selected circle isn't drawn;
-			} else if (mDayHasEvents[day-1]) {
+			} else 	if (mDayHasEvents[day-1]) {
+				mDayMarkerPaint.setStyle(Style.FILL);
 				canvas.drawCircle(x, y + mDayTextSize / 2, mDayMarkerRadius, mDayMarkerPaint);
 			}
 			
