@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="day_text_active">#FFffffff</color>
-    <color name="day_text_inactive">#88dddddd</color>
+    <color name="day_text_inactive">#66dddddd</color>
+    <color name="day_marker_color">#88dddddd</color>
+    <color name="day_marker_color_faint">#44dddddd</color>
     <color name="day_text_today">#FFffffff</color>
     <color name="day_text_selected">#ff008dd0</color>
     <color name="selected_highlight">#ffffffff</color>

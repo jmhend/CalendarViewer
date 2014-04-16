@@ -14,14 +14,16 @@ public final class R {
         public static int draw_day_labels=0x7f060000;
     }
     public static final class color {
-        public static int all_day_list_div=0x7f040007;
-        public static int calendar_text_title=0x7f040005;
+        public static int all_day_list_div=0x7f040009;
+        public static int calendar_text_title=0x7f040007;
+        public static int day_marker_color=0x7f040002;
+        public static int day_marker_color_faint=0x7f040003;
         public static int day_text_active=0x7f040000;
         public static int day_text_inactive=0x7f040001;
-        public static int day_text_selected=0x7f040003;
-        public static int day_text_today=0x7f040002;
-        public static int hour_color=0x7f040006;
-        public static int selected_highlight=0x7f040004;
+        public static int day_text_selected=0x7f040005;
+        public static int day_text_today=0x7f040004;
+        public static int hour_color=0x7f040008;
+        public static int selected_highlight=0x7f040006;
     }
     public static final class dimen {
         /** 

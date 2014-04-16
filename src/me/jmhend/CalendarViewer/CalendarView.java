@@ -118,6 +118,8 @@ public abstract class CalendarView extends View {
 	// Colour
 	protected int mActiveDayTextColor;
 	protected int mInactiveDayTextColor;
+	protected int mDayMarkerColor;
+	protected int mDayMarkerFaintColor;
 	protected int mMonthTitleColor;
 	protected int mTodayNumberColor;
 	protected int mSelectedDayColor;
@@ -204,6 +206,8 @@ public abstract class CalendarView extends View {
 		mCalendar.set(Calendar.MILLISECOND, 0);
 		mActiveDayTextColor = r.getColor(R.color.day_text_active);
 		mInactiveDayTextColor = r.getColor(R.color.day_text_inactive);
+		mDayMarkerColor = r.getColor(R.color.day_marker_color);
+		mDayMarkerFaintColor = r.getColor(R.color.day_marker_color_faint);
 		mTodayNumberColor = r.getColor(R.color.day_text_today);
 		mSelectedDayColor = r.getColor(R.color.day_text_selected);
 		mMonthTitleColor = r.getColor(R.color.calendar_text_title);
@@ -248,7 +252,7 @@ public abstract class CalendarView extends View {
 		mMonthNumPaint.setTextAlign(Paint.Align.CENTER);
 		mDayMarkerPaint = new Paint();
 		mDayMarkerPaint.setAntiAlias(true);
-		mDayMarkerPaint.setColor(mInactiveDayTextColor);
+		mDayMarkerPaint.setColor(mDayMarkerColor);
 		mDayMarkerPaint.setStyle(Paint.Style.FILL);
 		mDayMarkerPaint.setStrokeWidth(mSelectedCircleStrokeWidth);
 		

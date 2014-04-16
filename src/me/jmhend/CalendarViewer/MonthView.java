@@ -5,6 +5,8 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarViewerDecorator.ApplyLevel;
 import android.content.Context;
@@ -29,7 +31,7 @@ public class MonthView extends CalendarView {
 //// Static constants.
 ////==================================================================================================
 	
-	public static final int MAX_DAYS = 31;
+	public static final int MAX_DAYS = 6 * 7;
 	
 	public static final String KEY_MONTH = "month";
 	public static final String KEY_YEAR = "year";
@@ -45,16 +47,25 @@ public class MonthView extends CalendarView {
 	// Time
 	protected int mMonth;
 	protected int mYear;
-	protected int mTodayOfWeek;
-	protected int mSelectedDayOfWeek;
+	protected int mPreviousMonth;
+	protected int mPreviousMonthYear;
+	protected int mPreviousMonthLastDayOfMonth;
+	protected int mNextMonth;
+	protected int mNextMonthYear;
+	
+	protected int mTodayDayOfMonth;
+	protected int mSelectedDayOfMonth;
 	protected int mCurrentYear;
 	protected int mCurrentMonth;
 	protected int mCurrentDayOfMonth;
 	
+	protected int mMonthStartIndex;
+	protected int mMonthEndIndex;
+	
 	// Draw calculations.
 	private final int[] mDayXs = new int[MAX_DAYS];
 	private final int[] mDayYs = new int[MAX_DAYS];
-	private final boolean[] mDayActives = new boolean[MAX_DAYS];
+	private final int[] mDayOfMonths = new int[MAX_DAYS];
 	private final boolean[] mDayHasEvents = new boolean[MAX_DAYS];
 	private boolean mHideSelectedWeek = false;
 	private int mSelectedDayY = 0;
@@ -102,10 +113,23 @@ public class MonthView extends CalendarView {
 	/**
 	 * Initialize/load resources.
 	 */
+	@Override
 	protected void initResources() {
 		super.initResources();
 		mStringBuilder = new StringBuilder(50);
 		mFormatter = new Formatter(mStringBuilder, Locale.getDefault());
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.CalendarViewer.CalendarView#initView()
+	 */
+	@Override
+	protected void initView() {
+		super.initView();
+		mNumCells = MAX_DAYS;
+		mNumRows = 7;
+		mMaxHeight = mRowHeight * mNumRows + mBottomPadding;
 	}
 	
 ////==================================================================================================
@@ -154,44 +178,53 @@ public class MonthView extends CalendarView {
 	 * @param canvas
 	 */
 	protected void drawDates(Canvas canvas) {
-		for (int day = 1; day <= mNumCells; day++) {
-			final int x = mDayXs[day-1];
-			final int y = mDayYs[day-1];
+		
+		for (int i = 0; i < MAX_DAYS; i++) {
+			final int day = mDayOfMonths[i];
+			final int x = mDayXs[i];
+			final int y = mDayYs[i];
 			
-			// Hiding this week.
+			boolean isSelectedDay = isIndexSelectedDay(i);
+			boolean isToday = isIndexCurrentDay(i);
+			boolean isThisMonth = isIndexInThisMonth(i);
+			
+			// Don't draw days on this week.
 			if (mHideSelectedWeek && y == mSelectedDayY) {
 				continue;
 			}
 			
-			
 			// Selected day.
-			if (mSelectedDayOfWeek == day) {
+			if (isSelectedDay) {
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius, mSelectedCirclePaint);
 				
 			// Today
-			} else if (mTodayOfWeek == day) {
+			} else if (isToday) {
+				mDayMarkerPaint.setColor(mDayMarkerColor);
 				mDayMarkerPaint.setStyle(Style.STROKE);
 				canvas.drawCircle(x,  y - mDayTextSize / 3, mSelectedCircleRadius - mSelectedCircleStrokeWidth, mDayMarkerPaint);
 				
 			// Draw Day Marker if there are Events this day and the selected circle isn't drawn;
-			} else 	if (mDayHasEvents[day-1]) {
+			} else 	if (mDayHasEvents[i]) {
+				int color = isThisMonth ? mDayMarkerColor : mDayMarkerFaintColor;
+				mDayMarkerPaint.setColor(color);
 				mDayMarkerPaint.setStyle(Style.FILL);
 				canvas.drawCircle(x, y + mDayTextSize / 2, mDayMarkerRadius, mDayMarkerPaint);
 			}
 			
 			int textColor;
-			if (mSelectedDayOfWeek == day) {
+			if (isSelectedDay) {
 				textColor = mSelectedDayColor;
-			} else if (mTodayOfWeek == day) {
+			} else if (isToday) {
 				textColor = mTodayNumberColor;
-			} else if (mDayActives[day-1]) {
-				textColor = mActiveDayTextColor;
-			} else {
+			} else if (!isThisMonth) {
 				textColor = mInactiveDayTextColor;
+			} else {
+				textColor = mActiveDayTextColor;
 			}
-			Typeface tf = (mTodayOfWeek == day) ? mTypefaceBold : mTypeface;
+			Typeface tf = (isToday) ? mTypefaceBold : mTypeface;
 			mMonthNumPaint.setTypeface(tf);
 			mMonthNumPaint.setColor(textColor);
+			
 			canvas.drawText(DAYS[day], x, y, mMonthNumPaint);
 		}
 	}
@@ -222,30 +255,31 @@ public class MonthView extends CalendarView {
 	 */
 	protected void calculateDayPoints() {
 		clearDayArrays();
-		int y = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH;
-		int paddingDay = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
-		int dayOffset = findDayOffset();
-		int day = 1;
-		
-		while (day <= mNumCells) {
-			int x = paddingDay * (1 + 2 * dayOffset) + mPadding;
-			mDayXs[day-1] = x;
-			mDayYs[day-1] = y;
+		final int paddingDay = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
+
+		for (int i = 0; i < MAX_DAYS; i++) {
+			mDayXs[i] = paddingDay * (1 + 2 * (i % 7)) + mPadding;
+			mDayYs[i] = (mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH + ( (i / 7) * mRowHeight);
 			
-			if (mSelectedDayOfWeek == day) {
-				mSelectedDayY = y;
+			int day;
+			
+			// Previous Month
+			if (isIndexInPreviousMonth(i)) {
+				day = mPreviousMonthLastDayOfMonth - (mMonthStartIndex - i) + 1;
+				
+			// Next Month
+			} else if (isIndexInNextMonth(i)) {
+				day = i - mMonthEndIndex;
+				
+			// This Month
+			} else {
+				day = i - mMonthStartIndex + 1;
+				
+				if (mSelectedDayOfMonth == day) {
+					mSelectedDayY = mDayYs[i];
+				}
 			}
-			
-			boolean active = (mTodayOfWeek == day) || isCurrentDayOrLater(day);
-			mDayActives[day-1] = active;
-			
-			// Reached the end of the week, start drawing on the next line.
-			dayOffset++;
-			if (dayOffset == mDaysPerWeek) {
-				dayOffset = 0;
-				y+= mRowHeight;
-			}
-			day++;
+			mDayOfMonths[i] = day;
 		}
 	}
 
@@ -255,7 +289,11 @@ public class MonthView extends CalendarView {
 	 */
 	@Override
 	public int getXForDay(CalendarDay day) {
-		return mDayXs[day.dayOfMonth-1];
+		int index = getIndexForDay(day);
+		if (index == -1) {
+			return 0;
+		}
+		return mDayXs[index];
 	}
 	
 	/*
@@ -264,7 +302,11 @@ public class MonthView extends CalendarView {
 	 */
 	@Override
 	public int getYForDay(CalendarDay day) {
-		return mDayYs[day.dayOfMonth-1];
+		int index = getIndexForDay(day);
+		if (index == -1) {
+			return 0;
+		}
+		return mDayYs[index];
 	}
 	
 	/**
@@ -277,13 +319,68 @@ public class MonthView extends CalendarView {
 		int yTop = yMid - ((mRowHeight + mDayTextSize) / 2 - DAY_SEPARATOR_WIDTH);
 		return yTop;
 	}
+
+	/**
+	 * @return True if the day at 'index' is in this MonthView's month.
+	 */
+	protected boolean isIndexInThisMonth(int index) {
+		return index >= mMonthStartIndex && index <= mMonthEndIndex;
+	}
 	
 	/**
-	 * @param day
-	 * @return True if 'day' is an active day.
+	 * @return True if the day at 'index' is in the previous Month.
 	 */
-	public boolean isDayActive(int day) {
-		return mDayActives[day-1];
+	protected boolean isIndexInPreviousMonth(int index) {
+		return index < mMonthStartIndex;
+	}
+	
+	/**
+	 * @return True if the day at 'index' is in the next Month.
+	 */
+	protected boolean isIndexInNextMonth(int index) {
+		return index > mMonthEndIndex;
+	}
+	
+	/**
+	 * @return True if the day at 'index' is in this MonthView's month
+	 * and is the current Day of the year.
+	 */
+	protected boolean isIndexCurrentDay(int index) {
+		if (!isIndexInThisMonth(index)) {
+			return false;
+		}
+		int dayOfMonth = index - mMonthStartIndex + 1;
+		return isCurrentDay(dayOfMonth);
+	}
+	
+	/**
+	 * @return The index for the CalendarDay, only if it's within this MonthView's month.
+	 * 
+	 * Will return -1 for a CalendarDay in previous month or next month;
+	 */
+	protected int getIndexForDay(CalendarDay day) {
+		final int year = day.year;
+		final int month = day.month;
+		final int dayOfMonth = day.dayOfMonth;
+		
+		if (year != mYear || month != mMonth) {
+			return -1;
+		}
+		
+		int index = mMonthStartIndex + dayOfMonth -1;
+		return index;
+	}
+	
+	/**
+	 * @return True if the day at 'index' is in this MonthView's month
+	 * and is the CalendarViewer's selected day.
+	 */
+	protected boolean isIndexSelectedDay(int index) {
+		if (!isIndexInThisMonth(index)) {
+			return false;
+		}
+		int dayOfMonth = index - mMonthStartIndex + 1;
+		return dayOfMonth == mSelectedDayOfMonth;
 	}
 	
 	/**
@@ -294,44 +391,15 @@ public class MonthView extends CalendarView {
 		return (mYear == mCurrentYear) && (mMonth == mCurrentMonth) && (dayOfMonth == mCurrentDayOfMonth);
 	}
 	
-	/**
-	 * @param dayOfMonth
-	 * @return True if 'dayOfMonth' for this month and year is today or in the future.
-	 */
-	protected boolean isCurrentDayOrLater(int dayOfMonth) {
-		if (mYear < mCurrentYear) {
-			return false;
-		}
-		if (mYear > mCurrentYear) {
-			return true;
-		}
-		if (mMonth < mCurrentMonth) {
-			return false;
-		}
-		if (mMonth > mCurrentMonth) {
-			return true;
-		}
-		return dayOfMonth >= mCurrentDayOfMonth;
-	}
 	
 	/**
 	 * @return The day's offset.
 	 */
-	private int findDayOffset() {
+	private int calculateDayOffset() {
 		int offset = (mDayOfWeekStart < mWeekStart) ? mDayOfWeekStart + mDaysPerWeek : mDayOfWeekStart;
 		return offset - mWeekStart;
 	}
-	
-	/**
-	 * @return How many rows are needed to draw all dates in this month.
-	 */
-	private int calculateNumRows() {
-		int dayOffset = findDayOffset();
-		int numRows = (dayOffset + mNumCells) / mDaysPerWeek;
-		int plusOne = ((dayOffset + mNumCells) % mDaysPerWeek > 0) ? 1 : 0;
-		return plusOne + numRows;
-	}
-	
+
 	/**
 	 * Draws the Month name.
 	 * @param canvas
@@ -369,15 +437,29 @@ public class MonthView extends CalendarView {
 			return null;
 		}
 		
+		// Get the index into the 6 * 7 day grid.
 		int yDay = (int) (y - topOffset) / mRowHeight;
-		int day = 1 + ((int) ((x - padding) * this.mDaysPerWeek / (this.mWidth - padding - this.mPadding)) - findDayOffset()) + yDay * this.mDaysPerWeek;
+		int xDay = (int) ((x - padding) * this.mDaysPerWeek / (this.mWidth - padding - this.mPadding));
 		
-		// Check day bounds.
-		if (day < 1 || day > Utils.getDaysInMonth(mMonth, mYear)) {
+		int index = yDay * 7 + xDay;
+		if (index >= MAX_DAYS) {
 			return null;
 		}
-
-		 return new CalendarDay(mYear, mMonth, day);
+		
+		CalendarDay day = new CalendarDay();
+		
+		if (isIndexInPreviousMonth(index)) {
+			day.year = mPreviousMonthYear;
+			day.month = mPreviousMonth;
+		} else if (isIndexInNextMonth(index)) {
+			day.year = mNextMonthYear;
+			day.month = mNextMonth;
+		} else {
+			day.year = mYear;
+			day.month = mMonth;
+		}
+		day.dayOfMonth = mDayOfMonths[index];
+		return day;
 	}
 	
 	/**
@@ -411,12 +493,29 @@ public class MonthView extends CalendarView {
 			}
 		}
 		if (params.containsKey(KEY_SELECTED_DAY)) {
-			mSelectedDayOfWeek = ((Integer) params.get(KEY_SELECTED_DAY)).intValue();
+			mSelectedDayOfMonth = ((Integer) params.get(KEY_SELECTED_DAY)).intValue();
 		}
 		
 		// Month and Year for the MontView required.
 		mMonth = ((Integer) params.get(KEY_MONTH)).intValue();
 		mYear = ((Integer) params.get(KEY_YEAR)).intValue();
+		
+		// Previous Month
+		mPreviousMonth = mMonth - 1;
+		mPreviousMonthYear = mYear;
+		if (mPreviousMonth == -1) {
+			mPreviousMonth = Calendar.DECEMBER;
+			mPreviousMonthYear--;
+		}
+		mPreviousMonthLastDayOfMonth = Utils.getDaysInMonth(mPreviousMonth, mPreviousMonthYear);
+		
+		// Next Month
+		mNextMonth = mMonth + 1;
+		mNextMonthYear = mYear;
+		if (mNextMonth == Calendar.UNDECIMBER) {
+			mNextMonth = Calendar.JANUARY;
+			mNextMonthYear++;
+		}
 		
 		// Current Month and Year
 		mCurrentMonth = ((Integer) params.get(KEY_CURRENT_MONTH)).intValue();
@@ -425,7 +524,7 @@ public class MonthView extends CalendarView {
 		
 		// Time calculations.
 		boolean isCurrentMonth = (mMonth == mCurrentMonth) && (mYear == mCurrentYear);
-		mTodayOfWeek = isCurrentMonth ? mCurrentDayOfMonth : -1;
+		mTodayDayOfMonth = isCurrentMonth ? mCurrentDayOfMonth : -1;
 		mCalendar.set(Calendar.MONTH, mMonth);
 		mCalendar.set(Calendar.YEAR, mYear);
 		mCalendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -437,20 +536,36 @@ public class MonthView extends CalendarView {
 		} else {
 			mWeekStart = mCalendar.getFirstDayOfWeek();
 		}
-		mNumCells = Utils.getDaysInMonth(mMonth, mYear);
-		mNumRows = calculateNumRows();
 		
-		mMaxHeight = mRowHeight * mNumRows + mBottomPadding;
+		mMonthStartIndex = calculateDayOffset();
+		mMonthEndIndex = mMonthStartIndex + Utils.getDaysInMonth(mMonth, mYear) - 1;
 		
 		// Mark which days have Events.
 		clearHasEventsArray();
-		int dayOfMonth = 1;
-		CalendarDay day = new CalendarDay(mYear, mMonth, dayOfMonth);
-		while (dayOfMonth <= mNumCells) {
-			boolean hasEvents = mModel.hasEventsOnDay(day);
-			mDayHasEvents[dayOfMonth-1] = hasEvents;
-			dayOfMonth++;
+		int year;
+		int month;
+		int dayOfMonth;
+		CalendarDay day = new CalendarDay();
+		for (int i = 0; i < MAX_DAYS; i++) {
+			if (isIndexInPreviousMonth(i)) {
+				year = mPreviousMonthYear;
+				month = mPreviousMonth;
+				dayOfMonth = mPreviousMonthLastDayOfMonth - (mMonthStartIndex - i) + 1;
+			} else if (isIndexInNextMonth(i)) {
+				year = mNextMonthYear;
+				month = mNextMonth;
+				dayOfMonth = i - mMonthEndIndex;
+			} else {
+				year = mYear;
+				month = mMonth;
+				dayOfMonth = i - mMonthStartIndex + 1;
+			}
+			day.year = year;
+			day.month = month;
 			day.dayOfMonth = dayOfMonth;
+			
+			boolean hasEvents = mModel.hasEventsOnDay(day);
+			mDayHasEvents[i] = hasEvents;
 		}
 		
 	}
@@ -466,8 +581,8 @@ public class MonthView extends CalendarView {
 		for (int i = 0; i < MAX_DAYS; i++) {
 			mDayXs[i] = 0;
 			mDayYs[i] = 0;
-			mDayActives[i] = false;
 		}
+		mSelectedDayY = 0;
 	}	
 	
 	/**
