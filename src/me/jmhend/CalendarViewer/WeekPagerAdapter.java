@@ -160,7 +160,6 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 
 	/**
 	 * Calculate the CalendarDay of the start of the week, based upon position.
-	 * TODO: Cache these? Map<Position, CalendarDay>
 	 * @param position
 	 */
 	private CalendarDay getWeekStartForPosition(int position) {
@@ -173,7 +172,6 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 	
 	/**
 	 * Calculate the CalendarDay of the end of the week, based upon position.
-	 * TODO: Cache these? Ma	p<Position, CalendarDay>
 	 * @param position
 	 */
 	private CalendarDay getWeekEndForPosition(int position) {
