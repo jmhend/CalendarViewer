@@ -142,6 +142,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private CalendarAdapter mMonthAdapter;
 	private CalendarAdapter mWeekAdapter;
 	private DayPagerAdapter mDayAdapter;
+	private DayOfWeekLabelView mDayOfWeekLabelView;
 	private Mode mMode;
 	
 	private CalendarController mController;
@@ -179,6 +180,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	public void initView(final ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
 		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
+		
+		mDayOfWeekLabelView = (DayOfWeekLabelView) mView.findViewById(R.id.day_labels);
+		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());
 		
 		parent.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 			/*
@@ -604,6 +608,24 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	public void setConfig(CalendarControllerConfig config) {
 		mController = new CalendarController(config);
+	}
+	
+	/**
+	 * Sets the first day of the week.
+	 * @param dayOfWeek
+	 */
+	public void setFirstDayOfWeek(int dayOfWeek) {
+		if (mController == null || mView == null) {
+			return;
+		}
+		if (mController.getFirstDayOfWeek() == dayOfWeek) {
+			return;
+		}
+		mController.setFirstDayOfWeek(dayOfWeek);
+		
+		mDayOfWeekLabelView.setWeekStart(dayOfWeek);
+		mMonthPager.updateVisiblePages();
+		mWeekPager.updateVisiblePages();
 	}
 
 ////====================================================================================
