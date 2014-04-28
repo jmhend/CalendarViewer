@@ -548,6 +548,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	}
 	
 	/**
+	 * @return The backing CalendarController.
+	 */
+	public CalendarController getController() {
+		return mController;
+	}
+	
+	/**
 	 * Sets the CalenderViewer's selected day.
 	 * @param day
 	 */

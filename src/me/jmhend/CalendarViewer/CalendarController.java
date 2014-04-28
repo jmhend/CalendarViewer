@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+import android.util.Log;
 
 /**
  * When the pimps in the crib ma, drop it like it's hot, drop it like it's hot.
@@ -43,6 +44,7 @@ public class CalendarController {
 	 */
 	public CalendarController() { 
 		mCurrentDay = CalendarDay.currentDay();
+		Log.i(TAG, "init CurrentDay: " + mCurrentDay.toString());
 	}
 	
 	/**

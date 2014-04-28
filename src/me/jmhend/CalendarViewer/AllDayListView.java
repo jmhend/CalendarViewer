@@ -100,8 +100,6 @@ public class AllDayListView extends ListView {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		
-		Log.w(TAG, "onMeasure.");
-		
 		final int width = MeasureSpec.getSize(widthMeasureSpec);
 		
 		// Height = (rows_to_show_count * row_height) (dividers_count * divider_height) + vertical padding.
