@@ -440,6 +440,9 @@ public class DayView extends View {
 	 * @return
 	 */
 	private String clipText(String text, Paint p, int maxWidth) {
+		if (text == null) {
+			return "";
+		}
 		int breakpoint = p.breakText(text, true, maxWidth, null);
 		if (text.length() <= breakpoint) {
 			return text;

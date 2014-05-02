@@ -249,6 +249,7 @@ public class WeekView extends CalendarView {
 		long startTime = mCalendar.getTimeInMillis();
 		mCalendar.add(Calendar.DAY_OF_MONTH, 6);
 		long endTime = mCalendar.getTimeInMillis();
+		endTime += 1000; // Add 1 second so the date range fully extends into the end day, and it shows up in the daterange title.
 		
 		// Reset.
 		setCalendarToStartDay();
