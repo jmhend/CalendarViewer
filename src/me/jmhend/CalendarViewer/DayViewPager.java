@@ -103,9 +103,11 @@ public class DayViewPager extends CalendarViewPager {
 	 */
 	public void scrollCurrentViewToEventAtY() {
 		DayView dayView = (DayView) this.getCurrentView();
-		int earliestY = dayView.getYForEarliestEvent();
-		if (earliestY != -1) {
-			scrollToEventAtY(dayView, earliestY);
+		if (dayView != null) {
+			int earliestY = dayView.getYForEarliestEvent();
+			if (earliestY != -1) {
+				scrollToEventAtY(dayView, earliestY);
+			}
 		}
 	}
 	
