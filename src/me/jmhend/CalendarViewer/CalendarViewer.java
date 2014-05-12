@@ -199,7 +199,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 				}
 				mDayHeight = parent.getHeight() - mDayBottomPadding;
 				if (mDayHeight < 0) {
-					Log.e(TAG, "mDayHeight invalid: " + mDayHeight + " pixels.");
 					mDayHeight = 0;
 				}
 			}
