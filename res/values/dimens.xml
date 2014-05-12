@@ -1,14 +1,15 @@
 <resources>
-    <dimen name="monthview_height">240.0dp</dimen>
+    <dimen name="monthview_height">240dp</dimen>
     <dimen name="weekview_height">60dp</dimen>
-    <dimen name="month_list_item_header_height">24.0dp</dimen>
-    <dimen name="day_of_week_text_size">10.0sp</dimen>
-    <dimen name="selected_circle_radius">16.0dp</dimen>
-    <dimen name="selected_circle_stroke_width">2.0dp</dimen>
-    <dimen name="month_title_text_size">16.0sp</dimen>
-    <dimen name="day_text_size">16.0sp</dimen>
-    <dimen name="month_bottom_padding">6.0dp</dimen>
-    <dimen name="day_marker_radius">3.0dp</dimen>
+    <dimen name="month_header_height">26dp</dimen>
+    <dimen name="month_list_item_header_height">24dp</dimen>
+    <dimen name="day_of_week_text_size">10sp</dimen>
+    <dimen name="selected_circle_radius">16dp</dimen>
+    <dimen name="selected_circle_stroke_width">2dp</dimen>
+    <dimen name="month_title_text_size">16sp</dimen>
+    <dimen name="day_text_size">16sp</dimen>
+    <dimen name="month_bottom_padding">8dp</dimen>
+    <dimen name="day_marker_radius">3dp</dimen>
     <dimen name="all_day_row_height">36dp</dimen>
     <dimen name="all_day_divider_height">1dp</dimen>
     <bool name="draw_day_labels">false</bool>

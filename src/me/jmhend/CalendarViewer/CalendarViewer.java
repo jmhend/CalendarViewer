@@ -179,7 +179,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param config
 	 */
 	public void initView(final ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
-		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
+		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false).findViewById(R.id.calendar_container);
 		
 		mDayOfWeekLabelView = (DayOfWeekLabelView) mView.findViewById(R.id.day_labels);
 		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());
@@ -199,6 +199,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 				}
 				mDayHeight = parent.getHeight() - mDayBottomPadding;
 				if (mDayHeight < 0) {
+					Log.e(TAG, "mDayHeight invalid: " + mDayHeight + " pixels.");
 					mDayHeight = 0;
 				}
 			}
@@ -239,7 +240,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param parent The parent ViewGroup to add this CalendarViewer to.
 	 */
 	public void attachToWindow(ViewGroup parent) {
-		parent.addView(mView);
+		parent.addView((View) mView.getParent());
 	}
 	
 	/**
@@ -248,12 +249,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private void initDimens() {
 		Resources r = mContext.getResources();
 		int monthMaxHeight = r.getDimensionPixelOffset(R.dimen.monthview_height);
+		int monthHeaderHeight = r.getDimensionPixelOffset(R.dimen.month_header_height);
 		int bottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
 		int dayLabelsHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
 		int dayBottomPadding = r.getDimensionPixelSize(R.dimen.dayview_bottom_padding);
 		
-		mMonthHeight = monthMaxHeight + bottomPadding;
-		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight;
+		mMonthHeight = monthMaxHeight + bottomPadding + monthHeaderHeight;
+		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight + monthHeaderHeight;
 		mHeight = mMonthHeight;
 		mDayBottomPadding = dayBottomPadding;
 	}
@@ -513,7 +515,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mWeekPager.setTranslationY(transYWeek);
 		mWeekPager.setAlpha(alphaWeek);
 		mMonthPager.setAlpha(alphaMonth);
-
+		
 		MonthView monthView = (MonthView) mMonthPager.getCurrentView();
 		if (monthView != null) {
 			monthView.setHideSelectedWeek(hideWeekInMonth);

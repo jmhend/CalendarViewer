@@ -38,7 +38,7 @@ public class ActivityDay extends Activity {
 		pager.setAdapter(a);
 	}
 	
-	private static class CalModel implements CalendarModel {
+	public static class CalModel implements CalendarModel {
 
 		@Override
 		public List<? extends Event> getEvents() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import me.jmhend.CalendarViewer.ActivityDay.CalModel;
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks;
@@ -11,7 +12,6 @@ import me.jmhend.CalendarViewer.CalendarViewer.Mode;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -61,16 +61,17 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	}
 	
 	private void addCalendarViewer() {
-		CalendarDay start = new CalendarDay(2013, Calendar.SEPTEMBER, 10);
-		CalendarDay end = new CalendarDay(2014, Calendar.OCTOBER, 31);
+		CalendarDay start = new CalendarDay(2011, Calendar.SEPTEMBER, 10);
+		CalendarDay end = new CalendarDay(2026, Calendar.OCTOBER, 31);
 		CalendarControllerConfig.Builder builder = CalendarControllerConfig.startBuilding()
 				.starts(start)
 				.ends(end)
-				.mode(Mode.WEEK);
+				.mode(Mode.MONTH);
 		
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
-		mCalendarViewer = new CalendarViewer(this, container, null, builder.build());
+		mCalendarViewer = new CalendarViewer(this, container, new CalModel(), builder.build());
+		mCalendarViewer.getView().setBackgroundColor(0xFF008DD0);
 	}
 	
 ////==========================================================================================
