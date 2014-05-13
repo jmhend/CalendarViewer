@@ -14,5 +14,15 @@
         android:id="@+id/menu_month"
         android:showAsAction="never"
         android:title="Month"/>
+    
+    <item
+        android:id="@+id/show_day"
+        android:showAsAction="never"
+        android:title="Show Day"/>
+    
+    <item
+        android:id="@+id/hide_day"
+        android:showAsAction="never"
+        android:title="Hide Day"/>
 
 </menu>

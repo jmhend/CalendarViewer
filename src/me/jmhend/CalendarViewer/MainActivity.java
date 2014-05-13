@@ -71,7 +71,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
 		mCalendarViewer = new CalendarViewer(this, container, new CalModel(), builder.build());
-		mCalendarViewer.getView().setBackgroundColor(0xFF008DD0);
+		mCalendarViewer.getView().findViewById(R.id.week_month_container).setBackgroundColor(0xEE008DD0);
 	}
 	
 ////==========================================================================================
@@ -104,6 +104,12 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			return true;
 		} else if (itemId == R.id.menu_month) {
 			mCalendarViewer.transitionMode(Mode.MONTH);
+			return true;
+		} else if (itemId == R.id.show_day) {
+			mCalendarViewer.showDayView();
+			return true;
+		} else if (itemId == R.id.hide_day) {
+			mCalendarViewer.hideDayView();
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);

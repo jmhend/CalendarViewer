@@ -337,9 +337,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	@Override
 	public void onDayClick(View calendarView, CalendarDay day) {
 		if (day != null) {
-//			if (!Utils.isDayCurrentOrFuture(day)) {
-//				return;
-//			}
 			mAdapter.setSelectedDay(day);
 			if (mDayClickListener != null) {
 				mDayClickListener.onDayClick(calendarView, day);
@@ -354,9 +351,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	@Override
 	public void onDayLongClick(View calendarView, CalendarDay day) {
 		if (day != null) {
-//			if (!Utils.isDayCurrentOrFuture(day)) {
-//				return;
-//			}
 			if (mDayClickListener != null) {
 				mDayClickListener.onDayLongClick(calendarView, day);
 			}

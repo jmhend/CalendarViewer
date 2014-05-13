@@ -69,12 +69,12 @@ public final class R {
     public static final class id {
         public static int all_day_list=0x7f0a000a;
         public static int behind_list=0x7f0a0001;
-        public static int calendar_container=0x7f0a0005;
         public static int calendar_viewer_container=0x7f0a0002;
         public static int day=0x7f0a000c;
         public static int day_labels=0x7f0a0007;
         public static int day_pager=0x7f0a0000;
         public static int events_count=0x7f0a000d;
+        public static int hide_day=0x7f0a0013;
         public static int location=0x7f0a0004;
         public static int menu_closed=0x7f0a000f;
         public static int menu_month=0x7f0a0011;
@@ -82,8 +82,10 @@ public final class R {
         public static int month_header=0x7f0a0006;
         public static int month_pager=0x7f0a0008;
         public static int scroll_view=0x7f0a000b;
+        public static int show_day=0x7f0a0012;
         public static int text=0x7f0a000e;
         public static int title=0x7f0a0003;
+        public static int week_month_container=0x7f0a0005;
         public static int week_pager=0x7f0a0009;
     }
     public static final class layout {

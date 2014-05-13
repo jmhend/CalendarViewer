@@ -2,10 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+   
+    <!-- DayView -->
+    <me.jmhend.CalendarViewer.DayViewPager
+        android:id="@+id/day_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#FFFFFF"/>
     
     <!-- Week/Month container -->
     <RelativeLayout
-        android:id="@+id/calendar_container"
+        android:id="@+id/week_month_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     
@@ -39,13 +47,6 @@
 	        android:layout_below="@id/day_labels"
 		    android:visibility="visible"/>
 	    
-	    <me.jmhend.CalendarViewer.DayViewPager
-	        android:id="@+id/day_pager"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:visibility="gone"
-	        android:background="#FFFFFF"/>
-    
     </RelativeLayout>
     
 </RelativeLayout>

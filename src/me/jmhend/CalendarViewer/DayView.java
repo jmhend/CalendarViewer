@@ -350,6 +350,13 @@ public class DayView extends View {
 		setMeasuredDimension(width, height);
 	}
 	
+	/**
+	 * Sets the top padding of the DayView.
+	 * @param topPadding
+	 */
+	public void setTopPadding(int topPadding) {
+		mPaddingTop = topPadding;
+	}
 ////============================================================================
 //// Draw
 ////============================================================================
@@ -470,15 +477,15 @@ public class DayView extends View {
 	 */
 	private String getHourAtLinePosition(int position) {
 		if (position == 0) {
-			return "12";
+			return "12 am";
 		}
 		if (position < 12) {
-			return position + "";
+			return position + " am";
 		}
 		if (position == 12) {
-			return "Noon";
+			return "12 pm";
 		}
-		return (position - 12) + "";
+		return (position - 12) + " pm";
 	}
 	
 ////============================================================================
