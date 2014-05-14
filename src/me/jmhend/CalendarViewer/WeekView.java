@@ -252,7 +252,7 @@ public class WeekView extends CalendarView {
 		endTime += 1000; // Add 1 second so the date range fully extends into the end day, and it shows up in the daterange title.
 		
 		mStringBuilder.delete(0, mStringBuilder.length());
-		String msg = DateUtils.formatDateRange(getContext(), mFormatter, startTime, endTime, 52 | DateUtils.FORMAT_ABBREV_MONTH).toString();
+		String msg = DateUtils.formatDateRange(getContext(), mFormatter, startTime, endTime, 52/* | DateUtils.FORMAT_ABBREV_MONTH*/).toString();
 		
 		setCalendarToStartDay();
 		
