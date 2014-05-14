@@ -15,6 +15,7 @@
     <bool name="draw_day_labels">false</bool>
     
     <!-- DayView -->
+    <dimen name="dayview_header_height">32dp</dimen>
     <dimen name="dayview_padding_top">28dp</dimen>
     <dimen name="dayview_hour_label_width">48dp</dimen>
     <dimen name="dayview_hour_height">56dp</dimen>

@@ -112,7 +112,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 		params.put(MonthView.KEY_CURRENT_MONTH, Integer.valueOf(mController.getCurrentDay().month));
 		params.put(MonthView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mController.getCurrentDay().dayOfMonth));
 
-		monthView.reset();
+//		monthView.reset();
 		monthView.setParams(params);
 		monthView.setHideSelectedWeek(false);
 		monthView.invalidate();

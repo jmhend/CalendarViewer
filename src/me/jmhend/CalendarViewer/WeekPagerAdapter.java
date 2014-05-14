@@ -115,7 +115,7 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 		params.put(WeekView.KEY_CURRENT_MONTH, Integer.valueOf(mController.getCurrentDay().month));
 		params.put(WeekView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mController.getCurrentDay().dayOfMonth));
 
-		weekView.reset();
+//		weekView.reset();
 		weekView.setParams(params);
 		weekView.invalidate();
 	}

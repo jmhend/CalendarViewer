@@ -13,12 +13,13 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * PagerAdapter for displaying DayViews.
@@ -30,6 +31,37 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 	private static final String TAG = DayPagerAdapter.class.getSimpleName();
 	
 ////==================================================================================
+//// DayTitleViewProvider
+////==================================================================================
+	
+	/**
+	 * Provides this DayPagerAdapter with the DayView title View.
+	 * @author jmhend
+	 *
+	 */
+	public static interface DayTitleViewProvider {
+		
+		/**
+		 * @param dayStart
+		 * @return View for the title of the DayView with 'dayStart'.
+		 */
+		public DayTitleViewInfo getDayTitleInfo(long dayStart);
+	}
+	
+	public static class DayTitleViewInfo {
+		public String datetime;
+		public String temp;
+		public int icon;
+	}
+	
+////==================================================================================
+//// Static constants
+////==================================================================================
+	
+	protected static final int DATETIME_COLOR = 0xFF666666;
+	protected static final int DATETIME_COLOR_FADED = 0xFFAAAAAA;
+	
+////==================================================================================
 //// Member variables.
 ////==================================================================================
 	
@@ -37,8 +69,11 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 	private LayoutInflater mInflater;
 	private CalendarController mController;
 	private final CalendarModel mModel;
-	private final Calendar mCalendar;
+	private DayTitleViewProvider mTitleViewProvider;
 	private int mCount;
+	
+	private final Calendar mCalendar;
+	private long mCurrentDayStart;
 	
 	private OnEventClickListener mEventClickListener;
 	
@@ -55,6 +90,7 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		mInflater = LayoutInflater.from(mContext);
 		mController = controller;
 		mCalendar = Calendar.getInstance();
+		mCurrentDayStart = mController.getCurrentDay().toCalendar().getTimeInMillis();
 		mModel = model;
 		resetCalendar();
 		calculateCount();
@@ -71,6 +107,13 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		mEventClickListener = l;
 	}
 	
+	/**
+	 * @param provider
+	 */
+	public void setDayTitleViewProvider(DayTitleViewProvider provider) {
+		mTitleViewProvider = provider;
+	}
+	
 ////==================================================================================
 //// CalendarAdapter
 ////==================================================================================
@@ -79,6 +122,7 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 	 * (non-Javadoc)
 	 * @see me.jmhend.CalendarViewer.CalendarAdapter#updateView(int, me.jmhend.CalendarViewer.CalendarView)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void updateView(int position, View view) {
 		DayView dayView = (DayView) view;
@@ -93,12 +137,28 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		params.put(CalendarAdapter.KEY_POSITION, Integer.valueOf(position));
 		dayView.setTag(params);
 		
-		long start = getDayStartForPosition(position);
-		long end = getDayEndForPosition(position);
-		dayView.setDayBounds(start, end);
+		long dayStart = getDayStartForPosition(position);
+		long dayEnd = getDayEndForPosition(position);
+		dayView.setDayBounds(dayStart, dayEnd);
 		
 		// All day View.
 		updateAllDayView(position, dayView);
+		
+		// Day title
+		ViewGroup titleContainer = (ViewGroup) ((View) dayView.getParent().getParent().getParent()).findViewById(R.id.day_title_container);
+		if (mTitleViewProvider != null) {
+			DayTitleViewInfo info = mTitleViewProvider.getDayTitleInfo(dayStart);
+			final TextView dateTime = (TextView) titleContainer.findViewById(R.id.day_title);
+			if (dayStart >= mCurrentDayStart) {
+				dateTime.setTextColor(DATETIME_COLOR);
+			} else {
+				dateTime.setTextColor(DATETIME_COLOR_FADED);
+			}
+			
+			dateTime.setText(info.datetime);
+			((TextView) titleContainer.findViewById(R.id.day_title_secondary)).setText(info.temp);
+			((ImageView) titleContainer.findViewById(R.id.day_title_icon)).setImageResource(info.icon);
+		}
 		
 		dayView.invalidate();
 	}
@@ -271,6 +331,9 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 			if (selectedDay != null) {
 				getViewPager().setCurrentDay(selectedDay);
 			}
+		}
+		if (CalendarController.CURRENT_DAY.equals(tag)) {
+			mCurrentDayStart = mController.getCurrentDay().toCalendar().getTimeInMillis();
 		}
 		updateViewPager();
 	}

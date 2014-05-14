@@ -5,6 +5,7 @@ import java.util.Calendar;
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
+import me.jmhend.CalendarViewer.DayPagerAdapter.DayTitleViewProvider;
 import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 import android.content.Context;
 import android.content.res.Resources;
@@ -539,6 +540,16 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	public void syncDayViewDay(boolean smooth) {
 		mDayPager.setCurrentDay(mController.getSelectedDay(), smooth);
+	}
+	
+	/**
+	 * The DayView title View provider.
+	 * @param provider
+	 */
+	public void setDayViewTitleProvider(DayTitleViewProvider provider) {
+		if (mDayAdapter != null) {
+			mDayAdapter.setDayTitleViewProvider(provider);
+		}
 	}
 
 ////====================================================================================
