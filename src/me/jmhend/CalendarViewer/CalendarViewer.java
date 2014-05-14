@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * 
@@ -134,6 +134,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	
 	private RelativeLayout mView;
 	private RelativeLayout mWeekMonthLayout;
+	private TextView mTitle;
 	private CalendarViewPager mWeekPager;
 	private CalendarViewPager mMonthPager;
 	private DayViewPager mDayPager;
@@ -182,6 +183,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	public void initView(final ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
 		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
 		mWeekMonthLayout = (RelativeLayout) mView.findViewById(R.id.week_month_container);
+		mTitle = (TextView) mView.findViewById(R.id.month_header);
 		
 		mDayOfWeekLabelView = (DayOfWeekLabelView) mWeekMonthLayout.findViewById(R.id.day_labels);
 		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());
@@ -547,7 +549,20 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @return The title of the currently displayed View.
 	 */
 	public String getTitle() {
-		return "title";
+		if (mMode == Mode.WEEK) {
+			return mWeekPager.getCurrentItemTitle();
+		} else if (mMode == Mode.MONTH) {
+			return mMonthPager.getCurrentItemTitle();
+		}
+		return "";
+	}
+	
+	/**
+	 * Sets the CalendarViewer's title.
+	 * @param title
+	 */
+	public void setTitle(final String title) {
+		mTitle.setText(title);
 	}
 	
 	/**
