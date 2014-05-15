@@ -264,6 +264,15 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mDayBottomPadding = dayBottomPadding;
 	}
 	
+	/**
+	 * Update the DayView items.
+	 */
+	public void updateDayViewPager() {
+		if (mDayPager != null) {
+			mDayPager.updateVisiblePages();
+		}
+	}
+	
 ////====================================================================================
 //// Transitions.
 ////====================================================================================
@@ -494,6 +503,16 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 					mDayPager.setVisibility(View.VISIBLE);
 					mDayPager.animate().alpha(1f).setDuration(160);
 					mIsDayVisible = true;
+					mDayPager.post(new Runnable() {
+						/*
+						 * (non-Javadoc)
+						 * @see java.lang.Runnable#run()
+						 */
+						@Override
+						public void run() {
+							updateDayViewPager();
+						}
+					});
 				}
 			});
 		}
