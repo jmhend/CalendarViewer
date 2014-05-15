@@ -43,15 +43,9 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		
 		/**
 		 * @param dayStart
-		 * @return View for the title of the DayView with 'dayStart'.
+		 * @return Fills the View for the title of the DayView with 'dayStart'.
 		 */
-		public DayTitleViewInfo getDayTitleInfo(long dayStart);
-	}
-	
-	public static class DayTitleViewInfo {
-		public String datetime;
-		public String temp;
-		public int icon;
+		public void fillDayTitle(long dayStart, TextView dateView, TextView labelView, ImageView iconView);
 	}
 	
 ////==================================================================================
@@ -145,19 +139,12 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		updateAllDayView(position, dayView);
 		
 		// Day title
-		ViewGroup titleContainer = (ViewGroup) ((View) dayView.getParent().getParent().getParent()).findViewById(R.id.day_title_container);
 		if (mTitleViewProvider != null) {
-			DayTitleViewInfo info = mTitleViewProvider.getDayTitleInfo(dayStart);
-			final TextView dateTime = (TextView) titleContainer.findViewById(R.id.day_title);
-			if (dayStart >= mCurrentDayStart) {
-				dateTime.setTextColor(DATETIME_COLOR);
-			} else {
-				dateTime.setTextColor(DATETIME_COLOR_FADED);
-			}
-			
-			dateTime.setText(info.datetime);
-			((TextView) titleContainer.findViewById(R.id.day_title_secondary)).setText(info.temp);
-			((ImageView) titleContainer.findViewById(R.id.day_title_icon)).setImageResource(info.icon);
+			final ViewGroup titleContainer = (ViewGroup) ((View) dayView.getParent().getParent().getParent()).findViewById(R.id.day_title_container);
+			final TextView dateView = (TextView) titleContainer.findViewById(R.id.day_title);
+			final TextView labelView = (TextView) titleContainer.findViewById(R.id.day_title_secondary);
+			final ImageView iconView = (ImageView) titleContainer.findViewById(R.id.day_title_icon);
+			mTitleViewProvider.fillDayTitle(dayStart, dateView, labelView, iconView);
 		}
 		
 		dayView.invalidate();

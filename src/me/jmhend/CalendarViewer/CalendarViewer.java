@@ -551,6 +551,20 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			mDayAdapter.setDayTitleViewProvider(provider);
 		}
 	}
+	
+	/**
+	 * Scrolls the DayViewPager's current DayView to its next event.
+	 */
+	public void scrollCurrentDayToNextEvent() {
+		DayView dayView = (DayView) mDayPager.getCurrentView();
+		if (dayView == null) {
+			return;
+		}
+		int earliestY = dayView.getYForEarliestEvent();
+		if (earliestY != -1) {
+			mDayPager.scrollToEventAtY(dayView, earliestY);
+		}
+	}
 
 ////====================================================================================
 //// Getters/Setters

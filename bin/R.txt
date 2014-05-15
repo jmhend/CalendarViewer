@@ -51,7 +51,6 @@ int id day_title_container 0x7f0a000a
 int id day_title_icon 0x7f0a000c
 int id day_title_secondary 0x7f0a000d
 int id events_count 0x7f0a0012
-int id hide_day 0x7f0a0018
 int id location 0x7f0a0004
 int id menu_closed 0x7f0a0014
 int id menu_month 0x7f0a0016
@@ -59,7 +58,6 @@ int id menu_week 0x7f0a0015
 int id month_header 0x7f0a0006
 int id month_pager 0x7f0a0008
 int id scroll_view 0x7f0a0010
-int id show_day 0x7f0a0017
 int id text 0x7f0a0013
 int id title 0x7f0a0003
 int id title_div 0x7f0a000e

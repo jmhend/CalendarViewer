@@ -79,7 +79,6 @@ public final class R {
         public static int day_title_icon=0x7f0a000c;
         public static int day_title_secondary=0x7f0a000d;
         public static int events_count=0x7f0a0012;
-        public static int hide_day=0x7f0a0018;
         public static int location=0x7f0a0004;
         public static int menu_closed=0x7f0a0014;
         public static int menu_month=0x7f0a0016;
@@ -87,7 +86,6 @@ public final class R {
         public static int month_header=0x7f0a0006;
         public static int month_pager=0x7f0a0008;
         public static int scroll_view=0x7f0a0010;
-        public static int show_day=0x7f0a0017;
         public static int text=0x7f0a0013;
         public static int title=0x7f0a0003;
         public static int title_div=0x7f0a000e;

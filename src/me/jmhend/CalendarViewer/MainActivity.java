@@ -105,12 +105,6 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		} else if (itemId == R.id.menu_month) {
 			mCalendarViewer.transitionMode(Mode.MONTH);
 			return true;
-		} else if (itemId == R.id.show_day) {
-			mCalendarViewer.showDayView();
-			return true;
-		} else if (itemId == R.id.hide_day) {
-			mCalendarViewer.hideDayView();
-			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
