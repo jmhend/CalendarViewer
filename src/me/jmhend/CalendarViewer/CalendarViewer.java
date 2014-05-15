@@ -134,6 +134,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private Context mContext;
 	
 	private RelativeLayout mView;
+	private View mTouchInterceptorView;
 	private RelativeLayout mWeekMonthLayout;
 	private TextView mTitle;
 	private CalendarViewPager mWeekPager;
@@ -148,7 +149,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private CalendarModel mModel;
 	private CalendarViewerCallbacks mCallback;
 	
-	private Mode mMode;
+	public Mode mMode;
 	private boolean mIsDayVisible;
 	
 	private int mHeight;
@@ -185,6 +186,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
 		mWeekMonthLayout = (RelativeLayout) mView.findViewById(R.id.week_month_container);
 		mTitle = (TextView) mView.findViewById(R.id.month_header);
+		
+		final VerticalSwiper swiper = new VerticalSwiper(this, mWeekMonthLayout);
+		((InterceptRelativeLayout) mView).setVerticalSwiper(swiper);
 		
 		mDayOfWeekLabelView = (DayOfWeekLabelView) mWeekMonthLayout.findViewById(R.id.day_labels);
 		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());

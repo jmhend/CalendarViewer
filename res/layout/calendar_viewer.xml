@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.jmhend.CalendarViewer.InterceptRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
    
@@ -18,7 +18,6 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true">
-    
 	    <TextView
 	        android:id="@+id/month_header"
 	        android:layout_width="match_parent"
@@ -27,28 +26,30 @@
 	        android:textSize="16sp"
 	        android:textColor="#FFFFFFFF"
 	        android:text="May 2014"/>
-	    
 	    <me.jmhend.CalendarViewer.DayOfWeekLabelView 
 	        android:id="@+id/day_labels"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_below="@id/month_header"
 	        android:clickable="true"/>
-	    
 	    <me.jmhend.CalendarViewer.CalendarViewPager
 		    android:id="@+id/month_pager"
 		    android:layout_width="match_parent"
 		    android:layout_height="224dp"
 		    android:layout_below="@id/day_labels"
 		    android:visibility="visible" />
-	    
 	    <me.jmhend.CalendarViewer.CalendarViewPager
 	        android:id="@+id/week_pager"
 	        android:layout_width="match_parent"
 	        android:layout_height="42dp"
 	        android:layout_below="@id/day_labels"
 		    android:visibility="visible"/>
-	    
     </RelativeLayout>
+    <!-- 
+    Touch Interceptor
+    <View 
+        android:id="@+id/touch_interceptor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/> -->
     
-</RelativeLayout>
+</me.jmhend.CalendarViewer.InterceptRelativeLayout>

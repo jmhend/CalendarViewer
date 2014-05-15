@@ -1,5 +1,6 @@
 package me.jmhend.CalendarViewer;
 
+import me.jmhend.CalendarViewer.CalendarViewer.Mode;
 import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -7,6 +8,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
+import android.widget.RelativeLayout;
 
 public class VerticalSwiper implements OnTouchListener {
 	
@@ -21,18 +23,19 @@ public class VerticalSwiper implements OnTouchListener {
 ////========================================================================================
 	
 	private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
-	private View mView;
 	
+	
+	private int mBaseHeight = 0;
 	private float mDownY;
 	private float mLastY;
 	private boolean mAllowsSwipes = true;
 	private boolean mAbleToSwipe = true;
 	private boolean mSwiping = false;
-	private boolean mMovingDown;
 	
-	private int mMinTransY;
-	private int mMaxSwipeDistance;
 	private int mSwipeSlop = -1;
+	
+	private final View mView;
+	private final CalendarViewer mCalendarViewer;
 	
 ////========================================================================================
 //// Constructor.
@@ -41,8 +44,10 @@ public class VerticalSwiper implements OnTouchListener {
 	/**
 	 * @param context
 	 */
-	public VerticalSwiper(Context context) {
-		mSwipeSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+	public VerticalSwiper(CalendarViewer viewer, View mutableView) {
+		mSwipeSlop = ViewConfiguration.get(mutableView.getContext()).getScaledTouchSlop();
+		mView = mutableView;
+		mCalendarViewer = viewer;
 	}
 	
 ////========================================================================================
@@ -75,6 +80,9 @@ public class VerticalSwiper implements OnTouchListener {
 				mAbleToSwipe = true;
 				mDownY = ev.getY();
 				mLastY = mDownY;
+				mBaseHeight = mView.getHeight();
+				mCalendarViewer.mMode = Mode.TRANSITION;
+				Log.e(TAG, "DOWN at: " + mDownY);
 				return false;
 			}
 			
@@ -84,20 +92,31 @@ public class VerticalSwiper implements OnTouchListener {
 				}
 				
 				float y = ev.getY();
+				Log.i(TAG, "MOVE at: " + y);
 				float absDeltaY = Math.abs(mDownY - y);
 				
 				if (!mSwiping) {
 					if (absDeltaY > mSwipeSlop ) {
+						Log.w(TAG, "Starting swipe.");
 						mSwiping = true;
 					} else {
 						return false;
 					}
 				}
 				
-				float setY = y - mDownY;
-				v.setTranslationY(setY);
+				float offsetY = y - mLastY;
+				Log.d(TAG, "offset: " + offsetY);
+				
+				int newHeight = (int) (mView.getHeight() + offsetY);
+				mCalendarViewer.setHeight(mView, newHeight);
+				
+//				RelativeLayout.LayoutParams lp =  (RelativeLayout.LayoutParams) mView.getLayoutParams();
+//				lp.height += offsetY;
+//				mView.setLayoutParams(lp);
+//				mView.requestLayout();
+				
 				mLastY = y;
-				mVelocityTracker.addMovement(ev);
+				
 				return true;
 			}
 			
@@ -131,6 +150,7 @@ public class VerticalSwiper implements OnTouchListener {
 		mVelocityTracker.clear();
 		mSwiping = false;
 		mAbleToSwipe = true;
+		mCalendarViewer.mMode = Mode.MONTH;
 	}
 	
 ////========================================================================================
@@ -143,24 +163,24 @@ public class VerticalSwiper implements OnTouchListener {
 	 * @param handled
 	 */
 	private void printMotionEvent(final MotionEvent ev, final boolean handled) {
-		String message;
-		switch (ev.getActionMasked()) {
-		case MotionEvent.ACTION_DOWN:
-			message = "DOWN";
-			break;
-		case MotionEvent.ACTION_MOVE:
-			message = "MOVE";
-			break;
-		case MotionEvent.ACTION_UP:
-			message = "UP";
-			break;
-		case MotionEvent.ACTION_CANCEL:
-			message = "CANCEL";
-			break;
-		default:
-			return;
-		}
-		Log.i(TAG, message + "\t" + handled);
+//		String message;
+//		switch (ev.getActionMasked()) {
+//		case MotionEvent.ACTION_DOWN:
+//			message = "DOWN";
+//			break;
+//		case MotionEvent.ACTION_MOVE:
+//			message = "MOVE";
+//			break;
+//		case MotionEvent.ACTION_UP:
+//			message = "UP";
+//			break;
+//		case MotionEvent.ACTION_CANCEL:
+//			message = "CANCEL";
+//			break;
+//		default:
+//			return;
+//		}
+//		Log.i(TAG, message + "\t" + handled);
 	}
 
 }

@@ -71,7 +71,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
 		mCalendarViewer = new CalendarViewer(this, container, new CalModel(), builder.build());
-		mCalendarViewer.getView().findViewById(R.id.week_month_container).setBackgroundColor(0xEE008DD0);
+		mCalendarViewer.getView().findViewById(R.id.week_month_container).setBackgroundColor(0xEECC8800);
 	}
 	
 ////==========================================================================================
