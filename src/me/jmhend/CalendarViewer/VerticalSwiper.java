@@ -1,14 +1,12 @@
 package me.jmhend.CalendarViewer;
 
 import me.jmhend.CalendarViewer.CalendarViewer.Mode;
-import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
-import android.widget.RelativeLayout;
 
 public class VerticalSwiper implements OnTouchListener {
 	
@@ -24,8 +22,6 @@ public class VerticalSwiper implements OnTouchListener {
 	
 	private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
 	
-	
-	private int mBaseHeight = 0;
 	private float mDownY;
 	private float mLastY;
 	private boolean mAllowsSwipes = true;
@@ -80,9 +76,7 @@ public class VerticalSwiper implements OnTouchListener {
 				mAbleToSwipe = true;
 				mDownY = ev.getY();
 				mLastY = mDownY;
-				mBaseHeight = mView.getHeight();
 				mCalendarViewer.mMode = Mode.TRANSITION;
-				Log.e(TAG, "DOWN at: " + mDownY);
 				return false;
 			}
 			
@@ -92,12 +86,10 @@ public class VerticalSwiper implements OnTouchListener {
 				}
 				
 				float y = ev.getY();
-				Log.i(TAG, "MOVE at: " + y);
 				float absDeltaY = Math.abs(mDownY - y);
 				
 				if (!mSwiping) {
 					if (absDeltaY > mSwipeSlop ) {
-						Log.w(TAG, "Starting swipe.");
 						mSwiping = true;
 					} else {
 						return false;
@@ -105,15 +97,9 @@ public class VerticalSwiper implements OnTouchListener {
 				}
 				
 				float offsetY = y - mLastY;
-				Log.d(TAG, "offset: " + offsetY);
 				
 				int newHeight = (int) (mView.getHeight() + offsetY);
 				mCalendarViewer.setHeight(mView, newHeight);
-				
-//				RelativeLayout.LayoutParams lp =  (RelativeLayout.LayoutParams) mView.getLayoutParams();
-//				lp.height += offsetY;
-//				mView.setLayoutParams(lp);
-//				mView.requestLayout();
 				
 				mLastY = y;
 				
@@ -123,6 +109,8 @@ public class VerticalSwiper implements OnTouchListener {
 			case MotionEvent.ACTION_UP: {
 				if (mSwiping) {
 					mVelocityTracker.addMovement(ev);
+					
+					animate(Mode.MONTH, mView.getHeight(), null);
 					reset();
 					return true;
 				} else {
@@ -137,6 +125,22 @@ public class VerticalSwiper implements OnTouchListener {
 			default: 
 				return false;
 		}
+	}
+	
+	/**
+	 * Animates the CalendarView closed.
+	 * @param endMode
+	 * @param startHeight
+	 * @param endAction
+	 */
+	private void animate(final Mode endMode, final float startHeight, final Runnable endAction) {
+		final float ratio = 1f - ((startHeight - mCalendarViewer.getWeekHeight()) / (mCalendarViewer.getMonthHeight() - mCalendarViewer.getWeekHeight()));
+		final long duration = (long) (ratio * CalendarViewer.TRANSITION_DURATION);
+		final int targetHeight = mCalendarViewer.getHeightForMode(endMode);
+		
+		Log.i(TAG, ratio + ", " + duration);
+		
+		mCalendarViewer.animate(mView, Mode.MONTH, duration, (int) startHeight, targetHeight);
 	}
 
 ////========================================================================================

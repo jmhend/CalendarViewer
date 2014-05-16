@@ -125,7 +125,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 //// Static constants.
 ////====================================================================================
 	
-	private static final long TRANSITION_DURATION = 200L;
+	public static final long TRANSITION_DURATION = 300L;
 	
 ////====================================================================================
 //// Member variables.
@@ -152,10 +152,12 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	public Mode mMode;
 	private boolean mIsDayVisible;
 	
+	private int mMinHeight;
+	private int mMaxHeight;
 	private int mHeight;
 	private int mMonthHeight;
 	private int mDayHeight;
-	private int mWeekBottom;
+	private int mWeekHeight;
 	private int mDayBottomPadding;
 	
 	private Calendar mScratchCalendar = Calendar.getInstance();
@@ -172,6 +174,18 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mController = new CalendarController(config);
 		mModel = model;
 		initView(parent, model, config);
+	}
+	
+////====================================================================================
+//// Getters/Setters
+////====================================================================================
+	
+	public float getWeekHeight() {
+		return mWeekHeight;
+	}
+	
+	public float getMonthHeight() {
+		return mMonthHeight;
 	}
 	
 ////====================================================================================
@@ -263,9 +277,12 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		int dayBottomPadding = r.getDimensionPixelSize(R.dimen.dayview_bottom_padding);
 		
 		mMonthHeight = monthMaxHeight + bottomPadding + monthHeaderHeight;
-		mWeekBottom = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight + monthHeaderHeight;
+		mWeekHeight = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight + monthHeaderHeight;
 		mHeight = mMonthHeight;
 		mDayBottomPadding = dayBottomPadding;
+		
+		mMinHeight = mWeekHeight;
+		mMaxHeight = mMonthHeight;
 	}
 	
 	/**
@@ -318,6 +335,17 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		final int startHeight = mHeight;
 		final int targetHeight = getHeightForMode(mode);
 		
+		animate(mWeekMonthLayout, mode, TRANSITION_DURATION, startHeight, targetHeight);
+	}
+	
+	/**
+	 * Animates the View with the given paramenters.
+	 * @param view
+	 * @param mode
+	 * @param startHeight
+	 * @param targetHeight
+	 */
+	public void animate(final View view, final Mode mode, final long duration, final int startHeight, final int targetHeight) {
 		Animation animation = new Animation() {
 			/*
 			 * (non-Javadoc)
@@ -326,7 +354,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				int height = ((int) (interpolatedTime * (targetHeight - startHeight))) + startHeight;
-				setHeight(mWeekMonthLayout, height);
+				setHeight(view, height);
 			}
 		};
 		animation.setAnimationListener(new AnimationListener() {
@@ -336,7 +364,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			 */
 			@Override
 			public void onAnimationStart(Animation animation) {
-				mWeekMonthLayout.setEnabled(false);
+				view.setEnabled(false);
 				setMode(Mode.TRANSITION);
 			}
 
@@ -346,7 +374,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			 */
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				mWeekMonthLayout.setEnabled(true);
+				view.setEnabled(true);
 				setMode(mode);
 			}
 
@@ -356,13 +384,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			 */
 			@Override
 			public void onAnimationRepeat(Animation animation) {
-				mWeekMonthLayout.clearAnimation();
+				view.clearAnimation();
 			}
 			
 		});
-		animation.setDuration(TRANSITION_DURATION);
+		animation.setDuration(duration);
 		animation.setInterpolator(new DecelerateInterpolator());
-		mWeekMonthLayout.startAnimation(animation);
+		view.startAnimation(animation);
 	}
 	
 	/**
@@ -391,6 +419,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param height
 	 */
 	public void setHeight(View view, int height) {
+		if (height < mMinHeight) {
+			height = mMinHeight;
+		} else if (height > mMaxHeight) {
+			height = mMaxHeight;
+		}
 		mHeight = height;
 		
 		LayoutParams p = view.getLayoutParams();
@@ -409,7 +442,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		if (mode == Mode.CLOSED) {
 			targetHeight = 1;
 		} else if (mode == Mode.WEEK) {
-			targetHeight = mWeekBottom;
+			targetHeight = mWeekHeight;
 		} else if (mode == Mode.MONTH) {
 			targetHeight = mMonthHeight;
 		} 
@@ -420,7 +453,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * The percentage of the content View's max height past the Week height threshold.
 	 */
 	private float getBelowWeekHeightPercent() {
-		return ((float) (mHeight - mWeekBottom)) / ((float) (mMonthHeight - mWeekBottom));
+		return ((float) (mHeight - mWeekHeight)) / ((float) (mMonthHeight - mWeekHeight));
 	}
 	
 	/**
@@ -451,7 +484,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			weekVis = View.GONE;
 			break;
 		case TRANSITION:
-			if (height <= mWeekBottom) {
+			if (height <= mWeekHeight) {
 				transYWeek = 0;
 				alphaWeek = 1f;
 				alphaMonth = 0f;
