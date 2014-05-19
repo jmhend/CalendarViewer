@@ -253,6 +253,17 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		return mCount;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.CalendarViewer.CalendarAdapter#getFocusedDay(int)
+	 */
+	@Override
+	public CalendarDay getFocusedDay(int position) {
+		resetCalendar();
+		mCalendar.add(Calendar.DAY_OF_YEAR, position);
+		return CalendarDay.fromCalendar(mCalendar);
+	}
+	
 ////==================================================================================
 //// Position
 ////==================================================================================
@@ -324,5 +335,9 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		}
 		updateViewPager();
 	}
-
 }
+
+
+
+
+

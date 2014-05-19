@@ -66,7 +66,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		CalendarControllerConfig.Builder builder = CalendarControllerConfig.startBuilding()
 				.starts(start)
 				.ends(end)
-				.mode(Mode.MONTH);
+				.mode(Mode.WEEK);
 		
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
@@ -183,7 +183,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onModeChanged(CalendarViewer viewer, Mode newMode) {
-				setActionBarSubtitle(viewer.getTitle());
+//				setActionBarSubtitle(viewer.getTitle());
 			}
 			
 			/*

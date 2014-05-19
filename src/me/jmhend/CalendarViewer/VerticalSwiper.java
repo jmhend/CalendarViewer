@@ -16,6 +16,17 @@ public class VerticalSwiper implements OnTouchListener {
 //// Static constants.
 ////========================================================================================
 	
+	// Animation speed to dismiss the animate the View to it's final state.
+	public static final int ANIMATE_DURATION = 240;
+	
+	// Percentage that the View needs to be swiped
+	// to be considered a complete swipe action. (0 - 1)f;
+	private static final float DISTANCE_PERCENT_THRESH = 0.35f;
+	
+	// Velocity (pixels/millisecond) threshold for registering a swipe,
+	// even if the distance threshold isn't met.
+	private static final float ANIMATE_VELOCITY_THRESH = 0.5f;
+	
 ////========================================================================================
 //// Member variables.
 ////========================================================================================
@@ -24,6 +35,7 @@ public class VerticalSwiper implements OnTouchListener {
 	
 	private float mDownY;
 	private float mLastY;
+	private boolean mSwipingDown;
 	private boolean mAllowsSwipes = true;
 	private boolean mAbleToSwipe = true;
 	private boolean mSwiping = false;
@@ -31,7 +43,13 @@ public class VerticalSwiper implements OnTouchListener {
 	private int mSwipeSlop = -1;
 	
 	private final View mView;
+	private Mode mInitialMode;
 	private final CalendarViewer mCalendarViewer;
+	
+	private int mMinHeight;
+	private int mMaxHeight;
+	private int mWeekToMonthThreshHeight;
+	private int mMonthToWeekThreshHeight;
 	
 ////========================================================================================
 //// Constructor.
@@ -44,6 +62,11 @@ public class VerticalSwiper implements OnTouchListener {
 		mSwipeSlop = ViewConfiguration.get(mutableView.getContext()).getScaledTouchSlop();
 		mView = mutableView;
 		mCalendarViewer = viewer;
+		mMinHeight = viewer.mMinHeight;
+		mMaxHeight = viewer.mMaxHeight;
+		
+		mWeekToMonthThreshHeight = (int) (DISTANCE_PERCENT_THRESH * ((float) (mMaxHeight - mMinHeight))) + mMinHeight;
+		mMonthToWeekThreshHeight = (int) ((1f - DISTANCE_PERCENT_THRESH) * ((float) (mMaxHeight - mMinHeight))) + mMinHeight;
 	}
 	
 ////========================================================================================
@@ -70,13 +93,14 @@ public class VerticalSwiper implements OnTouchListener {
 		}
 		
 		switch (ev.getActionMasked()) {
-		
 			case MotionEvent.ACTION_DOWN: {
+				if (ev.getY() >= mView.getHeight() || mCalendarViewer.getMode() == Mode.TRANSITION) {
+					return false;
+				}
 				mVelocityTracker.addMovement(ev);
 				mAbleToSwipe = true;
 				mDownY = ev.getY();
 				mLastY = mDownY;
-				mCalendarViewer.mMode = Mode.TRANSITION;
 				return false;
 			}
 			
@@ -89,20 +113,24 @@ public class VerticalSwiper implements OnTouchListener {
 				float absDeltaY = Math.abs(mDownY - y);
 				
 				if (!mSwiping) {
-					if (absDeltaY > mSwipeSlop ) {
+					if (absDeltaY > mSwipeSlop && mCalendarViewer.getMode() != Mode.TRANSITION) {
 						mSwiping = true;
+						mInitialMode = mCalendarViewer.getMode();
+						mCalendarViewer.ensurePagerStates();
+						mCalendarViewer.setMode(Mode.TRANSITION);
 					} else {
 						return false;
 					}
 				}
 				
 				float offsetY = y - mLastY;
+				mSwipingDown = y > mLastY;
 				
 				int newHeight = (int) (mView.getHeight() + offsetY);
 				mCalendarViewer.setHeight(mView, newHeight);
 				
 				mLastY = y;
-				
+				mVelocityTracker.addMovement(ev);
 				return true;
 			}
 			
@@ -110,9 +138,11 @@ public class VerticalSwiper implements OnTouchListener {
 				if (mSwiping) {
 					mVelocityTracker.addMovement(ev);
 					
-					animate(Mode.MONTH, mView.getHeight(), null);
+					determineAnimation();
 					reset();
 					return true;
+					
+					
 				} else {
 					return false;
 				}
@@ -127,6 +157,32 @@ public class VerticalSwiper implements OnTouchListener {
 		}
 	}
 	
+	private void determineAnimation() {
+		mVelocityTracker.computeCurrentVelocity(1);
+		
+		float velocityY = Math.abs(mVelocityTracker.getYVelocity());
+		boolean swipingDown = mSwipingDown;
+		
+		Mode endMode = null;
+		
+		// Fast flick.
+		if (velocityY > ANIMATE_VELOCITY_THRESH) {
+			endMode = swipingDown? Mode.MONTH : Mode.WEEK;
+			
+		} else {
+			if (mInitialMode == Mode.WEEK) {
+				endMode = (mView.getHeight() > mWeekToMonthThreshHeight)? Mode.MONTH : Mode.WEEK;
+			} else if (mInitialMode == Mode.MONTH) {
+				endMode = (mView.getHeight() > mMonthToWeekThreshHeight)? Mode.MONTH : Mode.WEEK;
+			}
+		}
+		if (endMode == null) {
+			throw new IllegalStateException("Mode is NULL.");
+		}
+		
+		animate(endMode, mView.getHeight(), null);
+	}
+	
 	/**
 	 * Animates the CalendarView closed.
 	 * @param endMode
@@ -137,10 +193,7 @@ public class VerticalSwiper implements OnTouchListener {
 		final float ratio = 1f - ((startHeight - mCalendarViewer.getWeekHeight()) / (mCalendarViewer.getMonthHeight() - mCalendarViewer.getWeekHeight()));
 		final long duration = (long) (ratio * CalendarViewer.TRANSITION_DURATION);
 		final int targetHeight = mCalendarViewer.getHeightForMode(endMode);
-		
-		Log.i(TAG, ratio + ", " + duration);
-		
-		mCalendarViewer.animate(mView, Mode.MONTH, duration, (int) startHeight, targetHeight);
+		mCalendarViewer.animate(mView, endMode, duration, (int) startHeight, targetHeight);
 	}
 
 ////========================================================================================
@@ -153,8 +206,7 @@ public class VerticalSwiper implements OnTouchListener {
 	private void reset() {
 		mVelocityTracker.clear();
 		mSwiping = false;
-		mAbleToSwipe = true;
-		mCalendarViewer.mMode = Mode.MONTH;
+		mAbleToSwipe = false;
 	}
 	
 ////========================================================================================

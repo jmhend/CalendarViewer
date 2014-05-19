@@ -126,6 +126,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 ////====================================================================================
 	
 	public static final long TRANSITION_DURATION = 300L;
+	public static final long DAY_VIEW_ANIMATE_DURATION = 160L;
 	
 ////====================================================================================
 //// Member variables.
@@ -134,14 +135,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private Context mContext;
 	
 	private RelativeLayout mView;
-	private View mTouchInterceptorView;
 	private RelativeLayout mWeekMonthLayout;
 	private TextView mTitle;
 	private CalendarViewPager mWeekPager;
 	private CalendarViewPager mMonthPager;
 	private DayViewPager mDayPager;
-	private CalendarAdapter mMonthAdapter;
-	private CalendarAdapter mWeekAdapter;
+	private MonthPagerAdapter mMonthAdapter;
+	private WeekPagerAdapter mWeekAdapter;
 	private DayPagerAdapter mDayAdapter;
 	private DayOfWeekLabelView mDayOfWeekLabelView;
 	
@@ -149,16 +149,17 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private CalendarModel mModel;
 	private CalendarViewerCallbacks mCallback;
 	
-	public Mode mMode;
+	private Mode mMode;
 	private boolean mIsDayVisible;
 	
-	private int mMinHeight;
-	private int mMaxHeight;
+	int mMinHeight;
+	int mMaxHeight;
 	private int mHeight;
 	private int mMonthHeight;
 	private int mDayHeight;
 	private int mWeekHeight;
 	private int mDayBottomPadding;
+	
 	
 	private Calendar mScratchCalendar = Calendar.getInstance();
 	
@@ -200,9 +201,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
 		mWeekMonthLayout = (RelativeLayout) mView.findViewById(R.id.week_month_container);
 		mTitle = (TextView) mView.findViewById(R.id.month_header);
-		
-		final VerticalSwiper swiper = new VerticalSwiper(this, mWeekMonthLayout);
-		((InterceptRelativeLayout) mView).setVerticalSwiper(swiper);
 		
 		mDayOfWeekLabelView = (DayOfWeekLabelView) mWeekMonthLayout.findViewById(R.id.day_labels);
 		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());
@@ -256,6 +254,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		
 		setMode(mWeekMonthLayout, config.getMode());
 		attachToWindow(parent);
+		
+		// Initial this after CalendarViewer setup, because it relies on CalendarViewer fields to be initialized.
+		final VerticalSwiper swiper = new VerticalSwiper(this, mWeekMonthLayout);
+		((InterceptRelativeLayout) mView).setVerticalSwiper(swiper);
 	}
 	
 	/**
@@ -338,6 +340,33 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		animate(mWeekMonthLayout, mode, TRANSITION_DURATION, startHeight, targetHeight);
 	}
 	
+	void ensurePagerStates() {
+		if (mMode == Mode.WEEK) {
+			int currentPosition = mMonthPager.getCurrentItem();
+			int selectedDayPosition = mMonthPager.getPositionForDay(mController.getFocusedDay());
+			
+			// Not on the current Day, so need to set the MonthViewPager's current View
+			// to be the same as the WeekViewPager's.
+			if (currentPosition != selectedDayPosition) {
+				mMonthPager.setCurrentDay(mController.getFocusedDay(), false);
+				mMonthPager.updateVisiblePages();
+			}
+		} else if (mMode == Mode.MONTH) {
+			int currentPosition = mWeekPager.getCurrentItem();
+			int selectedDayPosition = mWeekPager.getPositionForDay(mController.getFocusedDay());
+			
+			// Not on the current Day, so need to set the WeekViewPager's current View
+			// to be the same as the MonthViewPager's.
+			if (currentPosition != selectedDayPosition) {
+				mWeekPager.setCurrentDay(mController.getFocusedDay(), false);
+				mWeekPager.updateVisiblePages();
+			}
+			
+//			int transY = calculateWeekDestinationY();
+//			mWeekPager.setTranslationY(transY);
+		}
+	}
+	
 	/**
 	 * Animates the View with the given paramenters.
 	 * @param view
@@ -346,6 +375,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param targetHeight
 	 */
 	public void animate(final View view, final Mode mode, final long duration, final int startHeight, final int targetHeight) {
+		setMode(Mode.TRANSITION);
 		Animation animation = new Animation() {
 			/*
 			 * (non-Javadoc)
@@ -365,7 +395,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void onAnimationStart(Animation animation) {
 				view.setEnabled(false);
-				setMode(Mode.TRANSITION);
 			}
 
 			/*
@@ -399,11 +428,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @return
 	 */
 	private int calculateWeekDestinationY() {
-		MonthView view = (MonthView) mMonthPager.getViewForDay(mController.getSelectedDay());
+		MonthView view = (MonthView) mMonthPager.getViewForDay(mController.getFocusedDay());
 		if (view == null) {
 			return 0;
 		}
-		return view.getTopYForDay(mController.getSelectedDay());
+		return view.getTopYForDay(mController.getFocusedDay());
 	}
 	
 	/**
@@ -538,7 +567,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 				@Override
 				public void run() {
 					mDayPager.setVisibility(View.VISIBLE);
-					mDayPager.animate().alpha(1f).setDuration(160);
+					mDayPager.animate().alpha(1f).setDuration(DAY_VIEW_ANIMATE_DURATION);
 					mIsDayVisible = true;
 					mDayPager.post(new Runnable() {
 						/*
@@ -567,7 +596,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 				 */
 				@Override
 				public void run() {
-					mDayPager.animate().alpha(0f).setDuration(160);
+					mDayPager.animate().alpha(0f).setDuration(DAY_VIEW_ANIMATE_DURATION);
 				}
 			});
 			mDayPager.postDelayed(new Runnable() {
@@ -580,7 +609,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 					mDayPager.setVisibility(View.GONE);
 					mIsDayVisible = false;
 				}
-			}, 180);
+			}, (long) (DAY_VIEW_ANIMATE_DURATION * 1.1));
 		}
 	}
 	
@@ -748,6 +777,15 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	@Override
 	public void onPageSelected(ViewPager pager, int position) {
+		if ((mMode == Mode.MONTH && pager == mMonthPager) ||
+				(mMode == Mode.WEEK && pager == mWeekPager)) {
+			
+			final CalendarDay focus = ((CalendarAdapter) pager.getAdapter()).getFocusedDay(position);
+			mController.setFocusedDay(focus);
+			mMonthPager.updateVisiblePages();
+			mWeekPager.updateVisiblePages();
+		}
+		
 		if (mCallback != null) {
 			mCallback.onVisibleDaysChanged(this);
 		}
@@ -764,6 +802,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	@Override
 	public void onDayClick(View calendarView, CalendarDay day) {
+		mController.setFocusedDay(day);
 		if (mCallback != null) {
 			mCallback.onDaySelected(calendarView, day);
 		}

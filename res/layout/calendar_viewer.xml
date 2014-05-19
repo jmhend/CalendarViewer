@@ -45,11 +45,5 @@
 	        android:layout_below="@id/day_labels"
 		    android:visibility="visible"/>
     </RelativeLayout>
-    <!-- 
-    Touch Interceptor
-    <View 
-        android:id="@+id/touch_interceptor"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/> -->
     
 </me.jmhend.CalendarViewer.InterceptRelativeLayout>

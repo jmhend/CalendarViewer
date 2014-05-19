@@ -46,6 +46,11 @@ public abstract class CalendarAdapter extends RecyclingPagerAdapter {
 	 */
 	public abstract void setSelectedDay(CalendarDay day);
 	
+	/**
+	 * @return The CalendarDay of the default focused day of the View at position.
+	 */
+	public abstract CalendarDay getFocusedDay(int position);
+	
 ////=====================================================================================
 //// ViewPager
 ////=====================================================================================

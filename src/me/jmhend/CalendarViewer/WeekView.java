@@ -143,6 +143,13 @@ public class WeekView extends CalendarView {
 		mFormatter = new Formatter(mStringBuilder, Locale.getDefault());
 	}
 	
+	/**
+	 * @return The starting day of this WeekView.
+	 */
+	public CalendarDay getStartDay() {
+		return mStartDay;
+	}
+	
 ////======================================================================================
 //// View.
 ////======================================================================================

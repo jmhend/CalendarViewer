@@ -23,6 +23,7 @@ public class CalendarController {
 	public static final String END_DAY = "endDay";
 	public static final String CURRENT_DAY = "currentDay";
 	public static final String SELECTED_DAY = "selectedDay";
+	public static final String FOCUSED_DAY = "focusedDay";
 	
 ////===============================================================================
 //// Member variables.
@@ -33,6 +34,7 @@ public class CalendarController {
 	private CalendarDay mEndDay;
 	private CalendarDay mCurrentDay;
 	private CalendarDay mSelectedDay;
+	private CalendarDay mFocusedDay;
 	
 	private List<OnCalendarControllerChangeListener> mListeners = new ArrayList<OnCalendarControllerChangeListener>();
 	
@@ -44,7 +46,6 @@ public class CalendarController {
 	 */
 	public CalendarController() { 
 		mCurrentDay = CalendarDay.currentDay();
-		Log.i(TAG, "init CurrentDay: " + mCurrentDay.toString());
 	}
 	
 	/**
@@ -57,6 +58,7 @@ public class CalendarController {
 		mStartDay = config.getStartDay();
 		mEndDay = config.getEndDay();
 		mSelectedDay = config.getSelectedDay();
+		mFocusedDay = mSelectedDay;
 	}
 	
 ////===============================================================================
@@ -106,6 +108,15 @@ public class CalendarController {
 	public void setSelectedDay(CalendarDay selectedDay) {
 		mSelectedDay = selectedDay;
 		notifyListeners(selectedDay, SELECTED_DAY);
+	}
+	
+	public CalendarDay getFocusedDay() {
+		return mFocusedDay;
+	}
+	
+	public void setFocusedDay(CalendarDay focusedDay) {
+		Log.i(TAG, "FOCUS: " + focusedDay);
+		mFocusedDay = focusedDay;
 	}
 
 ////===============================================================================
