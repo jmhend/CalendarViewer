@@ -2,6 +2,7 @@ package me.jmhend.CalendarViewer;
 
 import java.util.Calendar;
 
+import junit.framework.Assert;
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,8 +136,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	
 	private Context mContext;
 	
-	private RelativeLayout mView;
-	private RelativeLayout mWeekMonthLayout;
+	private RelativeLayout mLayout;
+	private RelativeLayout mMutableView;
 	private TextView mTitle;
 	private CalendarViewPager mWeekPager;
 	private CalendarViewPager mMonthPager;
@@ -154,7 +156,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	
 	int mMinHeight;
 	int mMaxHeight;
-	private int mHeight;
 	private int mMonthHeight;
 	private int mDayHeight;
 	private int mWeekHeight;
@@ -198,11 +199,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param config
 	 */
 	public void initView(final ViewGroup parent, CalendarModel model, CalendarControllerConfig config) {
-		mView = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
-		mWeekMonthLayout = (RelativeLayout) mView.findViewById(R.id.week_month_container);
-		mTitle = (TextView) mView.findViewById(R.id.month_header);
+		mLayout = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.calendar_viewer, parent, false);
+		mMutableView = (RelativeLayout) mLayout.findViewById(R.id.week_month_container);
+		mTitle = (TextView) mLayout.findViewById(R.id.month_header);
 		
-		mDayOfWeekLabelView = (DayOfWeekLabelView) mWeekMonthLayout.findViewById(R.id.day_labels);
+		mDayOfWeekLabelView = (DayOfWeekLabelView) mMutableView.findViewById(R.id.day_labels);
 		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());
 		
 		parent.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -230,19 +231,19 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mMonthAdapter = new MonthPagerAdapter(mContext, mModel, mController);
 		mDayAdapter = new DayPagerAdapter(mContext, mModel, mController);
 		
-		mWeekPager = (CalendarViewPager) mWeekMonthLayout.findViewById(R.id.week_pager);
+		mWeekPager = (CalendarViewPager) mMutableView.findViewById(R.id.week_pager);
 		mWeekPager.setAdapter(mWeekAdapter);
 		mWeekPager.setOnPageSelectedListener(this);
 		mWeekPager.setOnDayClickListener(this);
 		mWeekPager.setCurrentDay(mController.getCurrentDay());
 		
-		mMonthPager = (CalendarViewPager) mWeekMonthLayout.findViewById(R.id.month_pager);
+		mMonthPager = (CalendarViewPager) mMutableView.findViewById(R.id.month_pager);
 		mMonthPager.setAdapter(mMonthAdapter);
 		mMonthPager.setOnPageSelectedListener(this);
 		mMonthPager.setOnDayClickListener(this);
 		mMonthPager.setCurrentDay(mController.getCurrentDay());
 		
-		mDayPager = (DayViewPager) mView.findViewById(R.id.day_pager);
+		mDayPager = (DayViewPager) mLayout.findViewById(R.id.day_pager);
 		mDayPager.setAdapter(mDayAdapter);
 		mDayPager.setOnPageSelectedListener(this);
 		mDayPager.setOnDayClickListener(this);
@@ -252,19 +253,19 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		
 		initDimens();
 		
-		setMode(mWeekMonthLayout, config.getMode());
+		setModeFully(config.getMode());
 		attachToWindow(parent);
 		
 		// Initial this after CalendarViewer setup, because it relies on CalendarViewer fields to be initialized.
-		final VerticalSwiper swiper = new VerticalSwiper(this, mWeekMonthLayout);
-		((InterceptRelativeLayout) mView).setVerticalSwiper(swiper);
+		final VerticalSwiper swiper = new VerticalSwiper(this, mMutableView);
+		((InterceptRelativeLayout) mLayout).setVerticalSwiper(swiper);
 	}
 	
 	/**
 	 * @param parent The parent ViewGroup to add this CalendarViewer to.
 	 */
 	public void attachToWindow(ViewGroup parent) {
-		parent.addView(mView);
+		parent.addView(mLayout);
 	}
 	
 	/**
@@ -280,7 +281,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		
 		mMonthHeight = monthMaxHeight + bottomPadding + monthHeaderHeight;
 		mWeekHeight = ((monthMaxHeight - dayLabelsHeight) / 6) + bottomPadding + dayLabelsHeight + monthHeaderHeight;
-		mHeight = mMonthHeight;
 		mDayBottomPadding = dayBottomPadding;
 		
 		mMinHeight = mWeekHeight;
@@ -308,63 +308,63 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mWeekPager.updateVisiblePages();
 	}
 	
-	/**
-	 * Transitions the CalendarViewer to the Mode.
-	 */
-	public void transitionMode(Mode mode) {
-		transitionMode(mode, true);
-	}
-	
-	/**
-	 * Transitions the CalendarViewer to the Mode, with the possibility
-	 * of smoothly doing so.
-	 * @param from
-	 * @param to
-	 * @param smooth
-	 */
-	public void transitionMode(final Mode mode, boolean smooth) {
-		if (mMode == mode) {
-			return;
-		}
-		mWeekPager.setCurrentDay(mController.getSelectedDay());
-		mMonthPager.setCurrentDay(mController.getSelectedDay());
-		
-		if (!smooth) {
-			setMode(mode);
-			return;
-		}
-		
-		final int startHeight = mHeight;
-		final int targetHeight = getHeightForMode(mode);
-		
-		animate(mWeekMonthLayout, mode, TRANSITION_DURATION, startHeight, targetHeight);
-	}
+//	/**
+//	 * Transitions the CalendarViewer to the Mode.
+//	 */
+//	public void transitionMode(Mode mode) {
+//		transitionMode(mode, true);
+//	}
+//	
+//	/**
+//	 * Transitions the CalendarViewer to the Mode, with the possibility
+//	 * of smoothly doing so.
+//	 * @param from
+//	 * @param to
+//	 * @param smooth
+//	 */
+//	public void transitionMode(final Mode mode, boolean smooth) {
+//		if (mMode == mode) {
+//			return;
+//		}
+//		mWeekPager.setCurrentDay(mController.getSelectedDay());
+//		mMonthPager.setCurrentDay(mController.getSelectedDay());
+//		
+//		if (!smooth) {
+//			setMode(mode);
+//			return;
+//		}
+//		
+//		final int startHeight = mMutableView.getHeight();
+//		final int targetHeight = getHeightForMode(mode);
+//		
+//		animate(mMutableView, mode, TRANSITION_DURATION, startHeight, targetHeight);
+//	}
 	
 	void ensurePagerStates() {
-		if (mMode == Mode.WEEK) {
-			int currentPosition = mMonthPager.getCurrentItem();
-			int selectedDayPosition = mMonthPager.getPositionForDay(mController.getFocusedDay());
-			
-			// Not on the current Day, so need to set the MonthViewPager's current View
-			// to be the same as the WeekViewPager's.
-			if (currentPosition != selectedDayPosition) {
-				mMonthPager.setCurrentDay(mController.getFocusedDay(), false);
-				mMonthPager.updateVisiblePages();
-			}
-		} else if (mMode == Mode.MONTH) {
-			int currentPosition = mWeekPager.getCurrentItem();
-			int selectedDayPosition = mWeekPager.getPositionForDay(mController.getFocusedDay());
-			
-			// Not on the current Day, so need to set the WeekViewPager's current View
-			// to be the same as the MonthViewPager's.
-			if (currentPosition != selectedDayPosition) {
-				mWeekPager.setCurrentDay(mController.getFocusedDay(), false);
-				mWeekPager.updateVisiblePages();
-			}
-			
-//			int transY = calculateWeekDestinationY();
-//			mWeekPager.setTranslationY(transY);
-		}
+		mWeekPager.updateVisiblePages();
+		mMonthPager.updateVisiblePages();
+		
+//		if (mMode == Mode.WEEK) {
+//			int currentPosition = mMonthPager.getCurrentItem();
+//			int selectedDayPosition = mMonthPager.getPositionForDay(mController.getFocusedDay());
+//			
+//			// Not on the current Day, so need to set the MonthViewPager's current View
+//			// to be the same as the WeekViewPager's.
+//			if (currentPosition != selectedDayPosition) {
+//				mMonthPager.setCurrentDay(mController.getFocusedDay(), false);
+//				mMonthPager.updateVisiblePages();
+//			}
+//		} else if (mMode == Mode.MONTH) {
+//			int currentPosition = mWeekPager.getCurrentItem();
+//			int selectedDayPosition = mWeekPager.getPositionForDay(mController.getFocusedDay());
+//			
+//			// Not on the current Day, so need to set the WeekViewPager's current View
+//			// to be the same as the MonthViewPager's.
+//			if (currentPosition != selectedDayPosition) {
+//				mWeekPager.setCurrentDay(mController.getFocusedDay(), false);
+//				mWeekPager.updateVisiblePages();
+//			}
+//		}
 	}
 	
 	/**
@@ -375,7 +375,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param targetHeight
 	 */
 	public void animate(final View view, final Mode mode, final long duration, final int startHeight, final int targetHeight) {
-		setMode(Mode.TRANSITION);
 		Animation animation = new Animation() {
 			/*
 			 * (non-Javadoc)
@@ -384,7 +383,12 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				int height = ((int) (interpolatedTime * (targetHeight - startHeight))) + startHeight;
-				setHeight(view, height);
+				Log.i(TAG, "applyTransformation height: " + height);
+				
+//				if (mMode == Mode.TRANSITION) {
+					setHeightFully(height);
+					adjustViewsInTransition();
+//				}
 			}
 		};
 		animation.setAnimationListener(new AnimationListener() {
@@ -404,7 +408,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				view.setEnabled(true);
-				setMode(mode);
+				endTransition(mode);
 			}
 
 			/*
@@ -435,46 +439,46 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		return view.getTopYForDay(mController.getFocusedDay());
 	}
 	
-	/**
-	 * Sets the height of the CalendarView from a percentage of the maximum height.
-	 * @param percent
-	 */
-	public void setHeightPercent(float percent) {
-		setHeight(mWeekMonthLayout, (int) (percent * mMonthHeight));
-	}
-	
-	/**
-	 * Sets the height of the CalendarView.
-	 * @param height
-	 */
-	public void setHeight(View view, int height) {
-		if (height < mMinHeight) {
-			height = mMinHeight;
-		} else if (height > mMaxHeight) {
-			height = mMaxHeight;
-		}
-		mHeight = height;
-		
-		LayoutParams p = view.getLayoutParams();
-		p.height = mHeight;
-		view.setLayoutParams(p);
-		
-		onHeightChanged(view, mHeight);
-	}
+//	/**
+//	 * Sets the height of the CalendarView from a percentage of the maximum height.
+//	 * @param percent
+//	 */
+//	public void setHeightPercent(float percent) {
+//		setHeight(mMutableView, (int) (percent * mMonthHeight));
+//	}
+//	
+//	/**
+//	 * Sets the height of the CalendarView.
+//	 * @param height
+//	 */
+//	public void setHeight(View view, int height) {
+//		if (height < mMinHeight) {
+//			height = mMinHeight;
+//		} else if (height > mMaxHeight) {
+//			height = mMaxHeight;
+//		}
+//		LayoutParams p = view.getLayoutParams();
+//		p.height = height;
+//		view.setLayoutParams(p);
+//		
+//		onHeightChanged(view, height);
+//	}
 	
 	/**
 	 * @param mode
 	 * @return The height for the Mode.
 	 */
 	public int getHeightForMode(Mode mode) {
-		int targetHeight = mHeight;
+		int targetHeight;
 		if (mode == Mode.CLOSED) {
 			targetHeight = 1;
 		} else if (mode == Mode.WEEK) {
 			targetHeight = mWeekHeight;
 		} else if (mode == Mode.MONTH) {
 			targetHeight = mMonthHeight;
-		} 
+		} else {
+			targetHeight = mMutableView.getHeight();
+		}
 		return targetHeight;
 	}
 	
@@ -482,72 +486,231 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * The percentage of the content View's max height past the Week height threshold.
 	 */
 	private float getBelowWeekHeightPercent() {
-		return ((float) (mHeight - mWeekHeight)) / ((float) (mMonthHeight - mWeekHeight));
+		return ((float) (mMutableView.getHeight() - mWeekHeight)) / ((float) (mMonthHeight - mWeekHeight));
 	}
 	
 	/**
-	 * Called when the height of the CalendarViewer is changed.
-	 * @param view
+	 * Adjusts the View properties that are functions of a the CalendarViewer transition height.
+	 */
+	void adjustViewsInTransition() {
+//		Assert.assertTrue(mMode == Mode.TRANSITION);
+//		Assert.assertTrue(mWeekPager.getVisibility() == View.VISIBLE);
+//		Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
+		
+		final float heightPercent = getBelowWeekHeightPercent();
+		final float monthAlpha = heightPercent;
+		final int weekTransY = (int) (heightPercent * calculateWeekDestinationY());
+		
+		mMonthPager.setAlpha(monthAlpha);
+		mWeekPager.setTranslationY(weekTransY);
+	}
+	
+	/**
+	 * Begins transition between two steady CalendarViewer states.
+	 */
+	void beginTransition() {
+		Assert.assertTrue(mMode == Mode.WEEK || mMode == Mode.MONTH);
+		if (mMode == Mode.WEEK) {
+			Assert.assertTrue(mWeekPager.getVisibility() == View.VISIBLE);
+			Assert.assertTrue(mMonthPager.getVisibility() == View.GONE);
+			Assert.assertTrue(mWeekPager.getTranslationY() == 0f);
+		} else if (mMode == Mode.MONTH) {
+			Assert.assertTrue(mWeekPager.getVisibility() == View.GONE);
+			Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
+		}
+		
+		ensurePagerStates();
+		setModeFully(Mode.TRANSITION);
+	}
+	
+	/**
+	 * Ends the View transition, and settles onto the final target Mode.
+	 * @param targetMode
+	 */
+	private void endTransition(final Mode targetMode) {
+		Assert.assertTrue(targetMode == Mode.WEEK || targetMode == Mode.MONTH);
+		Assert.assertTrue(mMode == Mode.TRANSITION);
+		Assert.assertTrue(mWeekPager.getVisibility() == View.VISIBLE);
+		Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
+		
+		setModeFully(targetMode);
+	}
+	
+	/**
+	 * Sets the CalendarViewer's Mode, including ensuring all View properties and state.
+	 * @param mode
+	 */
+	public void setModeFully(final Mode mode) {
+		Log.e(TAG, "setMode: " + mode);
+		Assert.assertTrue(mode != null);
+		Assert.assertTrue(mMode != mode);
+		if (mMode == mode) {
+			return;
+		}
+		
+		final Mode prevMode = mMode;
+		mMode = mode;
+		
+		hideOrShowFocusedWeekInMonth(mode);
+
+		if (mode == Mode.TRANSITION) {
+			mWeekPager.setAlpha(1f);
+			mWeekPager.setVisibility(View.VISIBLE);
+			mMonthPager.setVisibility(View.VISIBLE);
+			return;
+		} else if (mode == Mode.WEEK) {
+			mWeekPager.setVisibility(View.VISIBLE);
+			mMonthPager.setVisibility(View.GONE);
+			mWeekPager.setTranslationY(0);
+		} else if (mode == Mode.MONTH) {
+			mMonthPager.setVisibility(View.VISIBLE);
+			mMonthPager.setAlpha(1f);
+			
+			if (prevMode == Mode.TRANSITION) {
+				mWeekPager.animate().alpha(0f).setDuration(120);
+				mWeekPager.postDelayed(new Runnable() {
+					/*
+					 * (non-Javadoc)
+					 * @see java.lang.Runnable#run()
+					 */
+					@Override
+					public void run() {
+						mWeekPager.setAlpha(1f);
+						mWeekPager.setVisibility(View.GONE);
+					}
+					
+				}, 140);
+			} else {
+				mWeekPager.setVisibility(View.GONE);
+			}
+		}			
+		
+		final int height = getHeightForMode(mode);
+		setHeightFully(height);
+	}
+	
+	/**
+	 * Sets the height of the mutable View.
 	 * @param height
 	 */
-	private void onHeightChanged(View view, int height) {
-		float alphaWeek = 0f;
-		float alphaMonth = 0f;
-		int transYWeek = 0;
-		boolean hideWeekInMonth = false;
-		int weekVis = View.VISIBLE;
-		int weekYInMonth = this.calculateWeekDestinationY();
-		
-		switch (mMode) {
-		case CLOSED:
-			break;
-		case WEEK:
-			transYWeek = 0;
-			alphaWeek = 1f;
-			alphaMonth = 0f;
-			break;
-		case MONTH:
-			alphaWeek = 0f;
-			alphaMonth = 1f;
-			hideWeekInMonth = false;
-			weekVis = View.GONE;
-			break;
-		case TRANSITION:
-			if (height <= mWeekHeight) {
-				transYWeek = 0;
-				alphaWeek = 1f;
-				alphaMonth = 0f;
-			} else {
-				float hPercent = getBelowWeekHeightPercent();
-				transYWeek = (int) (hPercent * weekYInMonth);
-				alphaWeek = 1f;
-				alphaMonth = hPercent;
-				hideWeekInMonth = true;
-			}
-			break;
+	public void setHeightFully(int height) {
+		Log.i(TAG, "setHeight: " + height);
+		if (height < mMinHeight) {
+			height = mMinHeight;
+		} else if (height > mMaxHeight) {
+			height = mMaxHeight;
 		}
 		
-		// Update Views
-		mWeekPager.setVisibility(weekVis);
-		mWeekPager.setTranslationY(transYWeek);
-		mWeekPager.setAlpha(alphaWeek);
-		mMonthPager.setAlpha(alphaMonth);
-		
-		MonthView monthView = (MonthView) mMonthPager.getCurrentView();
-		if (monthView != null) {
-			monthView.setHideSelectedWeek(hideWeekInMonth);
-		}
+		LayoutParams p = mMutableView.getLayoutParams();
+//		if (p.height != height) {
+			p.height = height;
+			mMutableView.setLayoutParams(p);
+//		}
+
+		onHeightSet(height);
+	}
+	
+	/**
+	 * Called when the mutable View's height is set.
+	 */
+	private void onHeightSet(int height) {
+		mDayPager.setPadding(mDayPager.getPaddingLeft(), mMutableView.getTop() + height, mDayPager.getPaddingRight(), mDayPager.getPaddingBottom());
 		
 		// Notify callbacks.
 		if (mCallback != null) {
-			if (view != null) {
-				mCallback.onResized(this, view.getTop(), view.getWidth(), mHeight);
+			if (mMutableView != null) {
+				mCallback.onResized(this, mMutableView.getTop(), mMutableView.getWidth(), height);
 			}
 		}
-		
-		mDayPager.setPadding(mDayPager.getPaddingLeft(), view.getTop() + mHeight, mDayPager.getPaddingRight(), mDayPager.getPaddingBottom());
 	}
 	
+	/**
+	 * Tell the MonthView to (or not to) draw the Week of the focused Day.
+	 * @param mode
+	 */
+	private void hideOrShowFocusedWeekInMonth(final Mode mode) {
+		MonthView monthView = (MonthView) mMonthPager.getCurrentView();
+		if (monthView == null) {
+			return;
+		}
+		
+		boolean hideFocusedWeekInMonth;
+		if (mode == Mode.WEEK) {
+			hideFocusedWeekInMonth = false; 
+		} else if (mode == Mode.MONTH) {
+			hideFocusedWeekInMonth = false; 
+		} else if (mode == Mode.TRANSITION) {
+			hideFocusedWeekInMonth = true;
+		} else {
+			throw new IllegalArgumentException("Invalid Mode: " + mode);
+		}
+		monthView.setHideFocusedWeek(hideFocusedWeekInMonth);
+	}
+	
+	
+//	/**
+//	 * Called when the height of the CalendarViewer is changed.
+//	 * @param view
+//	 * @param height
+//	 */
+//	private void onHeightChanged(View view, int height) {
+//		float alphaWeek = 0f;
+//		float alphaMonth = 0f;
+//		int transYWeek = 0;
+//		boolean hideWeekInMonth = false;
+//		int weekVis = View.VISIBLE;
+//		int weekYInMonth = this.calculateWeekDestinationY();
+//		
+//		switch (mMode) {
+//		case CLOSED:
+//			break;
+//		case WEEK:
+//			transYWeek = 0;
+//			alphaWeek = 1f;
+//			alphaMonth = 0f;
+//			break;
+//		case MONTH:
+//			alphaWeek = 0f;
+//			alphaMonth = 1f;
+//			hideWeekInMonth = false;
+//			weekVis = View.GONE;
+//			break;
+//		case TRANSITION:
+//			if (height <= mWeekHeight) {
+//				transYWeek = 0;
+//				alphaWeek = 1f;
+//				alphaMonth = 0f;
+//			} else {
+//				float hPercent = getBelowWeekHeightPercent();
+//				transYWeek = (int) (hPercent * weekYInMonth);
+//				alphaWeek = 1f;
+//				alphaMonth = hPercent;
+//				hideWeekInMonth = true;
+//			}
+//			break;
+//		}
+//		
+//		// Update Views
+//		mWeekPager.setVisibility(weekVis);
+//		mWeekPager.setTranslationY(transYWeek);
+//		mWeekPager.setAlpha(alphaWeek);
+//		mMonthPager.setAlpha(alphaMonth);
+//		
+//		MonthView monthView = (MonthView) mMonthPager.getCurrentView();
+//		if (monthView != null) {
+//			monthView.setHideFocusedWeek(hideWeekInMonth);
+//		}
+//		
+//		// Notify callbacks.
+//		if (mCallback != null) {
+//			if (view != null) {
+//				mCallback.onResized(this, view.getTop(), view.getWidth(), mMutableView.getHeight());
+//			}
+//		}
+//		
+//		mDayPager.setPadding(mDayPager.getPaddingLeft(), view.getTop() + mMutableView.getHeight(), mDayPager.getPaddingRight(), mDayPager.getPaddingBottom());
+//	}
+//	
 	
 ////====================================================================================
 //// DayView
@@ -698,14 +861,17 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	}
 	
 	/**
-	 * This CalendarViewer's View.
+	 * This CalendarViewer's layout View.
 	 */
-	public View getView() {
-		return mView;
+	public View getLayout() {
+		return mLayout;
 	}
 	
-	public View getWeekMonthLayout() {
-		return mWeekMonthLayout;
+	/**
+	 * @return The adjustable View.
+	 */
+	public View getMutableView() {
+		return mMutableView;
 	}
 	
 	/**
@@ -715,31 +881,23 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		return mMode;
 	}
 
-	/**
-	 * Sets the display Mode of the CalendarViewer.
-	 * @param mode
-	 */
-	public void setMode(Mode mode) {
-		setMode(mWeekMonthLayout, mode);
-	}
-	
-	/**
-	 * Sets the display Mode of the CalendarViewer.
-	 * @param mode
-	 */
-	public void setMode(View content, Mode mode) { 
-		if (mMode == mode) {
-			return;
-		}
-		mMode = mode;
-		
-		int height = getHeightForMode(mode);
-		setHeight(content, height);
-		
-		if (mCallback != null) {
-			mCallback.onModeChanged(this, mMode);
-		}
-	}
+//	/**
+//	 * Sets the display Mode of the CalendarViewer.
+//	 * @param mode
+//	 */
+//	public void setMode(Mode mode) { 
+//		if (mMode == mode) {
+//			return;
+//		}
+//		mMode = mode;
+//		
+//		int height = getHeightForMode(mode);
+//		setHeight(mMutableView, height);
+//		
+//		if (mCallback != null) {
+//			mCallback.onModeChanged(this, mMode);
+//		}
+//	}
 	
 	/**
 	 * Sets the CalendarControllerConfig of this CalendarViewer.
@@ -754,7 +912,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param dayOfWeek
 	 */
 	public void setFirstDayOfWeek(int dayOfWeek) {
-		if (mController == null || mView == null) {
+		if (mController == null || mLayout == null) {
 			return;
 		}
 		if (mController.getFirstDayOfWeek() == dayOfWeek) {
@@ -782,6 +940,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			
 			final CalendarDay focus = ((CalendarAdapter) pager.getAdapter()).getFocusedDay(position);
 			mController.setFocusedDay(focus);
+			
+			if (mMode == Mode.MONTH) {
+				mWeekPager.setCurrentDay(focus, false);
+			} else if (mMode == Mode.WEEK) {
+				mMonthPager.setCurrentDay(focus, false);
+			}
+			
 			mMonthPager.updateVisiblePages();
 			mWeekPager.updateVisiblePages();
 		}

@@ -71,7 +71,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
 		mCalendarViewer = new CalendarViewer(this, container, new CalModel(), builder.build());
-		mCalendarViewer.getView().findViewById(R.id.week_month_container).setBackgroundColor(0xEECC8800);
+		mCalendarViewer.getLayout().findViewById(R.id.week_month_container).setBackgroundColor(0xEECC8800);
 	}
 	
 ////==========================================================================================
@@ -95,19 +95,20 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    int itemId = item.getItemId();
-		if (itemId == R.id.menu_closed) {
-			mCalendarViewer.transitionMode(Mode.CLOSED);
-			return true;
-		} else if (itemId == R.id.menu_week) {
-			mCalendarViewer.transitionMode(Mode.WEEK);
-			return true;
-		} else if (itemId == R.id.menu_month) {
-			mCalendarViewer.transitionMode(Mode.MONTH);
-			return true;
-		} else {
-			return super.onOptionsItemSelected(item);
-		}
+		return super.onOptionsItemSelected(item);
+//	    int itemId = item.getItemId();
+//		if (itemId == R.id.menu_closed) {
+//			mCalendarViewer.transitionMode(Mode.CLOSED);
+//			return true;
+//		} else if (itemId == R.id.menu_week) {
+//			mCalendarViewer.transitionMode(Mode.WEEK);
+//			return true;
+//		} else if (itemId == R.id.menu_month) {
+//			mCalendarViewer.transitionMode(Mode.MONTH);
+//			return true;
+//		} else {
+//			return super.onOptionsItemSelected(item);
+//		}
 	}
 	
 ////==========================================================================================

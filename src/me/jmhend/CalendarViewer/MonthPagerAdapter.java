@@ -116,7 +116,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 
 //		monthView.reset();
 		monthView.setParams(params);
-		monthView.setHideSelectedWeek(false);
+		monthView.setHideFocusedWeek(false);
 		monthView.invalidate();
 	}
 

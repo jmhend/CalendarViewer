@@ -1,7 +1,6 @@
 package me.jmhend.CalendarViewer;
 
 import me.jmhend.CalendarViewer.CalendarViewer.Mode;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -116,8 +115,7 @@ public class VerticalSwiper implements OnTouchListener {
 					if (absDeltaY > mSwipeSlop && mCalendarViewer.getMode() != Mode.TRANSITION) {
 						mSwiping = true;
 						mInitialMode = mCalendarViewer.getMode();
-						mCalendarViewer.ensurePagerStates();
-						mCalendarViewer.setMode(Mode.TRANSITION);
+						mCalendarViewer.beginTransition();
 					} else {
 						return false;
 					}
@@ -127,7 +125,8 @@ public class VerticalSwiper implements OnTouchListener {
 				mSwipingDown = y > mLastY;
 				
 				int newHeight = (int) (mView.getHeight() + offsetY);
-				mCalendarViewer.setHeight(mView, newHeight);
+				mCalendarViewer.setHeightFully(newHeight);
+				mCalendarViewer.adjustViewsInTransition();
 				
 				mLastY = y;
 				mVelocityTracker.addMovement(ev);

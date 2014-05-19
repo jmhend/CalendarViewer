@@ -245,7 +245,7 @@ public class MonthView extends CalendarView {
 	/**
 	 * @param hide
 	 */
-	public void setHideSelectedWeek(boolean hide) {
+	public void setHideFocusedWeek(boolean hide) {
 		if (mHideSelectedWeek != hide) {
 			mHideSelectedWeek = hide;
 			invalidate();

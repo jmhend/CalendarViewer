@@ -268,21 +268,21 @@ public abstract class CalendarView extends View {
 				}
 			}
 		});
-//		setOnLongClickListener(new OnLongClickListener() {
-//			/*
-//			 * (non-Javadoc)
-//			 * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
-//			 */
-//			@Override
-//			public boolean onLongClick(View v) {
-//				CalendarDay day = getDayFromLocation(mLastTouchX, mLastTouchY);
-//				if (day != null) {
-//					onDayLongClick(day);
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
+		setOnLongClickListener(new OnLongClickListener() {
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
+			 */
+			@Override
+			public boolean onLongClick(View v) {
+				CalendarDay day = getDayFromLocation(mLastTouchX, mLastTouchY);
+				if (day != null) {
+					onDayLongClick(day);
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 	
 ////===================================================================================
