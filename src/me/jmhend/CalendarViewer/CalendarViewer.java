@@ -383,7 +383,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				int height = ((int) (interpolatedTime * (targetHeight - startHeight))) + startHeight;
-				Log.i(TAG, "applyTransformation height: " + height);
 				
 //				if (mMode == Mode.TRANSITION) {
 					setHeightFully(height);
@@ -515,7 +514,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			Assert.assertTrue(mMonthPager.getVisibility() == View.GONE);
 			Assert.assertTrue(mWeekPager.getTranslationY() == 0f);
 		} else if (mMode == Mode.MONTH) {
-			Assert.assertTrue(mWeekPager.getVisibility() == View.GONE);
+//			Assert.assertTrue(mWeekPager.getVisibility() == View.GONE);
 			Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
 		}
 		
@@ -541,7 +540,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param mode
 	 */
 	public void setModeFully(final Mode mode) {
-		Log.e(TAG, "setMode: " + mode);
 		Assert.assertTrue(mode != null);
 		Assert.assertTrue(mMode != mode);
 		if (mMode == mode) {
@@ -594,7 +592,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param height
 	 */
 	public void setHeightFully(int height) {
-		Log.i(TAG, "setHeight: " + height);
 		if (height < mMinHeight) {
 			height = mMinHeight;
 		} else if (height > mMaxHeight) {
@@ -602,10 +599,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		}
 		
 		LayoutParams p = mMutableView.getLayoutParams();
-//		if (p.height != height) {
+		if (p.height != height) {
 			p.height = height;
 			mMutableView.setLayoutParams(p);
-//		}
+		}
 
 		onHeightSet(height);
 	}
@@ -851,6 +848,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	public void setSelectedDay(CalendarDay day) {
 		mController.setSelectedDay(day);
+		mController.setFocusedDay(day);
 	}
 	
 	/**

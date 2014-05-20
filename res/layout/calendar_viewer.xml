@@ -22,7 +22,7 @@
 	        android:id="@+id/month_header"
 	        android:layout_width="match_parent"
 	        android:layout_height="@dimen/month_header_height"
-	        android:gravity="center"
+	        android:gravity="center_horizontal|bottom"
 	        android:textSize="16sp"
 	        android:textColor="#FFFFFFFF"
 	        android:text="May 2014"/>

@@ -1,6 +1,7 @@
 package me.jmhend.CalendarViewer;
 
 import me.jmhend.CalendarViewer.CalendarViewer.Mode;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -93,6 +94,9 @@ public class VerticalSwiper implements OnTouchListener {
 		
 		switch (ev.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN: {
+				float y = ev.getY();
+				float viewHeight = mView.getHeight();
+				Log.e(TAG, "DOWN - touchY: " + y + ", viewHeight: " + viewHeight + ", mode: " + mCalendarViewer.getMode());
 				if (ev.getY() >= mView.getHeight() || mCalendarViewer.getMode() == Mode.TRANSITION) {
 					return false;
 				}
@@ -143,6 +147,7 @@ public class VerticalSwiper implements OnTouchListener {
 					
 					
 				} else {
+					reset();
 					return false;
 				}
 			}
@@ -218,24 +223,24 @@ public class VerticalSwiper implements OnTouchListener {
 	 * @param handled
 	 */
 	private void printMotionEvent(final MotionEvent ev, final boolean handled) {
-//		String message;
-//		switch (ev.getActionMasked()) {
-//		case MotionEvent.ACTION_DOWN:
-//			message = "DOWN";
-//			break;
-//		case MotionEvent.ACTION_MOVE:
-//			message = "MOVE";
-//			break;
-//		case MotionEvent.ACTION_UP:
-//			message = "UP";
-//			break;
-//		case MotionEvent.ACTION_CANCEL:
-//			message = "CANCEL";
-//			break;
-//		default:
-//			return;
-//		}
-//		Log.i(TAG, message + "\t" + handled);
+		String message;
+		switch (ev.getActionMasked()) {
+		case MotionEvent.ACTION_DOWN:
+			message = "DOWN";
+			break;
+		case MotionEvent.ACTION_MOVE:
+			message = "MOVE";
+			break;
+		case MotionEvent.ACTION_UP:
+			message = "UP";
+			break;
+		case MotionEvent.ACTION_CANCEL:
+			message = "CANCEL";
+			break;
+		default:
+			return;
+		}
+		Log.i(TAG, message + "\t" + handled);
 	}
 
 }

@@ -2,7 +2,7 @@
 <resources>
     <color name="day_text_active">#FFffffff</color>
     <color name="day_text_inactive">#66dddddd</color>
-    <color name="day_marker_color">#88dddddd</color>
+    <color name="day_marker_color">#FF76b8d7</color>
     <color name="day_marker_color_faint">#44dddddd</color>
     <color name="day_text_today">#FFffffff</color>
     <color name="day_text_selected">#ff008dd0</color>
