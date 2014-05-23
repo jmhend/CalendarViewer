@@ -115,7 +115,6 @@ public class CalendarController {
 	}
 	
 	public void setFocusedDay(CalendarDay focusedDay) {
-		Log.i(TAG, "FOCUS: " + focusedDay);
 		mFocusedDay = focusedDay;
 	}
 

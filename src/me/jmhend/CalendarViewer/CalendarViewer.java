@@ -430,11 +430,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * Begins transition between two steady CalendarViewer states.
 	 */
 	void beginTransition() {
-		Assert.assertTrue(mMode == Mode.WEEK || mMode == Mode.MONTH);
+//		Assert.assertTrue(mMode == Mode.WEEK || mMode == Mode.MONTH);
 		if (mMode == Mode.WEEK) {
-			Assert.assertTrue(mMonthPager.getVisibility() == View.GONE);
+//			Assert.assertTrue(mMonthPager.getVisibility() == View.GONE);
 		} else if (mMode == Mode.MONTH) {
-			Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
+//			Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
 		}
 		
 		ensurePagerStates();
@@ -446,9 +446,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param targetMode
 	 */
 	private void endTransition(final Mode targetMode) {
-		Assert.assertTrue(targetMode == Mode.WEEK || targetMode == Mode.MONTH);
-		Assert.assertTrue(mMode == Mode.TRANSITION);
-		Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
+//		Assert.assertTrue(targetMode == Mode.WEEK || targetMode == Mode.MONTH);
+//		Assert.assertTrue(mMode == Mode.TRANSITION);
+//		Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
 		
 		setModeFully(targetMode);
 	}
@@ -458,8 +458,8 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param mode
 	 */
 	public void setModeFully(final Mode mode) {
-		Assert.assertTrue(mode != null);
-		Assert.assertTrue(mMode != mode);
+//		Assert.assertTrue(mode != null);
+//		Assert.assertTrue(mMode != mode);
 		if (mMode == mode) {
 			return;
 		}
