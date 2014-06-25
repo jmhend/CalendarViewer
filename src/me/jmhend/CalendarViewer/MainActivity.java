@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import me.jmhend.CalendarViewer.ActivityDay.CalModel;
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks;
@@ -11,7 +12,6 @@ import me.jmhend.CalendarViewer.CalendarViewer.Mode;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -61,8 +61,8 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	}
 	
 	private void addCalendarViewer() {
-		CalendarDay start = new CalendarDay(2013, Calendar.SEPTEMBER, 10);
-		CalendarDay end = new CalendarDay(2014, Calendar.OCTOBER, 31);
+		CalendarDay start = new CalendarDay(2011, Calendar.SEPTEMBER, 10);
+		CalendarDay end = new CalendarDay(2026, Calendar.OCTOBER, 31);
 		CalendarControllerConfig.Builder builder = CalendarControllerConfig.startBuilding()
 				.starts(start)
 				.ends(end)
@@ -70,7 +70,8 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 		
 		ViewGroup container = (ViewGroup) findViewById(R.id.calendar_viewer_container);
 		
-		mCalendarViewer = new CalendarViewer(this, container, null, builder.build());
+		mCalendarViewer = new CalendarViewer(this, container, new CalModel(), builder.build());
+		mCalendarViewer.getLayout().findViewById(R.id.week_month_container).setBackgroundColor(0xEECC8800);
 	}
 	
 ////==========================================================================================
@@ -94,19 +95,20 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    int itemId = item.getItemId();
-		if (itemId == R.id.menu_closed) {
-			mCalendarViewer.transitionMode(Mode.CLOSED);
-			return true;
-		} else if (itemId == R.id.menu_week) {
-			mCalendarViewer.transitionMode(Mode.WEEK);
-			return true;
-		} else if (itemId == R.id.menu_month) {
-			mCalendarViewer.transitionMode(Mode.MONTH);
-			return true;
-		} else {
-			return super.onOptionsItemSelected(item);
-		}
+		return super.onOptionsItemSelected(item);
+//	    int itemId = item.getItemId();
+//		if (itemId == R.id.menu_closed) {
+//			mCalendarViewer.transitionMode(Mode.CLOSED);
+//			return true;
+//		} else if (itemId == R.id.menu_week) {
+//			mCalendarViewer.transitionMode(Mode.WEEK);
+//			return true;
+//		} else if (itemId == R.id.menu_month) {
+//			mCalendarViewer.transitionMode(Mode.MONTH);
+//			return true;
+//		} else {
+//			return super.onOptionsItemSelected(item);
+//		}
 	}
 	
 ////==========================================================================================
@@ -182,7 +184,7 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			 */
 			@Override
 			public void onModeChanged(CalendarViewer viewer, Mode newMode) {
-				setActionBarSubtitle(viewer.getTitle());
+//				setActionBarSubtitle(viewer.getTitle());
 			}
 			
 			/*

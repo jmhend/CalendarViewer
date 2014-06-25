@@ -18,9 +18,9 @@ public interface Event {
 	public long getDrawingEndTime();
 	
 	/**
-	 * @return True if the event is an all day event.
+	 * @return True if the event is an all day event for the day bounds.
 	 */
-	public boolean isDrawingAllDay();
+	public boolean isDrawingAllDay(long dayStart, long dayEnd);
 	
 	/**
 	 * @return The color to draw for the event.
@@ -41,6 +41,11 @@ public interface Event {
 	 * @return Location
 	 */
 	public String getDrawingLocation();
+	
+	/**
+	 * @return Event Owner, if needs to be displayed.
+	 */
+	public String getDrawingOwner();
 	
 
 }
