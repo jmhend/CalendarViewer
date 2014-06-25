@@ -92,14 +92,18 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrollStateChanged(int)
 			 */
 			@Override
-			public void onPageScrollStateChanged(int state) { }
+			public void onPageScrollStateChanged(int state) { 
+//				Log.e(TAG, "onPageScrollStateChanged: " + state);
+			}
 
 			/*
 			 * (non-Javadoc)
 			 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled(int, float, int)
 			 */
 			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//				Log.d(TAG, "onPageScrolled");
+			}
 
 			/*
 			 * (non-Javadoc)
@@ -179,6 +183,13 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 				}
 			});
 		}
+	}
+	
+	/**
+	 * @return The Adapter position for the CalendarDay.
+	 */
+	public int getPositionForDay(CalendarDay day) {
+		return mAdapter.getPositionForDay(day);
 	}
 	
 	/**
@@ -337,9 +348,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	@Override
 	public void onDayClick(View calendarView, CalendarDay day) {
 		if (day != null) {
-//			if (!Utils.isDayCurrentOrFuture(day)) {
-//				return;
-//			}
 			mAdapter.setSelectedDay(day);
 			if (mDayClickListener != null) {
 				mDayClickListener.onDayClick(calendarView, day);
@@ -354,9 +362,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 	@Override
 	public void onDayLongClick(View calendarView, CalendarDay day) {
 		if (day != null) {
-//			if (!Utils.isDayCurrentOrFuture(day)) {
-//				return;
-//			}
 			if (mDayClickListener != null) {
 				mDayClickListener.onDayLongClick(calendarView, day);
 			}

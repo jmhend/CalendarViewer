@@ -44,7 +44,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 		mModel = model;
 		calculateCount();
 	}
-
+	
 ////====================================================================================
 //// RecyclingPagerAdapter
 ////====================================================================================
@@ -102,19 +102,21 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 		// Generate MonthView data.
 		final int month = getMonthForPosition(position);
 		final int year = getYearForPosition(position);
-		final int selectedDay = isSelectedDayInMonth(year, month) ? mController.getSelectedDay().dayOfMonth : -1;
+		final int selectedDay = isSelectedDayInMonth(year, month)? mController.getSelectedDay().dayOfMonth : -1;
+		final int focusedDay = isFocusedDayInMonth(year, month)? mController.getFocusedDay().dayOfMonth : -1;
 		params.put(CalendarAdapter.KEY_POSITION, Integer.valueOf(position));
 		params.put(MonthView.KEY_MONTH, Integer.valueOf(month));
 		params.put(MonthView.KEY_YEAR, Integer.valueOf(year));
 		params.put(MonthView.KEY_SELECTED_DAY, Integer.valueOf(selectedDay));
+		params.put(MonthView.KEY_FOCUSED_DAY, Integer.valueOf(focusedDay));
 		params.put(MonthView.KEY_WEEK_START, Integer.valueOf(mController.getFirstDayOfWeek()));
 		params.put(MonthView.KEY_CURRENT_YEAR, Integer.valueOf(mController.getCurrentDay().year));
 		params.put(MonthView.KEY_CURRENT_MONTH, Integer.valueOf(mController.getCurrentDay().month));
 		params.put(MonthView.KEY_CURRENT_DAY_OF_MONTH, Integer.valueOf(mController.getCurrentDay().dayOfMonth));
 
-		monthView.reset();
+//		monthView.reset();
 		monthView.setParams(params);
-		monthView.setHideSelectedWeek(false);
+		monthView.setHideFocusedWeek(false);
 		monthView.invalidate();
 	}
 
@@ -141,6 +143,20 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	public void setSelectedDay(CalendarDay day) {
 		mController.setSelectedDay(day);
 		updateViewPager();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.CalendarViewer.CalendarAdapter#getFocusedDay(int)
+	 */
+	@Override
+	public CalendarDay getFocusedDay(int position) {
+		final int month = getMonthForPosition(position);
+		final int year = getYearForPosition(position);
+		if (isSelectedDayInMonth(year, month)) {
+			return mController.getSelectedDay();
+		}
+		return new CalendarDay(year, month, 1);
 	}
 	
 ////====================================================================================
@@ -180,10 +196,19 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	/**
 	 * @param year
 	 * @param month
-	 * @return True if the currently selected day is the month.
+	 * @return True if the currently selected day is in the month.
 	 */
 	private boolean isSelectedDayInMonth(int year, int month) {
 		return mController.getSelectedDay().year == year && mController.getSelectedDay().month == month;
+	}
+	
+	/**
+	 * @param year
+	 * @param month
+	 * @return True if the currently focused day is in the month.
+	 */
+	private boolean isFocusedDayInMonth(int year, int month) {
+		return mController.getFocusedDay().year == year && mController.getFocusedDay().month == month;
 	}
 	
 ////====================================================================================

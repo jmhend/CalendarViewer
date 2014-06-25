@@ -1,28 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.jmhend.CalendarViewer.InterceptRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    
-    <me.jmhend.CalendarViewer.DayOfWeekLabelView 
-        android:id="@+id/day_labels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"/>
-    
-    <me.jmhend.CalendarViewer.CalendarViewPager
-	    android:id="@+id/month_pager"
-	    android:layout_width="match_parent"
-	    android:layout_height="224dp"
-	    android:layout_below="@id/day_labels"
-	    android:visibility="visible" />
-    
-    <me.jmhend.CalendarViewer.CalendarViewPager
-        android:id="@+id/week_pager"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:layout_below="@id/day_labels"
-	    android:visibility="visible"/>
-    
+    android:layout_height="match_parent">
+   
+    <!-- DayView -->
     <me.jmhend.CalendarViewer.DayViewPager
         android:id="@+id/day_pager"
         android:layout_width="match_parent"
@@ -30,4 +11,39 @@
         android:visibility="gone"
         android:background="#FFFFFF"/>
     
-</RelativeLayout>
+    <!-- Week/Month container -->
+    <RelativeLayout
+        android:id="@+id/week_month_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true">
+	    <TextView
+	        android:id="@+id/month_header"
+	        android:layout_width="match_parent"
+	        android:layout_height="@dimen/month_header_height"
+	        android:gravity="center_horizontal|bottom"
+	        android:textSize="16sp"
+	        android:textColor="#FFFFFFFF"
+	        android:text="May 2014"/>
+	    <me.jmhend.CalendarViewer.DayOfWeekLabelView 
+	        android:id="@+id/day_labels"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/month_header"
+	        android:clickable="true"/>
+	    <me.jmhend.CalendarViewer.CalendarViewPager
+		    android:id="@+id/month_pager"
+		    android:layout_width="match_parent"
+		    android:layout_height="224dp"
+		    android:layout_below="@id/day_labels"
+		    android:visibility="visible" />
+	    <me.jmhend.CalendarViewer.CalendarViewPager
+	        android:id="@+id/week_pager"
+	        android:layout_width="match_parent"
+	        android:layout_height="42dp"
+	        android:layout_below="@id/day_labels"
+		    android:visibility="visible"/>
+    </RelativeLayout>
+    
+</me.jmhend.CalendarViewer.InterceptRelativeLayout>

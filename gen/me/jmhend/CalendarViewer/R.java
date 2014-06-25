@@ -14,7 +14,8 @@ public final class R {
         public static int draw_day_labels=0x7f060000;
     }
     public static final class color {
-        public static int all_day_list_div=0x7f040009;
+        public static int all_day_list_div=0x7f04000a;
+        public static int am_pm_color=0x7f040009;
         public static int calendar_text_title=0x7f040007;
         public static int day_marker_color=0x7f040002;
         public static int day_marker_color_faint=0x7f040003;
@@ -31,34 +32,36 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static int activity_horizontal_margin=0x7f05001a;
-        public static int all_day_divider_height=0x7f05000b;
-        public static int all_day_row_height=0x7f05000a;
-        public static int day_marker_radius=0x7f050009;
-        public static int day_of_week_text_size=0x7f050003;
-        public static int day_pager_margin=0x7f050019;
-        public static int day_text_size=0x7f050007;
-        public static int dayview_bottom_padding=0x7f050018;
-        public static int dayview_event_border_width=0x7f050014;
-        public static int dayview_event_location_height=0x7f050011;
-        public static int dayview_event_location_size=0x7f050017;
-        public static int dayview_event_margin=0x7f050013;
-        public static int dayview_event_padding=0x7f050012;
-        public static int dayview_event_title_height=0x7f050010;
-        public static int dayview_event_title_size=0x7f050016;
-        public static int dayview_hour_height=0x7f05000e;
-        public static int dayview_hour_label_size=0x7f050015;
-        public static int dayview_hour_label_width=0x7f05000d;
-        public static int dayview_line_height=0x7f05000f;
+        public static int activity_horizontal_margin=0x7f05001c;
+        public static int all_day_divider_height=0x7f05000c;
+        public static int all_day_row_height=0x7f05000b;
+        public static int day_marker_radius=0x7f05000a;
+        public static int day_of_week_text_size=0x7f050004;
+        public static int day_pager_margin=0x7f05001b;
+        public static int day_text_size=0x7f050008;
+        public static int dayview_bottom_padding=0x7f05001a;
+        public static int dayview_event_border_width=0x7f050016;
+        public static int dayview_event_location_height=0x7f050013;
+        public static int dayview_event_location_size=0x7f050019;
+        public static int dayview_event_margin=0x7f050015;
+        public static int dayview_event_padding=0x7f050014;
+        public static int dayview_event_title_height=0x7f050012;
+        public static int dayview_event_title_size=0x7f050018;
         /**  DayView 
          */
-        public static int dayview_padding_top=0x7f05000c;
-        public static int month_bottom_padding=0x7f050008;
-        public static int month_list_item_header_height=0x7f050002;
-        public static int month_title_text_size=0x7f050006;
+        public static int dayview_header_height=0x7f05000d;
+        public static int dayview_hour_height=0x7f050010;
+        public static int dayview_hour_label_size=0x7f050017;
+        public static int dayview_hour_label_width=0x7f05000f;
+        public static int dayview_line_height=0x7f050011;
+        public static int dayview_padding_top=0x7f05000e;
+        public static int month_bottom_padding=0x7f050009;
+        public static int month_header_height=0x7f050002;
+        public static int month_list_item_header_height=0x7f050003;
+        public static int month_title_text_size=0x7f050007;
         public static int monthview_height=0x7f050000;
-        public static int selected_circle_radius=0x7f050004;
-        public static int selected_circle_stroke_width=0x7f050005;
+        public static int selected_circle_radius=0x7f050005;
+        public static int selected_circle_stroke_width=0x7f050006;
         public static int weekview_height=0x7f050001;
     }
     public static final class drawable {
@@ -66,22 +69,31 @@ public final class R {
         public static int ic_notification_transluscent=0x7f020001;
     }
     public static final class id {
-        public static int all_day_list=0x7f0a0008;
+        public static int all_day_list=0x7f0a0011;
+        public static int all_day_list_container=0x7f0a0010;
         public static int behind_list=0x7f0a0001;
         public static int calendar_viewer_container=0x7f0a0002;
-        public static int day=0x7f0a000a;
-        public static int day_labels=0x7f0a0005;
+        public static int day=0x7f0a0013;
+        public static int day_labels=0x7f0a0008;
         public static int day_pager=0x7f0a0000;
-        public static int events_count=0x7f0a000b;
-        public static int location=0x7f0a0004;
-        public static int menu_closed=0x7f0a000d;
-        public static int menu_month=0x7f0a000f;
-        public static int menu_week=0x7f0a000e;
-        public static int month_pager=0x7f0a0006;
-        public static int scroll_view=0x7f0a0009;
-        public static int text=0x7f0a000c;
-        public static int title=0x7f0a0003;
-        public static int week_pager=0x7f0a0007;
+        public static int day_title=0x7f0a000c;
+        public static int day_title_container=0x7f0a000b;
+        public static int day_title_icon=0x7f0a000d;
+        public static int day_title_secondary=0x7f0a000e;
+        public static int events_count=0x7f0a0014;
+        public static int location=0x7f0a0005;
+        public static int menu_closed=0x7f0a0016;
+        public static int menu_month=0x7f0a0018;
+        public static int menu_week=0x7f0a0017;
+        public static int month_header=0x7f0a0007;
+        public static int month_pager=0x7f0a0009;
+        public static int row_frame=0x7f0a0003;
+        public static int scroll_view=0x7f0a0012;
+        public static int text=0x7f0a0015;
+        public static int title=0x7f0a0004;
+        public static int title_div=0x7f0a000f;
+        public static int week_month_container=0x7f0a0006;
+        public static int week_pager=0x7f0a000a;
     }
     public static final class layout {
         public static int activity_day=0x7f030000;

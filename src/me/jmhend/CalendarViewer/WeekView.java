@@ -143,6 +143,13 @@ public class WeekView extends CalendarView {
 		mFormatter = new Formatter(mStringBuilder, Locale.getDefault());
 	}
 	
+	/**
+	 * @return The starting day of this WeekView.
+	 */
+	public CalendarDay getStartDay() {
+		return mStartDay;
+	}
+	
 ////======================================================================================
 //// View.
 ////======================================================================================
@@ -251,11 +258,12 @@ public class WeekView extends CalendarView {
 		long endTime = mCalendar.getTimeInMillis();
 		endTime += 1000; // Add 1 second so the date range fully extends into the end day, and it shows up in the daterange title.
 		
-		// Reset.
+		mStringBuilder.delete(0, mStringBuilder.length());
+		String msg = DateUtils.formatDateRange(getContext(), mFormatter, startTime, endTime, 52/* | DateUtils.FORMAT_ABBREV_MONTH*/).toString();
+		
 		setCalendarToStartDay();
 		
-		mStringBuilder.delete(0, mStringBuilder.length());
-		return DateUtils.formatDateRange(getContext(), mFormatter, startTime, endTime, 0).toString();
+		return msg;
 	}
 	
 	

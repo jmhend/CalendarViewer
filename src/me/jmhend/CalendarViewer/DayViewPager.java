@@ -116,7 +116,7 @@ public class DayViewPager extends CalendarViewPager {
 	 * @param dayView
 	 * @param y
 	 */
-	private void scrollToEventAtY(DayView dayView, int y) {
+	public void scrollToEventAtY(DayView dayView, int y) {
 		final ScrollView scrollView = (ScrollView) dayView.getParent();
 		int height = scrollView.getHeight();
 		int offset = height / 4;
