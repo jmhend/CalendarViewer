@@ -8,8 +8,9 @@
     <color name="day_text_selected">#ff008dd0</color>
     <color name="selected_highlight">#ffffffff</color>
     <color name="calendar_text_title">#ddffffff</color>
-    <color name="hour_color">#FFAAAAAA</color>
+    <color name="hour_color">#FF888888</color>
+    <color name="am_pm_color">#FFCCCCCC</color>
     
-    <color name="all_day_list_div">#FFFFFFFF</color>
+    <color name="all_day_list_div">#00FFFFFF</color>
     
 </resources>

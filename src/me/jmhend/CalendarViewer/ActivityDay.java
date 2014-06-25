@@ -251,7 +251,7 @@ public class ActivityDay extends Activity {
 			return end;
 		}
 		@Override
-		public boolean isDrawingAllDay() {
+		public boolean isDrawingAllDay(long start, long end) {
 			return allDay;
 		}
 		@Override
@@ -271,6 +271,10 @@ public class ActivityDay extends Activity {
 		@Override
 		public String getDrawingLocation() {
 			return location;
+		}
+		@Override
+		public String getDrawingOwner() {
+			return "";
 		}
 	}
 }

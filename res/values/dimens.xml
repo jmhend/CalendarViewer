@@ -10,8 +10,8 @@
     <dimen name="day_text_size">16sp</dimen>
     <dimen name="month_bottom_padding">8dp</dimen>
     <dimen name="day_marker_radius">3dp</dimen>
-    <dimen name="all_day_row_height">36dp</dimen>
-    <dimen name="all_day_divider_height">1dp</dimen>
+    <dimen name="all_day_row_height">24dp</dimen>
+    <dimen name="all_day_divider_height">2dp</dimen>
     <bool name="draw_day_labels">false</bool>
     
     <!-- DayView -->

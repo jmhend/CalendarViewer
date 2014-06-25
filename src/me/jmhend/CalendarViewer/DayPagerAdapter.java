@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.jmhend.CalendarViewer.AllDayListView.AllDayAdapter;
+import me.jmhend.CalendarViewer.AllDayGridView.AllDayAdapter;
 import me.jmhend.CalendarViewer.CalendarController.OnCalendarControllerChangeListener;
 import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 
@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -162,18 +163,21 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 		
 		// dayView.mDayStart must be set prior to this.
 		long dayStart = dayView.getDayStart();
+		long dayEnd = dayView.getDayEnd();
 		
 		// Filter out all day Events.
 		List<Event> events = (List<Event>) mModel.getEventsOnDay(dayStart);
 		for (Event event : events) {
-			if (event.isDrawingAllDay() && mModel.shouldDrawEvent(event)) {
+			if (event.isDrawingAllDay(dayStart, dayEnd) && mModel.shouldDrawEvent(event)) {
 				allDayEvents.add(event);
 			}
 		}
 		
 		dayView.setAllDayEvents(allDayEvents);
+		dayView.updateEventCountView();
 		
-		AllDayListView listView = getAllDayViewForDayView(dayView);
+		final LinearLayout allDayView = getAllDayViewForDayView(dayView);
+		AllDayGridView listView = (AllDayGridView) allDayView.findViewById(R.id.all_day_list);
 		AllDayAdapter adapter = (AllDayAdapter) listView.getAdapter();
 		if (adapter == null) {
 			adapter = new AllDayAdapter(mContext, allDayEvents);
@@ -199,8 +203,8 @@ public class DayPagerAdapter extends CalendarAdapter implements OnCalendarContro
 	 * @param dayView
 	 * @return The AllDayListView of the DayView.
 	 */
-	private AllDayListView getAllDayViewForDayView(DayView dayView) {
-		return (AllDayListView) ((View) dayView.getParent().getParent().getParent()).findViewById(R.id.all_day_list);
+	private LinearLayout getAllDayViewForDayView(DayView dayView) {
+		return (LinearLayout) ((View) dayView.getParent().getParent().getParent()).findViewById(R.id.all_day_list_container);
 	}
 
 	/*
