@@ -36,6 +36,7 @@ public class MonthView extends CalendarView {
 	public static final String KEY_MONTH = "month";
 	public static final String KEY_YEAR = "year";
 	public static final String KEY_SELECTED_DAY = "selected_day";
+	public static final String KEY_FOCUSED_DAY = "focused_day";
 	
 ////==================================================================================================
 //// Member variables.
@@ -55,6 +56,7 @@ public class MonthView extends CalendarView {
 	
 	protected int mTodayDayOfMonth;
 	protected int mSelectedDayOfMonth;
+	protected int mFocusedDayOfMonth;
 	protected int mCurrentYear;
 	protected int mCurrentMonth;
 	protected int mCurrentDayOfMonth;
@@ -68,7 +70,7 @@ public class MonthView extends CalendarView {
 	private final int[] mDayOfMonths = new int[MAX_DAYS];
 	private final boolean[] mDayHasEvents = new boolean[MAX_DAYS];
 	private boolean mHideSelectedWeek = false;
-	private int mSelectedDayY = 0;
+	private int mInvisibleWeekY = 0;
 	
 	private StringBuilder mStringBuilder;
 	private Formatter mFormatter;
@@ -189,7 +191,7 @@ public class MonthView extends CalendarView {
 			boolean isThisMonth = isIndexInThisMonth(i);
 			
 			// Don't draw days on this week.
-			if (mHideSelectedWeek && y == mSelectedDayY) {
+			if (mHideSelectedWeek && y == mInvisibleWeekY) {
 				continue;
 			}
 			
@@ -243,7 +245,7 @@ public class MonthView extends CalendarView {
 	/**
 	 * @param hide
 	 */
-	public void setHideSelectedWeek(boolean hide) {
+	public void setHideFocusedWeek(boolean hide) {
 		if (mHideSelectedWeek != hide) {
 			mHideSelectedWeek = hide;
 			invalidate();
@@ -275,8 +277,8 @@ public class MonthView extends CalendarView {
 			} else {
 				day = i - mMonthStartIndex + 1;
 				
-				if (mSelectedDayOfMonth == day) {
-					mSelectedDayY = mDayYs[i];
+				if (mFocusedDayOfMonth == day) {
+					mInvisibleWeekY = mDayYs[i];
 				}
 			}
 			mDayOfMonths[i] = day;
@@ -487,18 +489,21 @@ public class MonthView extends CalendarView {
 		
 		// Check for optional params.
 		if (params.containsKey(KEY_HEIGHT)) {
-			mRowHeight = ((Integer) params.get(KEY_HEIGHT)).intValue();
+			mRowHeight = params.get(KEY_HEIGHT).intValue();
 			if (mRowHeight < MIN_HEIGHT) {
 				mRowHeight = MIN_HEIGHT;
 			}
 		}
 		if (params.containsKey(KEY_SELECTED_DAY)) {
-			mSelectedDayOfMonth = ((Integer) params.get(KEY_SELECTED_DAY)).intValue();
+			mSelectedDayOfMonth = params.get(KEY_SELECTED_DAY).intValue();
+		}
+		if (params.containsKey(KEY_FOCUSED_DAY)) {
+			mFocusedDayOfMonth = params.get(KEY_FOCUSED_DAY).intValue();
 		}
 		
 		// Month and Year for the MontView required.
-		mMonth = ((Integer) params.get(KEY_MONTH)).intValue();
-		mYear = ((Integer) params.get(KEY_YEAR)).intValue();
+		mMonth = params.get(KEY_MONTH).intValue();
+		mYear = params.get(KEY_YEAR).intValue();
 		
 		// Previous Month
 		mPreviousMonth = mMonth - 1;
@@ -518,9 +523,9 @@ public class MonthView extends CalendarView {
 		}
 		
 		// Current Month and Year
-		mCurrentMonth = ((Integer) params.get(KEY_CURRENT_MONTH)).intValue();
-		mCurrentYear = ((Integer) params.get(KEY_CURRENT_YEAR)).intValue();
-		mCurrentDayOfMonth = ((Integer) params.get(KEY_CURRENT_DAY_OF_MONTH)).intValue();
+		mCurrentMonth = params.get(KEY_CURRENT_MONTH).intValue();
+		mCurrentYear = params.get(KEY_CURRENT_YEAR).intValue();
+		mCurrentDayOfMonth = params.get(KEY_CURRENT_DAY_OF_MONTH).intValue();
 		
 		// Time calculations.
 		boolean isCurrentMonth = (mMonth == mCurrentMonth) && (mYear == mCurrentYear);
@@ -532,7 +537,7 @@ public class MonthView extends CalendarView {
 		// Set up date grid.
 		mDayOfWeekStart = mCalendar.get(Calendar.DAY_OF_WEEK);
 		if (params.containsKey(KEY_WEEK_START)) {
-			mWeekStart = ((Integer) params.get(KEY_WEEK_START)).intValue();
+			mWeekStart = params.get(KEY_WEEK_START).intValue();
 		} else {
 			mWeekStart = mCalendar.getFirstDayOfWeek();
 		}
@@ -582,7 +587,7 @@ public class MonthView extends CalendarView {
 			mDayXs[i] = 0;
 			mDayYs[i] = 0;
 		}
-		mSelectedDayY = 0;
+		mInvisibleWeekY = 0;
 	}	
 	
 	/**

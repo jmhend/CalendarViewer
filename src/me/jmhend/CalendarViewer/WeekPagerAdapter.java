@@ -144,6 +144,37 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 		updateViewPager();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see me.jmhend.CalendarViewer.CalendarAdapter#getFocusedDay(int)
+	 */
+	@Override
+	public CalendarDay getFocusedDay(int position) {
+		CalendarDay startDay = getWeekStartForPosition(position);
+		CalendarDay selectedDay = mController.getSelectedDay();
+
+		startDay.fillCalendar(mCalendar);
+		
+		boolean hasSelectedDay = false;
+		for (int i = 0; i < 7; i++) {
+			int year = mCalendar.get(Calendar.YEAR);
+			int month = mCalendar.get(Calendar.MONTH);
+			int dayOfMonth = mCalendar.get(Calendar.DAY_OF_MONTH);
+			
+			if (year == selectedDay.year && month == selectedDay.month && dayOfMonth == selectedDay.dayOfMonth) {
+				hasSelectedDay = true;
+				break;
+			}
+			mCalendar.add(Calendar.DAY_OF_MONTH, 1);
+		}
+		
+		if (hasSelectedDay) {
+			return selectedDay;
+		}
+		
+		return startDay;
+	}
+	
 ////====================================================================================
 //// Positioning
 ////====================================================================================
@@ -242,3 +273,10 @@ public class WeekPagerAdapter extends CalendarAdapter implements OnCalendarContr
 		updateViewPager();
 	}
 }
+
+
+
+
+
+
+

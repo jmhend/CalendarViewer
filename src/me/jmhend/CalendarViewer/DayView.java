@@ -15,6 +15,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -67,20 +68,23 @@ public class DayView extends View {
 	private long mTouchDown;
 	
 	private int mHourTextSize;
+	private int mAmPmTextSize;
 	private int mTitleTextSize;
-	private int mLocationTextSize;
+	private int mOwnerLocationTextSize;
 	
 	private Paint mLinePaint;
 	private Paint mHourPaint;
+	private Paint mAmPmPaint;
 	private Paint mEventPaint;
 	private Paint mEventTitlePaint;
-	private Paint mEventLocationPaint;
+	private Paint mEventOwnerLocationPaint;
 	private Paint mCurrentTimePaint;
 	
 	private long mDayStart;
 	private long mDayEnd;
 	private Calendar mCalendar;
 	
+	private int mNonAllDayCount = 0;
 	private int mAllDayCount = 0;
 	
 	private int mFirstEventY = -1;
@@ -216,8 +220,10 @@ public class DayView extends View {
 		mEventBorderWidth = r.getDimensionPixelSize(R.dimen.dayview_event_border_width);
 		mHourTextSize = r.getDimensionPixelSize(R.dimen.dayview_hour_label_size);
 		mTitleTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_title_size);
-		mLocationTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_location_size);
+		mOwnerLocationTextSize = r.getDimensionPixelSize(R.dimen.dayview_event_location_size);
+		mAmPmTextSize = (int) (mHourTextSize * 0.8f);
 		int hourColor = r.getColor(R.color.hour_color);
+		int amPmColor = r.getColor(R.color.am_pm_color);
 		
 		mLinePaint = new Paint();
 		mLinePaint.setAntiAlias(true);
@@ -236,6 +242,13 @@ public class DayView extends View {
 		mHourPaint.setTextAlign(Paint.Align.RIGHT);
 		mHourPaint.setColor(hourColor);
 		
+		mAmPmPaint = new Paint();
+		mAmPmPaint.setAntiAlias(true);
+		mAmPmPaint.setTextSize(mAmPmTextSize);
+		mAmPmPaint.setTypeface(Typeface.DEFAULT);
+		mAmPmPaint.setTextAlign(Paint.Align.RIGHT);
+		mAmPmPaint.setColor(amPmColor);
+		
 		mEventPaint = new Paint();
 		mEventPaint.setAntiAlias(true);
 		mEventPaint.setColor(0x660088CC);
@@ -249,13 +262,13 @@ public class DayView extends View {
 		mEventTitlePaint.setTextSize(mTitleTextSize);
 		mEventTitlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 		
-		mEventLocationPaint = new Paint();
-		mEventLocationPaint.setAntiAlias(true);
-		mEventLocationPaint.setColor(0xAAFFFFFF);
-		mEventLocationPaint.setTextAlign(Paint.Align.LEFT);
-		mEventLocationPaint.setStyle(Style.FILL);
-		mEventLocationPaint.setTextSize(mLocationTextSize);
-		mEventLocationPaint.setTypeface(Typeface.DEFAULT);
+		mEventOwnerLocationPaint = new Paint();
+		mEventOwnerLocationPaint.setAntiAlias(true);
+		mEventOwnerLocationPaint.setColor(0xAAFFFFFF);
+		mEventOwnerLocationPaint.setTextAlign(Paint.Align.LEFT);
+		mEventOwnerLocationPaint.setStyle(Style.FILL);
+		mEventOwnerLocationPaint.setTextSize(mOwnerLocationTextSize);
+		mEventOwnerLocationPaint.setTypeface(Typeface.DEFAULT);
 		
 		mCalendar = Calendar.getInstance();
 		
@@ -294,6 +307,13 @@ public class DayView extends View {
 	 */ 
 	public long getDayStart() {
 		return mDayStart;
+	}
+	
+	/**
+	 * @return The UNIX end time of this DayView's day.
+	 */
+	public long getDayEnd() {
+		return mDayEnd;
 	}
 	
 	/**
@@ -377,10 +397,15 @@ public class DayView extends View {
 	 * @param canvas
 	 */
 	private void drawHoursAndLines(Canvas canvas) {
+		float amPmWidth = mAmPmPaint.measureText("am");
 		for (int i = 0; i < 24; i++) {
-			int y = (int) (i * mHourHeight + mPaddingTop);
+			float y = i * mHourHeight + mPaddingTop;
+			float amPmX = mHourWidth - (1.75f * mEventPadding);
 			canvas.drawLine(mHourWidth, y, mWidth, y + mLineHeight, mLinePaint);
-			canvas.drawText(getHourAtLinePosition(i), mHourWidth - 2 * mEventPadding, y + mHourTextSize / 3, mHourPaint);
+			canvas.drawText(getAmPmAtLinePosition(i), amPmX, y + mAmPmTextSize / 3, mAmPmPaint);
+			
+			String hour = getHourAtLinePosition(i);
+			canvas.drawText(hour, "Noon".equals(hour)? amPmX : amPmX - (1.3f * amPmWidth), y + mHourTextSize / 3, mHourPaint);
 		}
 	}
 	
@@ -413,9 +438,10 @@ public class DayView extends View {
 					color = DEFAULT_COLOR;
 				}
 				if (event == mPressedEvent) {
-					color = lightenBy(color, 0.5f);
+					color = setAlpha(1.0f, color);
+				} else {
+					color = setAlpha(0.6f, color);
 				}
-				color = setAlpha(.6f, color);
 				mEventPaint.setColor(color);
 				canvas.drawRect(rect, mEventPaint);
 				
@@ -425,15 +451,19 @@ public class DayView extends View {
 				mEventPaint.setColor(color);
 				canvas.drawRect(rect.left, rect.top, borderRight, rect.bottom, mEventPaint);
 				
+				int widthBounds = rect.right - rect.left - 2 * mEventPadding;
 				// Draw Title
-				int width = rect.right - rect.left - 2 * mEventPadding;
-				String title = clipText(event.getDrawingTitle(), mEventTitlePaint, width);
-				canvas.drawText(title, borderRight + mEventPadding, rect.top + (mTitleTextSize) + mEventPadding, mEventTitlePaint);
+				String title = clipText(event.getDrawingTitle(), mEventTitlePaint, widthBounds);
+				canvas.drawText(title, borderRight + mEventPadding, rect.top + mTitleTextSize + mEventPadding, mEventTitlePaint);
 				
-				// Draw Location.
-				if (event.getTextLinesCount() == 2) {
-					String location = clipText(event.getDrawingLocation(), mEventLocationPaint, width);
-					canvas.drawText(location, borderRight + mEventPadding, rect.top + 2 * mTitleTextSize + mEventPadding, mEventLocationPaint);
+				// Draw Owner or Location.
+				String owner = event.getDrawingOwner();
+				if (!TextUtils.isEmpty(owner)) {
+					String ownerClipped = clipText(event.getDrawingOwner(), mEventOwnerLocationPaint, widthBounds);
+					canvas.drawText(ownerClipped, borderRight + mEventPadding, rect.top + (2 * mOwnerLocationTextSize) + mEventPadding, mEventOwnerLocationPaint);
+				} else if (!TextUtils.isEmpty(event.getDrawingLocation())) {
+					String locationClipped = clipText(event.getDrawingLocation(), mEventOwnerLocationPaint, widthBounds);
+					canvas.drawText(locationClipped, borderRight + mEventPadding, rect.top + (2 * mTitleTextSize) + mEventPadding, mEventOwnerLocationPaint);
 				}
 			}
 		}
@@ -477,15 +507,26 @@ public class DayView extends View {
 	 */
 	private String getHourAtLinePosition(int position) {
 		if (position == 0) {
-			return "12 am";
+			return "12";
 		}
 		if (position < 12) {
-			return position + " am";
+			return String.valueOf(position);
 		}
 		if (position == 12) {
-			return "12 pm";
+			return "Noon";
 		}
-		return (position - 12) + " pm";
+		return String.valueOf(position - 12);
+	}
+	
+	/**
+	 * @param position
+	 * @return The AM or PM label at the line position;
+	 */
+	private String getAmPmAtLinePosition(int position) {
+		if (position == 12) {
+			return "";
+		}
+		return (position < 12)? "am" : "pm";
 	}
 	
 ////============================================================================
@@ -659,7 +700,8 @@ public class DayView extends View {
 		}
 		
 		mFirstEventY = calculateYForEarliestEvent();
-		updateEventCount(events.size());
+		mNonAllDayCount = events.size();
+		updateEventCountView();
 	}
 	
 	/**
@@ -732,7 +774,7 @@ public class DayView extends View {
 	 * @return True if the EventDrawable will be drawn in this DayView, false otherwise.
 	 */
 	private boolean willDrawEvent(Event e) {
-		return !e.isDrawingAllDay() && mModel.shouldDrawEvent(e);
+		return !e.isDrawingAllDay(mDayStart, mDayEnd) && mModel.shouldDrawEvent(e);
 	}
 	
 	/**
@@ -750,8 +792,8 @@ public class DayView extends View {
 	 * Updates the count of Events on this Day.
 	 * @param count
 	 */
-	private void updateEventCount(int count) {
-		count += mAllDayCount;
+	public void updateEventCountView() {
+		int count = mNonAllDayCount + mAllDayCount;
 		
 		TextView countView = (TextView) ((View) getParent().getParent()).findViewById(R.id.events_count);
 		if (count == 0) {

@@ -5,31 +5,33 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 /**
  *  
- * ListView for displaying all day Events in the DayView.
+ * GridView for displaying all day Events in the DayView.
  * 
  * @author jmhend
  *
  */
-public class AllDayListView extends ListView {
+public class AllDayGridView extends GridView {
 	
-	private static final String TAG = AllDayListView.class.getSimpleName();
+	private static final String TAG = AllDayGridView.class.getSimpleName();
 	
 ////====================================================================================
 //// Static constants.
 ////====================================================================================
 	
-	private static final int DEFAULT_VISIBLE_EVENTS = 2;
+	private static final int DEFAULT_VISIBLE_EVENTS = 4;
 	private static final int MIN_VISIBLE_EVENTS = 1;
 	private static final int MAX_VISIBLE_EVENTS = 10;
 	
@@ -39,22 +41,23 @@ public class AllDayListView extends ListView {
 	
 	private int mVisibleEvents = DEFAULT_VISIBLE_EVENTS;
 	private int mRowHeight;
+	private int mDefaultSpacing;
 	
 ////====================================================================================
 //// Constructor
 ////====================================================================================
 	
-	public AllDayListView(Context context, AttributeSet attrs, int defStyle) {
+	public AllDayGridView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
 	
-	public AllDayListView(Context context, AttributeSet attrs) {
+	public AllDayGridView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 	
-	public AllDayListView(Context context) {
+	public AllDayGridView(Context context) {
 		super(context);
 		init();
 	}
@@ -69,6 +72,7 @@ public class AllDayListView extends ListView {
 	private void init() {
 		Resources r = getResources();
 		mRowHeight = r.getDimensionPixelSize(R.dimen.all_day_row_height);
+		mDefaultSpacing = r.getDimensionPixelSize(R.dimen.all_day_divider_height);
 	}
 	
 ////====================================================================================
@@ -114,13 +118,24 @@ public class AllDayListView extends ListView {
 		if (visibleItems == 0) {
 			height = 0;
 		} else {
-			float multiplier = (float) visibleItems + (overflow? 0.35f : 0f);
-			height = (int) ((multiplier * mRowHeight) + (multiplier * getDividerHeight()) + getPaddingTop() + getPaddingBottom());
+			int rows = visibleItems / 2 + ((visibleItems % 2 == 1)? 1 : 0);
+			float multiplier = (float) rows + (overflow? 0.35f : 0f);
+			height = (int) ((multiplier * mRowHeight) + (rows * 2 * getSpacing()) + getPaddingTop() + getPaddingBottom());
 		}
 		
 		setMeasuredDimension(width, height);
 	}
 	
+	/**
+	 * @return The vertical spacing between grid children.
+	 */
+	private int getSpacing() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			return getVerticalSpacing();
+		} else {
+			return mDefaultSpacing;
+		}
+	}
 ////====================================================================================
 //// AllDayAdapter
 ////====================================================================================
@@ -168,6 +183,7 @@ public class AllDayListView extends ListView {
 			if (convertView == null) {
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.all_day_row, parent, false);
+				holder.layout = (LinearLayout) convertView.findViewById(R.id.row_frame);
 				holder.titleView = (TextView) convertView.findViewById(R.id.title);
 				holder.locationView = (TextView) convertView.findViewById(R.id.location);
 				convertView.setTag(holder);
@@ -183,9 +199,9 @@ public class AllDayListView extends ListView {
 			if (color == 0) {
 				color = DayView.DEFAULT_COLOR;
 			}
-			color = DayView.setAlpha(.9f, color);
+			color = DayView.setAlpha(1.0f, color);
 			
-			convertView.setBackgroundColor(color);
+			holder.layout.setBackgroundColor(color);
 			
 			return convertView;
 		}
@@ -195,6 +211,7 @@ public class AllDayListView extends ListView {
 		 * @author jmhend
 		 */
 		private static class ViewHolder {
+			private LinearLayout layout;
 			private TextView titleView;
 			private TextView locationView;
 		}
