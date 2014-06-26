@@ -177,6 +177,8 @@ public class VerticalSwiper implements OnTouchListener {
 				endMode = (mView.getHeight() > mWeekToMonthThreshHeight)? Mode.MONTH : Mode.WEEK;
 			} else if (mInitialMode == Mode.MONTH) {
 				endMode = (mView.getHeight() > mMonthToWeekThreshHeight)? Mode.MONTH : Mode.WEEK;
+			} else {
+				endMode = Mode.WEEK; // Shouldn't happen, but prevents rare NPE.
 			}
 		}
 		if (endMode == null) {
