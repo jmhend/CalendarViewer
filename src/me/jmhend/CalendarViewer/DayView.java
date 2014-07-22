@@ -16,6 +16,7 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -397,15 +398,26 @@ public class DayView extends View {
 	 * @param canvas
 	 */
 	private void drawHoursAndLines(Canvas canvas) {
-		float amPmWidth = mAmPmPaint.measureText("am");
+		boolean is24Hour = DateFormat.is24HourFormat(getContext());
+		
+		float hourXOffset = is24Hour? (1.75f * mEventPadding) : mAmPmPaint.measureText("am");
+		
 		for (int i = 0; i < 24; i++) {
 			float y = i * mHourHeight + mPaddingTop;
-			float amPmX = mHourWidth - (1.75f * mEventPadding);
-			canvas.drawLine(mHourWidth, y, mWidth, y + mLineHeight, mLinePaint);
-			canvas.drawText(getAmPmAtLinePosition(i), amPmX, y + mAmPmTextSize / 3, mAmPmPaint);
+			float xMostPos = mHourWidth - (1.75f * mEventPadding);
 			
-			String hour = getHourAtLinePosition(i);
-			canvas.drawText(hour, "Noon".equals(hour)? amPmX : amPmX - (1.3f * amPmWidth), y + mHourTextSize / 3, mHourPaint);
+			// Line
+			canvas.drawLine(mHourWidth, y, mWidth, y + mLineHeight, mLinePaint);
+			
+			// "am"/"pm"
+			if (!is24Hour) {
+				float amPmX = xMostPos;
+				canvas.drawText(getAmPmAtLinePosition(i), amPmX, y + mAmPmTextSize / 3, mAmPmPaint);
+			}
+			
+			// Hour
+			String hour = getHourAtLinePosition(i, is24Hour);
+			canvas.drawText(hour, "Noon".equals(hour)? xMostPos : xMostPos - (1.3f * hourXOffset), y + mHourTextSize / 3, mHourPaint);
 		}
 	}
 	
@@ -505,7 +517,15 @@ public class DayView extends View {
 	 * @param position
 	 * @return The hour label at the line position;
 	 */
-	private String getHourAtLinePosition(int position) {
+	private String getHourAtLinePosition(int position, boolean is24Hour) {
+		if (is24Hour) {
+			if (position < 10) {
+				return "0" + String.valueOf(position);
+			} else {
+				return String.valueOf(position);
+			}
+		}
+		
 		if (position == 0) {
 			return "12";
 		}
