@@ -1,12 +1,16 @@
 package me.jmhend.CalendarViewer;
 
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import me.jmhend.CalendarViewer.R;
+import android.widget.TextView;
 
 public class DayOfWeekLabelView extends View {
 	
@@ -26,6 +30,8 @@ public class DayOfWeekLabelView extends View {
 	
 	protected int mPaintColor;
 	protected Paint mPaint;
+	
+	private String[] mWeekDays;
 	
 ////======================================================================================
 //// Constructor.
@@ -77,6 +83,15 @@ public class DayOfWeekLabelView extends View {
 		mPaint.setColor(mPaintColor);
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setTextAlign(Paint.Align.CENTER);
+		
+		mWeekDays = new DateFormatSymbols().getShortWeekdays();
+		
+		// Make allCaps.
+		for (int i = 1; i < mWeekDays.length; i++) {
+			if (!TextUtils.isEmpty(mWeekDays[i])) {
+				mWeekDays[i] = mWeekDays[i].toUpperCase();
+			}
+		}
 	}
 	
 ////======================================================================================
@@ -112,10 +127,10 @@ public class DayOfWeekLabelView extends View {
 	protected void drawDayOfWeekLabels(Canvas canvas) {
 		final int y = mHeight / 2 + mDayOfWeekTextSize / 2 ;
 		final int spacing = (mWidth - 2 * mPadding) / (2 * mDaysPerWeek);
-		for (int day = 0; day < mDaysPerWeek; day++) {
-			int dayOfWeek = (day + mWeekStart) % mDaysPerWeek;
-			int x = spacing * (1 + 2 * day) + mPadding;
-			canvas.drawText(CalendarView.WEEKDAYS[dayOfWeek], x, y, mPaint);
+		for (int i = 0; i < mDaysPerWeek; i++) {
+			int dayOfWeek = (((mWeekStart - Calendar.SUNDAY) + i ) % 7) + Calendar.SUNDAY;
+			int x = spacing * (1 + 2 * i) + mPadding;
+			canvas.drawText(mWeekDays[dayOfWeek], x, y, mPaint);
 		}
 	}
 	
