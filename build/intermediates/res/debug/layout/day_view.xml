@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+	<RelativeLayout 
+		android:id="@+id/day_title_container"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/dayview_header_height"
+		android:background="#F4F4F4">	 
+		 <TextView 
+	        android:id="@+id/day_title"
+	        android:layout_width="match_parent"
+	        android:layout_height="@dimen/dayview_header_height"
+	        android:layout_alignParentLeft="true"
+	        android:gravity="center_vertical|left"
+			android:paddingLeft="12dp"
+	    	android:textSize="15sp"
+	        android:textStyle="bold"
+	        android:textColor="#FF666666"
+	        android:singleLine="true"
+	        android:ellipsize="end"/>
+		 <ImageView
+			android:id="@+id/day_title_icon"
+			android:layout_height="match_parent"
+			android:layout_width="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_centerVertical="true"
+			android:paddingRight="12dp"
+			android:paddingTop="6dp"
+			android:paddingBottom="6dp"
+			android:alpha=".5"/>	
+		<TextView
+			android:id="@+id/day_title_secondary"
+			android:layout_width="wrap_content"
+	    	android:layout_height="match_parent" 
+	    	android:layout_toLeftOf="@id/day_title_icon"
+	    	android:layout_centerVertical="true"
+			android:gravity="center_vertical"
+			android:textSize="16sp"
+			android:textColor="#FFAAAAAA"/>		
+	</RelativeLayout>
+    
+    <View
+	    android:id="@+id/title_div"
+	    android:layout_width="match_parent"
+	    android:layout_height="1dp"
+	    android:background="#DDDDDDDD"/>
+    
+    <!-- All Day Events -->
+    <LinearLayout 
+        android:id="@+id/all_day_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#FFEEEEEE">
+		
+        <me.jmhend.CalendarViewer.AllDayGridView
+	        android:id="@+id/all_day_list"
+	        android:layout_width="match_parent"
+	        android:layout_height="@dimen/all_day_row_height"
+	        android:layout_marginLeft="49dp"
+	        android:paddingTop="@dimen/dayview_event_padding"
+	        android:paddingBottom="@dimen/dayview_event_padding"
+	        android:numColumns="2"
+	        android:horizontalSpacing="@dimen/all_day_divider_height"
+	        android:verticalSpacing="@dimen/all_day_divider_height"
+	        android:background="@color/all_day_list_div"/>
+        
+    </LinearLayout>
+    
+
+    
+    <RelativeLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+    
+		<ScrollView 
+		    android:id="@+id/scroll_view"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:scrollbars="none">
+		    <me.jmhend.CalendarViewer.DayView 
+		        android:id="@+id/day"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"/>
+		</ScrollView>
+		
+		<TextView
+		    android:id="@+id/events_count"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentBottom="true"
+		    android:layout_alignParentRight="true"
+		    android:layout_marginRight="2dp"
+		    android:padding="6dp"
+		    android:gravity="right|center_vertical"
+		    android:clickable="false"
+		    android:focusable="false"
+		    android:visibility="gone"
+		    android:textSize="12sp"
+		    android:textColor="#FFFFFFFF"
+		    android:background="#22000000"/>
+	</RelativeLayout>
+</LinearLayout><!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/layout/day_view.xml -->

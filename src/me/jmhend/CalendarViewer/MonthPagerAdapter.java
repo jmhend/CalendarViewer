@@ -1,16 +1,16 @@
 package me.jmhend.CalendarViewer;
 
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import me.jmhend.CalendarViewer.CalendarController.OnCalendarControllerChangeListener;
 import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
-import android.content.Context;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
 
 
 public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarControllerChangeListener {
@@ -21,12 +21,10 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 //// Member variables.
 ////====================================================================================
 	
-	private final Context mContext;
-	private final CalendarController mController;
-	private final CalendarModel mModel;
-	private int mCount;
-	
-	private Map<Integer, HeatDecorator> mDecoratorsMap = new HashMap<Integer, HeatDecorator>();
+	protected final Context mContext;
+	protected final CalendarController mController;
+	protected final CalendarModel mModel;
+	protected int mCount;
 	
 ////====================================================================================
 //// Constructor.
@@ -166,7 +164,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	/**
 	 * Calculates how many months the list will contain.
 	 */
-	private void calculateCount() {
+	protected void calculateCount() {
 		int startMonths = mController.getStartDay().year * 12 + mController.getStartDay().month;
 		int endMonths = mController.getEndDay().year * 12 + mController.getEndDay().month;
 		int months = endMonths - startMonths + 1;
@@ -178,7 +176,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	 * @param position
 	 * @return
 	 */
-	private int getMonthForPosition(int position) {
+    protected int getMonthForPosition(int position) {
 		int month = (position + mController.getStartDay().month) % 12;
 		return month;
 	}
@@ -188,7 +186,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	 * @param position
 	 * @return
 	 */
-	private int getYearForPosition(int position) {
+    protected int getYearForPosition(int position) {
 		int year = (position + mController.getStartDay().month) / 12 + mController.getStartDay().year;
 		return year;
 	}
@@ -198,7 +196,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	 * @param month
 	 * @return True if the currently selected day is in the month.
 	 */
-	private boolean isSelectedDayInMonth(int year, int month) {
+    protected boolean isSelectedDayInMonth(int year, int month) {
 		return mController.getSelectedDay().year == year && mController.getSelectedDay().month == month;
 	}
 	
@@ -207,7 +205,7 @@ public class MonthPagerAdapter extends CalendarAdapter implements OnCalendarCont
 	 * @param month
 	 * @return True if the currently focused day is in the month.
 	 */
-	private boolean isFocusedDayInMonth(int year, int month) {
+    protected boolean isFocusedDayInMonth(int year, int month) {
 		return mController.getFocusedDay().year == year && mController.getFocusedDay().month == month;
 	}
 	

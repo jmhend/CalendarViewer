@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<me.jmhend.CalendarViewer.CalendarViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/day_pager"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+<!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/layout/activity_day.xml -->

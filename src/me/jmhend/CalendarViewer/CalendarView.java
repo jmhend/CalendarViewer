@@ -1,11 +1,5 @@
 package me.jmhend.CalendarViewer;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
-import me.jmhend.CalendarViewer.CalendarViewerDecorator.ApplyLevel;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -14,6 +8,13 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+import me.jmhend.CalendarViewer.CalendarViewerDecorator.ApplyLevel;
 
 /**
  * Base class for Views that display Calendar days.
@@ -342,7 +343,7 @@ public abstract class CalendarView extends View {
 		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_MOVE:
 		case MotionEvent.ACTION_DOWN:
-			mLastTouchX = motionEvent.getX();
+            mLastTouchX = motionEvent.getX();
 			mLastTouchY = motionEvent.getY();
 			break;
 		default:

@@ -1,18 +1,9 @@
 package me.jmhend.CalendarViewer;
 
-import java.util.Calendar;
-
-import junit.framework.Assert;
-import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
-import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
-import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
-import me.jmhend.CalendarViewer.DayPagerAdapter.DayTitleViewProvider;
-import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +15,14 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.util.Calendar;
+
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
+import me.jmhend.CalendarViewer.CalendarViewPager.OnPageSelectedListener;
+import me.jmhend.CalendarViewer.DayPagerAdapter.DayTitleViewProvider;
+import me.jmhend.CalendarViewer.DayView.OnEventClickListener;
 
 /**
  * 
@@ -146,13 +145,17 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private WeekPagerAdapter mWeekAdapter;
 	private DayPagerAdapter mDayAdapter;
 	private DayOfWeekLabelView mDayOfWeekLabelView;
-	
+
+    private CalendarViewPager mFullMonthPager;
+    private MonthPagerAdapter mFullMonthAdapter;
+
 	private CalendarController mController;
 	private CalendarModel mModel;
 	private CalendarViewerCallbacks mCallback;
 	
 	private Mode mMode;
 	private boolean mIsDayVisible;
+    private boolean mIsFullMonthVisible;
 	
 	int mMinHeight;
 	int mMaxHeight;
@@ -207,7 +210,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		
 		mDayOfWeekLabelView = (DayOfWeekLabelView) mMutableView.findViewById(R.id.day_labels);
 		mDayOfWeekLabelView.setWeekStart(config.getFirstDayOfWeek());
-		
+
 		parent.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 			/*
 			 * (non-Javadoc)
@@ -235,6 +238,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		mWeekAdapter = new WeekPagerAdapter(mContext, mModel, mController);
 		mMonthAdapter = new MonthPagerAdapter(mContext, mModel, mController);
 		mDayAdapter = new DayPagerAdapter(mContext, mModel, mController);
+
+        mFullMonthAdapter = new FullMonthPagerAdapter(mContext, mModel, mController);
+        mFullMonthPager = (CalendarViewPager) ((View) mMutableView.getParent()).findViewById(R.id.full_month_pager);
+        mFullMonthPager.setAdapter(mFullMonthAdapter);
+        mFullMonthPager.setOnPageSelectedListener(this);
+        mFullMonthPager.setOnDayClickListener(this);
+        mFullMonthPager.setCurrentDay(mController.getCurrentDay());
 		
 		mWeekPager = (CalendarViewPager) mMutableView.findViewById(R.id.week_pager);
 		mWeekPager.setAdapter(mWeekAdapter);
@@ -687,13 +697,59 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			}, (long) (DAY_VIEW_ANIMATE_DURATION * 1.1));
 		}
 	}
+
+    public void showFullMonthView() {
+        if (mFullMonthPager != null) {
+            mFullMonthPager.post(new Runnable() {
+                @Override
+                public void run() {
+                    mFullMonthPager.setVisibility(View.VISIBLE);
+                    mFullMonthPager.animate().alpha(1f).setDuration(DAY_VIEW_ANIMATE_DURATION);
+                    mIsFullMonthVisible = true;
+                }
+            });
+        }
+    }
+
+    public void hideFullMonthView() {
+        if (mFullMonthPager != null) {
+            mFullMonthPager.post(new Runnable() {
+                /*
+                 * (non-Javadoc)
+                 * @see java.lang.Runnable#run()
+                 */
+                @Override
+                public void run() {
+                    mFullMonthPager.animate().alpha(0f).setDuration(DAY_VIEW_ANIMATE_DURATION);
+                }
+            });
+            mFullMonthPager.postDelayed(new Runnable() {
+                /*
+                 * (non-Javadoc)
+                 * @see java.lang.Runnable#run()
+                 */
+                @Override
+                public void run() {
+                    mFullMonthPager.setVisibility(View.GONE);
+                    mIsFullMonthVisible = false;
+                }
+            }, (long) (DAY_VIEW_ANIMATE_DURATION * 1.1));
+        }
+    }
 	
 	/**
-	 * @return True if the DayView visible.
+	 * @return True if the DayView is visible.
 	 */
 	public boolean isDayVisible() {
 		return mIsDayVisible;
 	}
+
+    /**
+     * @return True if the Full Month View is visible.
+     */
+    public boolean isFullMonthVisible() {
+        return mIsFullMonthVisible;
+    }
 	
 	/**
 	 * Syncs the DayView so that it displays the CalendarViewer's selected day.
@@ -709,20 +765,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	public void setDayViewTitleProvider(DayTitleViewProvider provider) {
 		if (mDayAdapter != null) {
 			mDayAdapter.setDayTitleViewProvider(provider);
-		}
-	}
-	
-	/**
-	 * Scrolls the DayViewPager's current DayView to its next event.
-	 */
-	public void scrollCurrentDayToNextEvent() {
-		DayView dayView = (DayView) mDayPager.getCurrentView();
-		if (dayView == null) {
-			return;
-		}
-		int earliestY = dayView.getYForEarliestEvent();
-		if (earliestY != -1) {
-			mDayPager.scrollToEventAtY(dayView, earliestY);
 		}
 	}
 
@@ -794,24 +836,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		return mMode;
 	}
 
-//	/**
-//	 * Sets the display Mode of the CalendarViewer.
-//	 * @param mode
-//	 */
-//	public void setMode(Mode mode) { 
-//		if (mMode == mode) {
-//			return;
-//		}
-//		mMode = mode;
-//		
-//		int height = getHeightForMode(mode);
-//		setHeight(mMutableView, height);
-//		
-//		if (mCallback != null) {
-//			mCallback.onModeChanged(this, mMode);
-//		}
-//	}
-	
 	/**
 	 * Sets the CalendarControllerConfig of this CalendarViewer.
 	 * @param config

@@ -1,13 +1,13 @@
 package me.jmhend.CalendarViewer;
 
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.ScrollView;
+
 import java.util.Calendar;
 
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.widget.ScrollView;
 
 /**
  * CalendarViewPager for DayViews.
@@ -126,27 +126,7 @@ public class DayViewPager extends CalendarViewPager {
 		}
 		scrollView.smoothScrollTo(0, scrollToY);
 	}
-	
-	/**
-	 * Signal all the CalendarViewer callbacks to fire.
-	 */
-	public void fireCallbacksAtCurrentPosition() {
-		int position = this.getCurrentItem();
-		long dayStart = ((DayPagerAdapter) getAdapter()).getDayStartForPosition(position);
-		mRecycle.setTimeInMillis(dayStart);
-		
-		View container = DayViewPager.this.getViewAtPosition(position);
-		if (container == null) {
-			return;
-		}
-		View dayView = container.findViewById(R.id.day);
-		DayViewPager.this.onDayClick(dayView, CalendarDay.fromCalendar(mRecycle));
-		
-		if (mPageSelectedListener != null) {
-			mPageSelectedListener.onPageSelected(DayViewPager.this, position);
-		}
-	}
-	
+
 ////========================================================================================
 //// View
 ////========================================================================================

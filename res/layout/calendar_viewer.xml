@@ -29,7 +29,7 @@
 	    <me.jmhend.CalendarViewer.DayOfWeekLabelView 
 	        android:id="@+id/day_labels"
 	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
+	        android:layout_height="@dimen/month_list_item_header_height"
 	        android:layout_below="@id/month_header"
 	        android:clickable="true"/>
 	    <me.jmhend.CalendarViewer.CalendarViewPager
@@ -45,5 +45,13 @@
 	        android:layout_below="@id/day_labels"
 		    android:visibility="visible"/>
     </RelativeLayout>
+
+    <!-- Full Month View -->
+    <me.jmhend.CalendarViewer.CalendarViewPager
+        android:id="@+id/full_month_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="52dp"
+        android:visibility="visible"/>
     
 </me.jmhend.CalendarViewer.InterceptRelativeLayout>

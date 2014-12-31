@@ -1,22 +1,19 @@
 package me.jmhend.CalendarViewer;
 
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint.Style;
+import android.graphics.Typeface;
+import android.text.format.DateUtils;
+import android.util.AttributeSet;
+
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
 import me.jmhend.CalendarViewer.CalendarViewerDecorator.ApplyLevel;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.Paint.Style;
-import android.text.format.DateUtils;
-import android.util.AttributeSet;
-import android.util.Log;
 
 /**
  * View that displays a month of days.
@@ -30,8 +27,9 @@ public class MonthView extends CalendarView {
 ////==================================================================================================
 //// Static constants.
 ////==================================================================================================
-	
-	public static final int MAX_DAYS = 6 * 7;
+
+    public static final int NUM_WEEKS = 6;
+	public static final int MAX_DAYS = NUM_WEEKS * 7;
 	
 	public static final String KEY_MONTH = "month";
 	public static final String KEY_YEAR = "year";
@@ -65,17 +63,17 @@ public class MonthView extends CalendarView {
 	protected int mMonthEndIndex;
 	
 	// Draw calculations.
-	private final int[] mDayXs = new int[MAX_DAYS];
-	private final int[] mDayYs = new int[MAX_DAYS];
-	private final int[] mDayOfMonths = new int[MAX_DAYS];
-	private final boolean[] mDayHasEvents = new boolean[MAX_DAYS];
-	private boolean mHideSelectedWeek = false;
-	private int mInvisibleWeekY = 0;
-	
-	private StringBuilder mStringBuilder;
-	private Formatter mFormatter;
-	
-	private CalendarModel mModel;
+	protected final int[] mDayXs = new int[MAX_DAYS];
+	protected final int[] mDayYs = new int[MAX_DAYS];
+    protected final int[] mDayOfMonths = new int[MAX_DAYS];
+    protected final boolean[] mDayHasEvents = new boolean[MAX_DAYS];
+    protected boolean mHideSelectedWeek = false;
+    protected int mInvisibleWeekY = 0;
+
+    protected StringBuilder mStringBuilder;
+    protected Formatter mFormatter;
+
+    protected CalendarModel mModel;
 
 ////==================================================================================================
 //// Constructor.
@@ -582,7 +580,7 @@ public class MonthView extends CalendarView {
 	/**
 	 * Zero-out point arrays, reset valid array.
 	 */
-	private void clearDayArrays() {
+	protected void clearDayArrays() {
 		for (int i = 0; i < MAX_DAYS; i++) {
 			mDayXs[i] = 0;
 			mDayYs[i] = 0;
@@ -593,7 +591,7 @@ public class MonthView extends CalendarView {
 	/**
 	 * Zero-out hasEvents array.
 	 */
-	private void clearHasEventsArray() {
+	protected void clearHasEventsArray() {
 		for (int i = 0; i < MAX_DAYS; i++) {
 			mDayHasEvents[i] = false;
 		}
