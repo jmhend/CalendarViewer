@@ -10,7 +10,13 @@
     <color name="calendar_text_title">#ddffffff</color>
     <color name="hour_color">#FF888888</color>
     <color name="am_pm_color">#FFCCCCCC</color>
-    
     <color name="all_day_list_div">#00FFFFFF</color>
+
+    <color name="accent_blue">#FF008DD0</color>
+    <color name="accent_blue_highlight">#44008DD0</color>
+    <color name="other_month_date_label">#FFAAAAAA</color>
+    <color name="full_month_grid_color">#FFDDDDDD</color>
+    <color name="full_month_current_month_cell_color">#FFFFFFFF</color>
+    <color name="full_month_other_month_cell_color">#FFEEEEEE</color>
     
 </resources>

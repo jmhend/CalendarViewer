@@ -52,7 +52,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="52dp"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        android:background="@color/full_month_other_month_cell_color"/>
     
 </me.jmhend.CalendarViewer.InterceptRelativeLayout>
 <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/layout/calendar_viewer.xml -->

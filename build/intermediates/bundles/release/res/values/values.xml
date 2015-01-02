@@ -5,6 +5,8 @@
     <bool name="draw_day_labels">false</bool>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
     <eat-comment/>
+    <color name="accent_blue">#FF008DD0</color>
+    <color name="accent_blue_highlight">#44008DD0</color>
     <color name="all_day_list_div">#00FFFFFF</color>
     <color name="am_pm_color">#FFCCCCCC</color>
     <color name="calendar_text_title">#ddffffff</color>
@@ -14,7 +16,11 @@
     <color name="day_text_inactive">#66dddddd</color>
     <color name="day_text_selected">#ff008dd0</color>
     <color name="day_text_today">#FFffffff</color>
+    <color name="full_month_current_month_cell_color">#FFFFFFFF</color>
+    <color name="full_month_grid_color">#FFDDDDDD</color>
+    <color name="full_month_other_month_cell_color">#FFEEEEEE</color>
     <color name="hour_color">#FF888888</color>
+    <color name="other_month_date_label">#FFAAAAAA</color>
     <color name="selected_highlight">#ffffffff</color>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/dimens.xml -->
     <eat-comment/>
@@ -38,11 +44,14 @@
     <dimen name="dayview_hour_label_width">48dp</dimen>
     <dimen name="dayview_line_height">1dp</dimen>
     <dimen name="dayview_padding_top">28dp</dimen>
+    <dimen name="full_month_date_label_size">12sp</dimen>
+    <dimen name="full_month_grid_thickness">1dp</dimen>
     <dimen name="month_bottom_padding">8dp</dimen>
     <dimen name="month_header_height">28dp</dimen>
     <dimen name="month_list_item_header_height">24dp</dimen>
     <dimen name="month_title_text_size">16sp</dimen>
     <dimen name="monthview_height">240dp</dimen>
+    <dimen name="page_margin">4dp</dimen>
     <dimen name="selected_circle_radius">16dp</dimen>
     <dimen name="selected_circle_stroke_width">2dp</dimen>
     <dimen name="weekview_height">60dp</dimen>

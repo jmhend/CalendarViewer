@@ -245,7 +245,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
         mFullMonthPager.setOnPageSelectedListener(this);
         mFullMonthPager.setOnDayClickListener(this);
         mFullMonthPager.setCurrentDay(mController.getCurrentDay());
-		
+        mFullMonthPager.setPageMargin(mContext.getResources().getDimensionPixelSize(R.dimen.page_margin));
+        mFullMonthPager.setPageMarginDrawable(R.color.full_month_grid_color);
+
 		mWeekPager = (CalendarViewPager) mMutableView.findViewById(R.id.week_pager);
 		mWeekPager.setAdapter(mWeekAdapter);
 		mWeekPager.setOnPageSelectedListener(this);

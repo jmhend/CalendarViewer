@@ -1,12 +1,11 @@
 package me.jmhend.CalendarViewer;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-
-import java.util.List;
 
 /**
  * Created by jmhend on 12/30/14.
@@ -19,8 +18,17 @@ public class FullMonthView extends MonthView {
 //// Member variables.
 ////=============================================================================
 
+    private int mColorCurrentMonthDate;
+    private int mColorOtherMonthDate;
+    private int mColorClickedDayDate;
+    private int mColorTodayDate;
+
     private Paint mGridPaint;
-    private Paint mSelectedDayPaint;
+    private Paint mDateLabelPaint;
+    private Paint mClickedDayPaint;
+    private Paint mCurrentMonthCellPaint;
+
+    private int mClickedDayIndex = -1;
 
 ////=============================================================================
 //// Constructor.
@@ -29,121 +37,123 @@ public class FullMonthView extends MonthView {
     public FullMonthView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
-
     public FullMonthView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-
     public FullMonthView(Context context) {
         super(context);
     }
 
+////=============================================================================
+//// View.
+////=============================================================================
+
     @Override
     protected void init() {
-        mGridPaint = new Paint();
-        mGridPaint.setColor(0x44AAAAAA);
-        mGridPaint.setStyle(Paint.Style.FILL);
-        mGridPaint.setStrokeWidth(2);
-
-        mSelectedDayPaint = new Paint();
-        mSelectedDayPaint.setColor(0x66114488);
-        mSelectedDayPaint.setStyle(Paint.Style.FILL);
-
         super.init();
+        Resources res = getContext().getResources();
 
-//        mSelectedDayColor;
-//        mTodayNumberColor;
-//        mInactiveDayTextColor;
-        mActiveDayTextColor = 0xFF444444;
+        mColorCurrentMonthDate = res.getColor(R.color.accent_blue);
+        mColorOtherMonthDate = res.getColor(R.color.other_month_date_label);
+        mColorClickedDayDate = res.getColor(android.R.color.white);
+        mColorTodayDate = res.getColor(android.R.color.white);
 
-//        setOnClickListener(new OnClickListener() {
-//            /*
-//             * (non-Javadoc)
-//             * @see android.view.View.OnClickListener#onClick(android.view.View)
-//             */
-//            @Override
-//            public void onClick(View v) {
-//                CalendarAdapter.CalendarDay day = getDayFromLocation(mLastTouchX, mLastTouchY);
-//                if (day != null) {
-//                    Toast.makeText(getContext(), day.toString(), Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
+        mGridPaint = new Paint();
+        mGridPaint.setColor(res.getColor(R.color.full_month_grid_color));
+        mGridPaint.setStrokeWidth(res.getDimensionPixelSize(R.dimen.full_month_grid_thickness));
+        mGridPaint.setStyle(Paint.Style.FILL);
+
+        mClickedDayPaint = new Paint();
+        mClickedDayPaint.setColor(res.getColor(R.color.accent_blue_highlight));
+        mClickedDayPaint.setStyle(Paint.Style.FILL);
+
+        mCurrentMonthCellPaint = new Paint();
+        mCurrentMonthCellPaint.setStyle(Paint.Style.FILL);
+        mCurrentMonthCellPaint.setColor(res.getColor(R.color.full_month_current_month_cell_color));
+
+        mDateLabelPaint = new Paint();
+        mDateLabelPaint.setTypeface(mTypeface);
+        mDateLabelPaint.setColor(mColorCurrentMonthDate);
+        mDateLabelPaint.setTextSize(res.getDimensionPixelSize(R.dimen.full_month_date_label_size));
+        mDateLabelPaint.setAntiAlias(true);
+        mDateLabelPaint.setStyle(Paint.Style.FILL);
     }
 
+////=============================================================================
+//// Draw
+////=============================================================================
 
     @Override
     public void onDraw(Canvas canvas) {
         calculateDayPoints();
 
-//        canvas.drawColor(0xFF114499);
-        canvas.drawColor(0xFFFFFFFF);
-
-        int height = getHeight();
-        int width = getWidth();
-        int heightSpace = height / 6;
-        int widthSpace = width / 7;
-
         for (int i = 0; i < MAX_DAYS; i++) {
             int x = mDayXs[i];
             int y = mDayYs[i];
-//            canvas.drawCircle(x, y, 4, mGridPaint);
 
-            if (isIndexSelectedDay(i)) {
-                int rightX = x + widthSpace;
-                int bottomY = y + heightSpace;
-                canvas.drawRect(x, y, rightX, bottomY, mSelectedDayPaint);
-            }
-
-            boolean isSelectedDay = isIndexSelectedDay(i);
+            boolean isClickedDay = isClickedDay(i);
             boolean isToday = isIndexCurrentDay(i);
             boolean isThisMonth = isIndexInThisMonth(i);
 
-            int textColor;
-            if (isSelectedDay) {
-                textColor = mSelectedDayColor;
+            if (isThisMonth) {
+                int right = x + getWidth() / 7;
+                int bottom = y +  getHeight() / NUM_WEEKS;
+                canvas.drawRect(x, y, right, bottom, mCurrentMonthCellPaint);
+            }
+
+            int dateTextColor;
+            if (isClickedDay) {
+                dateTextColor = mColorClickedDayDate;
             } else if (isToday) {
-                textColor = mTodayNumberColor;
+                dateTextColor = mColorTodayDate;
             } else if (!isThisMonth) {
-                textColor = mInactiveDayTextColor;
+                dateTextColor = mColorOtherMonthDate;
             } else {
-                textColor = mSelectedDayColor;
+                dateTextColor = mColorCurrentMonthDate;
             }
+
             Typeface tf = (isToday) ? mTypefaceBold : mTypeface;
-            mMonthNumPaint.setTextSize(36);
-            mMonthNumPaint.setTypeface(tf);
-            mMonthNumPaint.setColor(textColor);
-            canvas.drawText(String.valueOf(mDayOfMonths[i]), x + 25, y + 40, mMonthNumPaint);
+            mDateLabelPaint.setTypeface(tf);
+            mDateLabelPaint.setColor(dateTextColor);
+            canvas.drawText(String.valueOf(mDayOfMonths[i]), x + 25, y + 40, mDateLabelPaint);
 
-            int year;
-            int month;
-            int dayOfMonth;
-            CalendarAdapter.CalendarDay day = new CalendarAdapter.CalendarDay();
-            if (isIndexInPreviousMonth(i)) {
-                year = mPreviousMonthYear;
-                month = mPreviousMonth;
-                dayOfMonth = mPreviousMonthLastDayOfMonth - (mMonthStartIndex - i) + 1;
-            } else if (isIndexInNextMonth(i)) {
-                year = mNextMonthYear;
-                month = mNextMonth;
-                dayOfMonth = i - mMonthEndIndex;
-            } else {
-                year = mYear;
-                month = mMonth;
-                dayOfMonth = i - mMonthStartIndex + 1;
-            }
-            day.year = year;
-            day.month = month;
-            day.dayOfMonth = dayOfMonth;
-
-            List<? extends Event> events = mModel.getEventsOnDay(day.toCalendar().getTimeInMillis());
-
-            int count = events != null ? events.size() : 0;
-
-            canvas.drawText(String.valueOf(count), x + 125, y + 40, mMonthNumPaint);
-
-
+//            int year;
+//            int month;
+//            int dayOfMonth;
+//            CalendarAdapter.CalendarDay day = new CalendarAdapter.CalendarDay();
+//            if (isIndexInPreviousMonth(i)) {
+//                year = mPreviousMonthYear;
+//                month = mPreviousMonth;
+//                dayOfMonth = mPreviousMonthLastDayOfMonth - (mMonthStartIndex - i) + 1;
+//            } else if (isIndexInNextMonth(i)) {
+//                year = mNextMonthYear;
+//                month = mNextMonth;
+//                dayOfMonth = i - mMonthEndIndex;
+//            } else {
+//                year = mYear;
+//                month = mMonth;
+//                dayOfMonth = i - mMonthStartIndex + 1;
+//            }
+//            day.year = year;
+//            day.month = month;
+//            day.dayOfMonth = dayOfMonth;
+//
+//            List<? extends Event> events = mModel.getEventsOnDay(day.toCalendar().getTimeInMillis());
+//
+//            int count = events != null ? events.size() : 0;
+//
+//            canvas.drawText(String.valueOf(count), x + 125, y + 40, mMonthNumPaint);
         }
+
+        drawGrid(canvas);
+    }
+
+    /**
+     * Draws the grid lines for the calendar, separating each day.
+     */
+    private void drawGrid(Canvas canvas) {
+        int heightSpace = getHeight() / 6;
+        int widthSpace = getWidth() / 7;
 
         // Horizontal grid.
         for (int i = 1 ; i < 6; i++) {
@@ -154,10 +164,27 @@ public class FullMonthView extends MonthView {
         for (int i = 1 ; i < 7; i++) {
             canvas.drawLine(i * widthSpace, 0f, i * widthSpace, getHeight(), mGridPaint);
         }
+    }
 
+    /**
+     * Uses MATCH_PARENT, instead of MonthView's sizing.
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
+        this.setMeasuredDimension(parentWidth, parentHeight);
+    }
 
-//        super.onDraw(canvas);
+////=============================================================================
+//// Utils.
+////=============================================================================
 
+    /**
+     * @return True if the day at 'dayIndex' is the clicked day.
+     */
+    protected boolean isClickedDay(int dayIndex) {
+        return dayIndex != -1 && mClickedDayIndex == dayIndex;
     }
 
     /**
@@ -232,13 +259,5 @@ public class FullMonthView extends MonthView {
         return day;
     }
 
-    /**
-     * Uses MATCH_PARENT, instead of MonthView's sizing.
-     */
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
-        this.setMeasuredDimension(parentWidth, parentHeight);
-    }
+
 }
