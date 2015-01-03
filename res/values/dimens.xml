@@ -34,5 +34,9 @@
     <!-- Full Month View -->
     <dimen name="full_month_grid_thickness">1dp</dimen>
     <dimen name="full_month_date_label_size">12sp</dimen>
+    <dimen name="full_month_event_text_size">10sp</dimen>
     <dimen name="page_margin">4dp</dimen>
+    <dimen name="date_cell_padding">4dp</dimen>
+    <dimen name="date_cell_event_padding">4dp</dimen>
+    <dimen name="date_cell_event_color_width">4dp</dimen>
 </resources>

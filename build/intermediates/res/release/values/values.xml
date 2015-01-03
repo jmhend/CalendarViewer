@@ -65,6 +65,7 @@
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
     <eat-comment/>
     <color name="full_month_current_month_cell_color">#FFFFFFFF</color>
+    <color name="full_month_event_text_color">#FF222222</color>
     <color name="full_month_grid_color">#FFDDDDDD</color>
     <color name="full_month_other_month_cell_color">#FFEEEEEE</color>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
@@ -175,6 +176,9 @@
     <eat-comment/>
     <dimen name="all_day_divider_height">2dp</dimen>
     <dimen name="all_day_row_height">24dp</dimen>
+    <dimen name="date_cell_event_color_width">4dp</dimen>
+    <dimen name="date_cell_event_padding">4dp</dimen>
+    <dimen name="date_cell_padding">4dp</dimen>
     <dimen name="day_marker_radius">3dp</dimen>
     <dimen name="day_of_week_text_size">10sp</dimen>
     <dimen name="day_pager_margin">2dp</dimen>
@@ -204,6 +208,7 @@
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/dimens.xml -->
     <eat-comment/>
     <dimen name="full_month_date_label_size">12sp</dimen>
+    <dimen name="full_month_event_text_size">10sp</dimen>
     <dimen name="full_month_grid_thickness">1dp</dimen>
     <dimen name="month_bottom_padding">8dp</dimen>
     <dimen name="month_header_height">28dp</dimen>

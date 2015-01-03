@@ -488,7 +488,7 @@ public class DayView extends View {
 	 * @param maxWidth
 	 * @return
 	 */
-	private String clipText(String text, Paint p, int maxWidth) {
+	private static String clipText(String text, Paint p, int maxWidth) {
 		if (text == null) {
 			return "";
 		}
