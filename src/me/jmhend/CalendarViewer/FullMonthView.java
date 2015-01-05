@@ -49,6 +49,8 @@ public class FullMonthView extends MonthView {
 
     private long[] mDates = new long[MAX_DAYS];
 
+    private Rect mTextMeasureRect = new Rect();
+
 ////=============================================================================
 //// Constructor.
 ////=============================================================================
@@ -148,7 +150,7 @@ public class FullMonthView extends MonthView {
 
             int textBottom = drawDateLabel(canvas, i, left, top, isClickedDay, isToday, isThisMonth, rect);
             rect.left = left + mDateCellPadding;
-            rect.top = textBottom + mDateCellPadding;
+            rect.top = textBottom + mEventPadding;
             rect.right = right;
             rect.bottom = bottom + mDateCellPadding;
 
@@ -223,9 +225,10 @@ public class FullMonthView extends MonthView {
             return;
         }
 
+        int eventsDrawn = 0;
         int currYTop = bounds.top;
 
-        for (int i = 0 ; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             if (currYTop >= bounds.bottom) {
                 break;
             }
@@ -235,21 +238,39 @@ public class FullMonthView extends MonthView {
                 break;
             }
 
+            int eventColorLeft = bounds.left;
+            int eventColorRight = eventColorLeft + mEventColorWidth;
+            int eventLabelLeft = eventColorRight + mEventPadding;
+
             String title = event.getDrawingTitle();
-            String actual = clipText(title, mEventTextPaint, bounds.right - bounds.left - 20);
+            String actual = clipText(title, mEventTextPaint, bounds.right - eventLabelLeft);
+            mEventTextPaint.getTextBounds(actual, 0, actual.length(), mTextMeasureRect);
 
-            Rect r = new Rect();
-            mEventTextPaint.getTextBounds(actual, 0, actual.length(), r);
-            int textHeight = r.bottom - r.top;
+            int measuredHeight = mTextMeasureRect.bottom - mTextMeasureRect.top;
+            int textHeight = mEventTextSize;
+            int currYBottom = currYTop + textHeight;
+            int nextYTop = currYBottom + mEventPadding;
+            int drawingY = currYTop + measuredHeight + ((textHeight - measuredHeight) / 2);
+            int colorDrawingTop = currYTop + (mEventPadding / 2);
+            int colorDrawingBottom = currYTop + textHeight - (mEventPadding / 2);
 
-            if (currYTop + textHeight + mEventPadding < bounds.bottom) {
-                int colorRight = bounds.left + mEventColorWidth;
+            Log.i(TAG, title + " (" + textHeight + ", " + measuredHeight + ", " + drawingY + ")");
+
+            // Draw the remaining count of events for this date.
+            if (count - eventsDrawn > 2 && (nextYTop >= bounds.bottom - mEventPadding - textHeight)) {
+                String remainingEvents = "+".concat(String.valueOf(count - eventsDrawn));
+                canvas.drawText(remainingEvents, eventLabelLeft, bounds.bottom - mEventPadding - textHeight, mEventTextPaint);
+                break;
+            }
+
+            // If room, draw the next event.
+            if (nextYTop < bounds.bottom) {
                 mEventColorPaint.setColor(event.getDrawingColor());
+                canvas.drawRect(eventColorLeft, colorDrawingTop, eventColorRight, colorDrawingBottom, mEventColorPaint);
 
-                canvas.drawRect(bounds.left, currYTop, colorRight, currYTop + textHeight, mEventColorPaint);
-
-                canvas.drawText(actual, colorRight + mEventColorWidth, currYTop + textHeight, mEventTextPaint);
-                currYTop += textHeight + mEventPadding;
+                canvas.drawText(actual, eventLabelLeft, drawingY, mEventTextPaint);
+                currYTop = nextYTop;
+                eventsDrawn++;
             }
         }
     }
@@ -359,7 +380,7 @@ public class FullMonthView extends MonthView {
     }
 
     /**
-     * Clips the text and adds an ellipses if it requires more width than maxWidth;
+     * Clips the text and adds an period if it requires more width than maxWidth;
      * @param text
      * @param p
      * @param maxWidth
@@ -379,7 +400,7 @@ public class FullMonthView extends MonthView {
         } else if (breakpoint == 0) {
             clipped = "";
         } else if (breakpoint < text.length()) {
-            clipped = text.substring(0, breakpoint - 1).concat(".");
+            clipped = text.substring(0, breakpoint).concat(".");
         } else {
             clipped = text;
         }

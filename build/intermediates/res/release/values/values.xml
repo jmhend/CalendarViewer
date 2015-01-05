@@ -177,7 +177,7 @@
     <dimen name="all_day_divider_height">2dp</dimen>
     <dimen name="all_day_row_height">24dp</dimen>
     <dimen name="date_cell_event_color_width">4dp</dimen>
-    <dimen name="date_cell_event_padding">4dp</dimen>
+    <dimen name="date_cell_event_padding">2dp</dimen>
     <dimen name="date_cell_padding">4dp</dimen>
     <dimen name="day_marker_radius">3dp</dimen>
     <dimen name="day_of_week_text_size">10sp</dimen>

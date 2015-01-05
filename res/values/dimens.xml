@@ -37,6 +37,6 @@
     <dimen name="full_month_event_text_size">10sp</dimen>
     <dimen name="page_margin">4dp</dimen>
     <dimen name="date_cell_padding">4dp</dimen>
-    <dimen name="date_cell_event_padding">4dp</dimen>
+    <dimen name="date_cell_event_padding">2dp</dimen>
     <dimen name="date_cell_event_color_width">4dp</dimen>
 </resources>
