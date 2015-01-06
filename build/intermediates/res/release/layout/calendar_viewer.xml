@@ -47,12 +47,12 @@
     </RelativeLayout>
 
     <!-- Full Month View -->
-    <me.jmhend.CalendarViewer.CalendarViewPager
+    <me.jmhend.CalendarViewer.FullMonthViewPager
         android:id="@+id/full_month_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="52dp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:background="@color/full_month_other_month_cell_color"/>
     
 </me.jmhend.CalendarViewer.InterceptRelativeLayout>

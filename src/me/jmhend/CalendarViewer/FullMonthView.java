@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 
 import java.util.Calendar;
 import java.util.List;
@@ -18,6 +20,12 @@ import java.util.List;
 public class FullMonthView extends MonthView {
 
     private static final String TAG = FullMonthView.class.getSimpleName();
+
+////=============================================================================
+//// Static constants.
+////=============================================================================
+
+    public static final int CLICK_DISPLAY_DURATION = 50;
 
 ////=============================================================================
 //// Member variables.
@@ -41,7 +49,13 @@ public class FullMonthView extends MonthView {
     private Paint mTodayCellPaint;
     private Paint mEventTextPaint;
     private Paint mEventColorPaint;
+    private Paint mTodayCirclePaint;
+    private Paint mExtraEventsPaint;
 
+    private int mTouchSlop;
+    private int mTapDelay;
+    private long mTouchDown;
+    private boolean mCanClickDate = false;
     private int mClickedDayIndex = -1;
 
     private Calendar mCalendar = Calendar.getInstance();
@@ -50,6 +64,7 @@ public class FullMonthView extends MonthView {
     private long[] mDates = new long[MAX_DAYS];
 
     private Rect mTextMeasureRect = new Rect();
+    private Point mDateMeasurePoint = new Point();
 
 ////=============================================================================
 //// Constructor.
@@ -74,10 +89,13 @@ public class FullMonthView extends MonthView {
         super.init();
         Resources res = getContext().getResources();
 
+        mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+        mTapDelay = ViewConfiguration.getTapTimeout();
+
         mColorCurrentMonthDate = res.getColor(R.color.accent_blue);
         mColorOtherMonthDate = res.getColor(R.color.other_month_date_label);
         mColorClickedDayDate = res.getColor(android.R.color.white);
-        mColorTodayDate = res.getColor(android.R.color.white);
+        mColorTodayDate = /*res.getColor(android.R.color.white);*/ mColorCurrentMonthDate;
 
         mDateLabelSize = res.getDimensionPixelSize(R.dimen.full_month_date_label_size);
         mDateCellPadding = res.getDimensionPixelSize(R.dimen.date_cell_padding);
@@ -89,6 +107,11 @@ public class FullMonthView extends MonthView {
         mGridPaint.setColor(res.getColor(R.color.full_month_grid_color));
         mGridPaint.setStrokeWidth(res.getDimensionPixelSize(R.dimen.full_month_grid_thickness));
         mGridPaint.setStyle(Paint.Style.FILL);
+
+        mTodayCirclePaint = new Paint();
+        mTodayCirclePaint.setAntiAlias(true);
+        mTodayCirclePaint.setColor(mColorCurrentMonthDate);
+        mTodayCirclePaint.setStyle(Paint.Style.FILL);
 
         mClickedDayPaint = new Paint();
         mClickedDayPaint.setColor(res.getColor(R.color.accent_blue_highlight));
@@ -117,6 +140,13 @@ public class FullMonthView extends MonthView {
         mEventTextPaint.setTextAlign(Paint.Align.LEFT);
 //        mEventTextPaint.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "RobotoCondensed-Regular.ttf"));
 
+        mExtraEventsPaint = new Paint();
+        mExtraEventsPaint.setColor(res.getColor(R.color.full_month_event_text_color));
+        mExtraEventsPaint.setTextSize(mEventTextSize);
+        mExtraEventsPaint.setAntiAlias(true);
+        mExtraEventsPaint.setStyle(Paint.Style.FILL);
+        mExtraEventsPaint.setTextAlign(Paint.Align.RIGHT);
+
         mEventColorPaint = new Paint();
         mEventColorPaint.setStyle(Paint.Style.FILL);
     }
@@ -142,17 +172,24 @@ public class FullMonthView extends MonthView {
             boolean isToday = isIndexCurrentDay(i);
             boolean isThisMonth = isIndexInThisMonth(i);
 
-            if (isToday) {
+            if (isClickedDay) {
                 canvas.drawRect(left, top, right, bottom, mTodayCellPaint);
             } else if (isThisMonth) {
                 canvas.drawRect(left, top, right, bottom, mCurrentMonthCellPaint);
             }
 
-            int textBottom = drawDateLabel(canvas, i, left, top, isClickedDay, isToday, isThisMonth, rect);
+            Point dateBottomRight = drawDateLabel(canvas, i, left, top, isClickedDay, isToday, isThisMonth, rect);
             rect.left = left + mDateCellPadding;
-            rect.top = textBottom + mEventPadding;
+            rect.top = dateBottomRight.y + mEventPadding;
             rect.right = right;
             rect.bottom = bottom + mDateCellPadding;
+
+            // Today indicator.
+            if (isToday) {
+                int circleX = dateBottomRight.x + mDateCellPadding;
+                int circleY = top + mDateCellPadding / 2 + (mDateLabelSize) - mDateLabelSize / 3;
+                canvas.drawCircle(circleX, circleY, 8, mTodayCirclePaint);
+            }
 
             drawEvents(canvas, i, rect);
         }
@@ -181,13 +218,13 @@ public class FullMonthView extends MonthView {
     /**
      * Draws the date label for the individual date cell.
      *
-     * @return The y-coordinate of the lower bound of the text label's bounding Rect.
+     * @return The (x,y)-coordinate of the lower-right bound of the text label's bounding Rect.
      */
-    private int drawDateLabel(Canvas canvas, int dateIndex, int cellX, int cellY,
+    private Point drawDateLabel(Canvas canvas, int dateIndex, int cellX, int cellY,
                                boolean isClickedDay, boolean isToday, boolean isThisMonth, Rect rect) {
         int dateTextColor;
         if (isClickedDay) {
-            dateTextColor = mColorClickedDayDate;
+            dateTextColor = mColorCurrentMonthDate;
         } else if (isToday) {
             dateTextColor = mColorTodayDate;
         } else if (!isThisMonth) {
@@ -208,7 +245,8 @@ public class FullMonthView extends MonthView {
 
         canvas.drawText(dateLabel, startX, startY, mDateLabelPaint);
 
-        return startY + rect.bottom;
+        mDateMeasurePoint.set(startX + (rect.right - rect.left) , startY + rect.bottom);
+        return mDateMeasurePoint;
     }
 
     /**
@@ -254,12 +292,12 @@ public class FullMonthView extends MonthView {
             int colorDrawingTop = currYTop + (mEventPadding / 2);
             int colorDrawingBottom = currYTop + textHeight - (mEventPadding / 2);
 
-            Log.i(TAG, title + " (" + textHeight + ", " + measuredHeight + ", " + drawingY + ")");
-
             // Draw the remaining count of events for this date.
             if (count - eventsDrawn > 2 && (nextYTop >= bounds.bottom - mEventPadding - textHeight)) {
-                String remainingEvents = "+".concat(String.valueOf(count - eventsDrawn));
-                canvas.drawText(remainingEvents, eventLabelLeft, bounds.bottom - mEventPadding - textHeight, mEventTextPaint);
+                String extraEvents = "+".concat(String.valueOf(count - eventsDrawn));
+                int extrasX = bounds.right - mEventPadding * 2;
+                int extrasY = bounds.bottom - mEventPadding - textHeight / 2;
+                canvas.drawText(extraEvents, extrasX, extrasY, mExtraEventsPaint);
                 break;
             }
 
@@ -300,8 +338,6 @@ public class FullMonthView extends MonthView {
      * Calculates the (x,y) coordinates of each day in the month.
      */
     protected void calculateDayPoints() {
-        long s = System.currentTimeMillis();
-
         clearDayArrays();
 
         final int xSpacing = getWidth() / 7;
@@ -336,10 +372,6 @@ public class FullMonthView extends MonthView {
             mDayOfMonths[i] = mCalendarDay.dayOfMonth;
             mDates[i] = mCalendar.getTimeInMillis();
         }
-
-        long e = System.currentTimeMillis();
-
-        Log.e(TAG, (e - s) + " millis to calculate day arrays");
     }
 
 
@@ -348,20 +380,10 @@ public class FullMonthView extends MonthView {
      */
     @Override
     public CalendarAdapter.CalendarDay getDayFromLocation(float x, float y) {
-        int width = getWidth();
-        int height = getHeight();
-
-        if (x < 0 || x > width || y < 0 || y > height) {
-            throw new IllegalStateException("Invalid (x,y) position (" + x + "," + y + ")");
+        int index = getDateIndexFromLocation(x, y);
+        if (index == -1) {
+            return null;
         }
-
-        final int xSpacing = width / 7;
-        final int ySpacing = height / NUM_WEEKS;
-
-        int xCell = ((int) x) / xSpacing;
-        int yCell = ((int) y) / ySpacing;
-
-        int index = yCell * 7 + xCell;
 
         CalendarAdapter.CalendarDay day = new CalendarAdapter.CalendarDay();
 
@@ -378,6 +400,28 @@ public class FullMonthView extends MonthView {
         day.dayOfMonth = mDayOfMonths[index];
         return day;
     }
+
+    /**
+     * @return The index in the mDayOfMonths array at the (x,y) coordinate.
+     */
+    protected int getDateIndexFromLocation(float x, float y) {
+        int width = getWidth();
+        int height = getHeight();
+
+        if (x < 0 || x > width || y < 0 || y > height) {
+            throw new IllegalStateException("Invalid (x,y) position (" + x + "," + y + ")");
+        }
+
+        final int xSpacing = width / 7;
+        final int ySpacing = height / NUM_WEEKS;
+
+        int xCell = ((int) x) / xSpacing;
+        int yCell = ((int) y) / ySpacing;
+
+        int index = yCell * 7 + xCell;
+        return index;
+    }
+
 
     /**
      * Clips the text and adds an period if it requires more width than maxWidth;
@@ -416,5 +460,123 @@ public class FullMonthView extends MonthView {
         }
     }
 
+////=============================================================================
+//// Touch.
+////=============================================================================
 
+    /*
+ * (non-Javadoc)
+ * @see android.view.View#onTouchEvent(android.view.MotionEvent)
+ */
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_MOVE:
+                if (distance(mFirstTouchX, mLastTouchX, mFirstTouchY, mLastTouchY) > mTouchSlop) {
+                    MotionEvent cancel = MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0, 0, 0);
+                    handleTouchInternal(cancel);
+                    return super.onTouchEvent(cancel);
+                }
+                mLastTouchX = e.getX();
+                mLastTouchY = e.getY();
+                break;
+            case MotionEvent.ACTION_DOWN:
+                mFirstTouchX = e.getX();
+                mFirstTouchY = e.getY();
+                mLastTouchX = e.getX();
+                mLastTouchY = e.getY();
+                break;
+            default:
+        }
+        handleTouchInternal(e);
+        return super.onTouchEvent(e);
+    }
+
+    /**
+     * @return Cartesian distance of the points.
+     */
+    private int distance(float x1, float x2, float y1, float y2) {
+        return (int) Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1),2) );
+    }
+
+    /**
+     * Responds to touches without intercepting any MotionEvents.
+     */
+    private boolean handleTouchInternal(MotionEvent e) {
+        int action = e.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            int index = getDateIndexFromLocation(e.getX(), e.getY());
+            if (index >= 0) {
+                mCanClickDate = true;
+                mTouchDown = System.currentTimeMillis();
+                postDelayed(new ClickRunnable(index), mTapDelay);
+                return true;
+            }
+            return false;
+        }
+        if (action == MotionEvent.ACTION_CANCEL) {
+            mClickedDayIndex = -1;
+            mCanClickDate = false;
+            invalidate();
+            return true;
+        }
+        if (action == MotionEvent.ACTION_UP) {
+            int index = getDateIndexFromLocation(e.getX(), e.getY());
+            if (index >= 0) {
+                long clearDelay = (CLICK_DISPLAY_DURATION + mTapDelay) - (System.currentTimeMillis() - mTouchDown);
+                if (clearDelay > 0) {
+                    postDelayed(new ClearRunnable(index), clearDelay);
+                } else {
+                    post(new ClearRunnable(index));
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Handles a delayed click event.
+     * @author jmhend
+     */
+    private class ClickRunnable implements Runnable {
+
+        public ClickRunnable(int index) {
+            mIndex = index;
+        }
+
+        private int mIndex;
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
+        @Override
+        public void run() {
+            if (mCanClickDate) {
+                mClickedDayIndex = mIndex;
+                invalidate();
+            }
+        }
+    }
+
+    /**
+     * Called when an item has clicked and needs to be cleared.
+     * @author jmhend
+     *
+     */
+    private class ClearRunnable implements Runnable {
+
+        public ClearRunnable(int index) { }
+
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
+        @Override
+        public void run() {
+            mClickedDayIndex = -1;
+            invalidate();
+        }
+    }
 }

@@ -66,7 +66,7 @@
     <eat-comment/>
     <color name="full_month_current_month_cell_color">#FFFFFFFF</color>
     <color name="full_month_event_text_color">#FF222222</color>
-    <color name="full_month_grid_color">#FFDDDDDD</color>
+    <color name="full_month_grid_color">#FFE6E6E6</color>
     <color name="full_month_other_month_cell_color">#FFEEEEEE</color>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
     <eat-comment/>
@@ -88,7 +88,7 @@
     <color name="material_deep_teal_500">#ff009688</color>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
     <eat-comment/>
-    <color name="other_month_date_label">#FFAAAAAA</color>
+    <color name="other_month_date_label">#FF888888</color>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
     <eat-comment/>
     <color name="primary_dark_material_dark">#ff000000</color>

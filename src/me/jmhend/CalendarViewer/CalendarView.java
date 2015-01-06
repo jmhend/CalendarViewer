@@ -143,6 +143,8 @@ public abstract class CalendarView extends View {
 	protected boolean mDrawDayOfWeekLabels;
 	
 	// TouchEvents
+    protected float mFirstTouchX;
+    protected float mFirstTouchY;
 	protected float mLastTouchX;
 	protected float mLastTouchY;
 	

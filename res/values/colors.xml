@@ -14,8 +14,8 @@
 
     <color name="accent_blue">#FF008DD0</color>
     <color name="accent_blue_highlight">#44008DD0</color>
-    <color name="other_month_date_label">#FFAAAAAA</color>
-    <color name="full_month_grid_color">#FFDDDDDD</color>
+    <color name="other_month_date_label">#FF888888</color>
+    <color name="full_month_grid_color">#FFE6E6E6</color>
     <color name="full_month_current_month_cell_color">#FFFFFFFF</color>
     <color name="full_month_other_month_cell_color">#FFEEEEEE</color>
     <color name="full_month_event_text_color">#FF222222</color>
