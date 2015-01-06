@@ -1,16 +1,17 @@
 package me.jmhend.CalendarViewer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
-import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
 
 /**
  * Base class for a ViewPager of calendar Views.
@@ -102,7 +103,6 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 			 */
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//				Log.d(TAG, "onPageScrolled");
 			}
 
 			/*
@@ -114,6 +114,7 @@ public class CalendarViewPager extends ViewPager implements OnDayClickListener {
 				if (mPageSelectedListener != null) {
 					mPageSelectedListener.onPageSelected(CalendarViewPager.this, position);
 				}
+                Log.d(TAG, "onPageSelected " + this.getClass().getSimpleName());
 			}
 		};
 		setOnPageChangeListener(mPageChangeListener);

@@ -138,7 +138,6 @@ public class FullMonthView extends MonthView {
         mEventTextPaint.setAntiAlias(true);
         mEventTextPaint.setStyle(Paint.Style.FILL);
         mEventTextPaint.setTextAlign(Paint.Align.LEFT);
-//        mEventTextPaint.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "RobotoCondensed-Regular.ttf"));
 
         mExtraEventsPaint = new Paint();
         mExtraEventsPaint.setColor(res.getColor(R.color.full_month_event_text_color));

@@ -313,6 +313,15 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			mDayPager.updateVisiblePages();
 		}
 	}
+
+    /**
+     * Update the FullMonthView items.
+     */
+    public void updateFullMonthView() {
+        if (mFullMonthPager != null) {
+            mFullMonthPager.updateVisiblePages();
+        }
+    }
 	
 ////====================================================================================
 //// Transitions.
@@ -443,13 +452,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * Begins transition between two steady CalendarViewer states.
 	 */
 	void beginTransition() {
-//		Assert.assertTrue(mMode == Mode.WEEK || mMode == Mode.MONTH);
-		if (mMode == Mode.WEEK) {
-//			Assert.assertTrue(mMonthPager.getVisibility() == View.GONE);
-		} else if (mMode == Mode.MONTH) {
-//			Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
-		}
-		
 		ensurePagerStates();
 		setModeFully(Mode.TRANSITION);
 	}
@@ -459,10 +461,6 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @param targetMode
 	 */
 	private void endTransition(final Mode targetMode) {
-//		Assert.assertTrue(targetMode == Mode.WEEK || targetMode == Mode.MONTH);
-//		Assert.assertTrue(mMode == Mode.TRANSITION);
-//		Assert.assertTrue(mMonthPager.getVisibility() == View.VISIBLE);
-		
 		setModeFully(targetMode);
 	}
 	
@@ -709,12 +707,24 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
                     mFullMonthPager.setVisibility(View.VISIBLE);
                     mFullMonthPager.animate().alpha(1f).setDuration(DAY_VIEW_ANIMATE_DURATION);
                     mIsFullMonthVisible = true;
+
+                    if (mCallback != null) {
+                        mCallback.onVisibleDaysChanged(CalendarViewer.this);
+                    }
                 }
             });
         }
     }
 
+    public void setFullMonthViewAlpha0() {
+        mFullMonthPager.setAlpha(0f);
+    }
+
     public void hideFullMonthView() {
+        if (mCallback != null) {
+            mCallback.onVisibleDaysChanged(CalendarViewer.this);
+        }
+
         if (mFullMonthPager != null) {
             mFullMonthPager.post(new Runnable() {
                 /*
@@ -760,6 +770,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	public void syncDayViewDay(boolean smooth) {
 		mDayPager.setCurrentDay(mController.getSelectedDay(), smooth);
 	}
+
+    /**
+     * Syncs the FullMonthView so that it displays the CalendarViewer's selected day.
+     */
+    public void syncFullMonthView(boolean smooth) {
+        mFullMonthPager.setCurrentDay(mController.getSelectedDay(), smooth);
+    }
 	
 	/**
 	 * The DayView title View provider.
@@ -779,7 +796,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * @return The title of the currently displayed View.
 	 */
 	public String getTitle() {
-		if (mMode == Mode.WEEK) {
+        if (mIsFullMonthVisible) {
+            return mFullMonthPager.getCurrentItemTitle();
+        } else if (mMode == Mode.WEEK) {
 			return mWeekPager.getCurrentItemTitle();
 		} else if (mMode == Mode.MONTH) {
 			return mMonthPager.getCurrentItemTitle();
