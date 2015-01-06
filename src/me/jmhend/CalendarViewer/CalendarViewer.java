@@ -15,7 +15,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -77,6 +76,13 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		 * @param event
 		 */
 		public void onEventClick(View view, Event event);
+
+        /**
+         * Called when a day of the FullMonthView is clicked.
+         * @param view
+         * @param day
+         */
+        public void onFullMonthDayClick(FullMonthView view, CalendarDay day);
 		
 		/**
 		 * Called when the CalendarViewers View size changes.
@@ -953,7 +959,9 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
      * Called when a FullMonthView date is clicked.
      */
     protected void onFullMonthDayClicked(FullMonthView fmv, CalendarDay day) {
-        Toast.makeText(mContext, day.toString(), Toast.LENGTH_SHORT).show();
+        if (mCallback != null) {
+            mCallback.onFullMonthDayClick(fmv, day);
+        }
     }
 	
 ////====================================================================================

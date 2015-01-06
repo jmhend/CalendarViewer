@@ -1,14 +1,5 @@
 package me.jmhend.CalendarViewer;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import me.jmhend.CalendarViewer.ActivityDay.CalModel;
-import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
-import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
-import me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks;
-import me.jmhend.CalendarViewer.CalendarViewer.Mode;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +14,16 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import me.jmhend.CalendarViewer.ActivityDay.CalModel;
+import me.jmhend.CalendarViewer.CalendarAdapter.CalendarDay;
+import me.jmhend.CalendarViewer.CalendarView.OnDayClickListener;
+import me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks;
+import me.jmhend.CalendarViewer.CalendarViewer.Mode;
 
 
 /**
@@ -195,11 +196,16 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			public void onEventClick(View view, Event event) {
 			}
 
-			/*
-			 * (non-Javadoc)
-			 * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
-			 * onResized(me.jmhend.ui.calendar_viewer.CalendarViewer, int, int, int)
-			 */
+            @Override
+            public void onFullMonthDayClick(FullMonthView view, CalendarDay day) {
+
+            }
+
+            /*
+             * (non-Javadoc)
+             * @see me.jmhend.ui.calendar_viewer.CalendarViewer.CalendarViewerCallbacks#
+             * onResized(me.jmhend.ui.calendar_viewer.CalendarViewer, int, int, int)
+             */
 			@Override
 			public void onResized(CalendarViewer viewer, int top, int width, int height) {
 				mBehindList.setPadding(0, top + height, 0, 0);
