@@ -21,6 +21,12 @@
     <color name="abc_search_url_text_normal">#7fa87f</color>
     <color name="abc_search_url_text_pressed">@android:color/black</color>
     <color name="abc_search_url_text_selected">@android:color/black</color>
+    <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="accent_blue">#FF008DD0</color>
+    <color name="accent_blue_highlight">#44008DD0</color>
+    <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
+    <eat-comment/>
     <color name="accent_material_dark">@color/material_deep_teal_200</color>
     <color name="accent_material_light">@color/material_deep_teal_500</color>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
@@ -56,6 +62,14 @@
     <color name="dim_foreground_disabled_material_light">#80323232</color>
     <color name="dim_foreground_material_dark">#ffbebebe</color>
     <color name="dim_foreground_material_light">#ff323232</color>
+    <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="full_month_current_month_cell_color">#FFFFFFFF</color>
+    <color name="full_month_event_text_color">#FF222222</color>
+    <color name="full_month_grid_color">#FFE6E6E6</color>
+    <color name="full_month_other_month_cell_color">#FFEEEEEE</color>
+    <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
+    <eat-comment/>
     <color name="highlighted_text_material_dark">#6680cbc4</color>
     <color name="highlighted_text_material_light">#66009688</color>
     <color name="hint_foreground_material_dark">@color/bright_foreground_disabled_material_dark</color>
@@ -72,6 +86,11 @@
     <color name="material_blue_grey_950">#ff21272b</color>
     <color name="material_deep_teal_200">#ff80cbc4</color>
     <color name="material_deep_teal_500">#ff009688</color>
+    <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="other_month_date_label">#FF888888</color>
+    <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
+    <eat-comment/>
     <color name="primary_dark_material_dark">#ff000000</color>
     <color name="primary_dark_material_light">#ff757575</color>
     <color name="primary_material_dark">#ff212121</color>
@@ -157,6 +176,9 @@
     <eat-comment/>
     <dimen name="all_day_divider_height">2dp</dimen>
     <dimen name="all_day_row_height">24dp</dimen>
+    <dimen name="date_cell_event_color_width">4dp</dimen>
+    <dimen name="date_cell_event_padding">2dp</dimen>
+    <dimen name="date_cell_padding">4dp</dimen>
     <dimen name="day_marker_radius">3dp</dimen>
     <dimen name="day_of_week_text_size">10sp</dimen>
     <dimen name="day_pager_margin">2dp</dimen>
@@ -185,11 +207,15 @@
     <item format="float" name="disabled_alpha_material_light" type="dimen">0.26</item>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/values/dimens.xml -->
     <eat-comment/>
+    <dimen name="full_month_date_label_size">12sp</dimen>
+    <dimen name="full_month_event_text_size">10sp</dimen>
+    <dimen name="full_month_grid_thickness">1dp</dimen>
     <dimen name="month_bottom_padding">8dp</dimen>
     <dimen name="month_header_height">28dp</dimen>
     <dimen name="month_list_item_header_height">24dp</dimen>
     <dimen name="month_title_text_size">16sp</dimen>
     <dimen name="monthview_height">240dp</dimen>
+    <dimen name="page_margin">4dp</dimen>
     <dimen name="selected_circle_radius">16dp</dimen>
     <dimen name="selected_circle_stroke_width">2dp</dimen>
     <dimen name="weekview_height">60dp</dimen>

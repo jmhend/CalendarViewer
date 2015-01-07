@@ -187,11 +187,16 @@ public class MainActivity extends FragmentActivity implements OnDayClickListener
 			public void onModeChanged(CalendarViewer viewer, Mode newMode) {
 //				setActionBarSubtitle(viewer.getTitle());
 			}
-			
-			/*
-			 * (non-Javadoc)
-			 * @see me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks#onEventClick(android.view.View, me.jmhend.CalendarViewer.Event)
-			 */
+
+            @Override
+            public void onPerspectiveChanged(CalendarViewer viewer, CalendarViewer.Perspective newPerspective) {
+
+            }
+
+            /*
+             * (non-Javadoc)
+             * @see me.jmhend.CalendarViewer.CalendarViewer.CalendarViewerCallbacks#onEventClick(android.view.View, me.jmhend.CalendarViewer.Event)
+             */
 			@Override
 			public void onEventClick(View view, Event event) {
 			}

@@ -24,8 +24,7 @@
 	        android:layout_height="@dimen/month_header_height"
 	        android:gravity="center_horizontal|bottom"
 	        android:textSize="16sp"
-	        android:textColor="#FFFFFFFF"
-	        android:text="May 2014"/>
+	        android:textColor="#FFFFFFFF"/>
 	    <me.jmhend.CalendarViewer.DayOfWeekLabelView 
 	        android:id="@+id/day_labels"
 	        android:layout_width="match_parent"
@@ -47,12 +46,13 @@
     </RelativeLayout>
 
     <!-- Full Month View -->
-    <me.jmhend.CalendarViewer.CalendarViewPager
+    <me.jmhend.CalendarViewer.FullMonthViewPager
         android:id="@+id/full_month_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="52dp"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        android:background="@color/full_month_other_month_cell_color"/>
     
 </me.jmhend.CalendarViewer.InterceptRelativeLayout>
 <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/res/layout/calendar_viewer.xml -->

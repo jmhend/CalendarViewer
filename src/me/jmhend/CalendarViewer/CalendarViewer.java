@@ -69,7 +69,14 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 		 * @param newMode
 		 */
 		public void onModeChanged(CalendarViewer viewer, Mode newMode);
-		
+
+        /**
+         * Called when the CalendarViewer perspective changes.
+         * i.e. AGENDA <--> DAY <--> MONTH
+         * @param viewer
+         * @param newPerspective
+         */
+        public void onPerspectiveChanged(CalendarViewer viewer, Perspective newPerspective);
 		/**
 		 * Called when an Event is clicked
 		 * @param view
@@ -99,7 +106,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 ////====================================================================================
 	
 	/**
-	 * Describes which mode the CalendarViewer is in.
+	 * Describes which mode the CalendarViewer date widget is in.
 	 * @author jmhend
 	 */
 	public static enum Mode {
@@ -128,6 +135,34 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 			}
 		}
 	}
+
+    /**
+     * Describes the current high level perspective of the CalendarViewer.
+     */
+    public static enum Perspective {
+        AGENDA(0),
+        DAY(1),
+        MONTH(2);
+
+        private int mNum;
+
+        private Perspective(int num) {
+            mNum = num;
+        }
+
+        public int intValue() {
+            return mNum;
+        }
+
+        public static Perspective ofValue(int num) {
+            switch(num) {
+            case 0: return AGENDA;
+            case 1: return DAY;
+            case 2: return MONTH;
+            default: return AGENDA;
+            }
+        }
+    }
 	
 ////====================================================================================
 //// Static constants.
@@ -161,6 +196,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	private CalendarViewerCallbacks mCallback;
 	
 	private Mode mMode;
+    private Perspective mPerspective;
 	private boolean mIsDayVisible;
     private boolean mIsFullMonthVisible;
 	
@@ -639,6 +675,11 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 * Shows the DayView.
 	 */
 	public void showDayView() {
+        if (mPerspective == Perspective.DAY) {
+            return;
+        }
+        setPerspective(Perspective.DAY);
+        hideFullMonthView();
 		if (mDayPager != null) {
 			syncDayViewDay(false);
 			mDayPager.post(new Runnable() {
@@ -679,7 +720,7 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	/**
 	 * Hides the DayView.
 	 */
-	public void hideDayView() {
+	private void hideDayView() {
 		if (mDayPager != null) {
 			mDayPager.post(new Runnable() {
 				/*
@@ -706,6 +747,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	}
 
     public void showFullMonthView() {
+        if (mPerspective == Perspective.MONTH) {
+            return;
+        }
+        setPerspective(Perspective.MONTH);
         if (mFullMonthPager != null) {
             mFullMonthPager.post(new Runnable() {
                 @Override
@@ -722,11 +767,30 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
         }
     }
 
-    public void setFullMonthViewAlpha0() {
-        mFullMonthPager.setAlpha(0f);
+    public void showAgendaView() {
+        setPerspective(Perspective.AGENDA);
+        hideDayView();
+        hideFullMonthView();
     }
 
-    public void hideFullMonthView() {
+    public void initFullMonthView() {
+        mFullMonthPager.setAlpha(0f);
+        mFullMonthPager.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mFullMonthPager.setVisibility(View.GONE);
+            }
+        }, 100);
+    }
+
+    private void setPerspective(Perspective p) {
+        mPerspective = p;
+        if (mCallback != null) {
+            mCallback.onPerspectiveChanged(this, p);
+        }
+    }
+
+    private void hideFullMonthView() {
         if (mCallback != null) {
             mCallback.onVisibleDaysChanged(CalendarViewer.this);
         }
@@ -863,6 +927,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	public Mode getMode() {
 		return mMode;
 	}
+
+    public Perspective getPerspective() {
+        return mPerspective;
+    }
 
 	/**
 	 * Sets the CalendarControllerConfig of this CalendarViewer.
