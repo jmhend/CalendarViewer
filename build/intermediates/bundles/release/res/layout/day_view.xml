@@ -59,13 +59,13 @@
         <me.jmhend.CalendarViewer.AllDayGridView
 	        android:id="@+id/all_day_list"
 	        android:layout_width="match_parent"
-	        android:layout_height="@dimen/all_day_row_height"
+	        android:layout_height="@dimen/cv_all_day_row_height"
 	        android:layout_marginLeft="49dp"
 	        android:paddingTop="@dimen/dayview_event_padding"
 	        android:paddingBottom="@dimen/dayview_event_padding"
 	        android:numColumns="2"
-	        android:horizontalSpacing="@dimen/all_day_divider_height"
-	        android:verticalSpacing="@dimen/all_day_divider_height"
+	        android:horizontalSpacing="@dimen/cv_all_day_divider_height"
+	        android:verticalSpacing="@dimen/cv_all_day_divider_height"
 	        android:background="@color/all_day_list_div"/>
         
     </LinearLayout>

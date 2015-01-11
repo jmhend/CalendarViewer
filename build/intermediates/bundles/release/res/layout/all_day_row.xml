@@ -9,7 +9,7 @@
     <LinearLayout 
         android:id="@+id/row_frame"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/all_day_row_height"
+        android:layout_height="@dimen/cv_all_day_row_height"
         android:padding="@dimen/dayview_event_padding"
     	android:gravity="center_vertical"
     	android:orientation="horizontal" >

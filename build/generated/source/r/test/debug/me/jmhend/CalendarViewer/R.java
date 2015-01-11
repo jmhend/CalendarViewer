@@ -312,15 +312,15 @@ public final class R {
 		public static final int abc_text_size_title_material = 0x7f070023;
 		public static final int abc_text_size_title_material_toolbar = 0x7f070024;
 		public static final int activity_horizontal_margin = 0x7f07004e;
-		public static final int all_day_divider_height = 0x7f070025;
-		public static final int all_day_row_height = 0x7f070026;
+		public static final int cv_all_day_divider_height = 0x7f070025;
+		public static final int cv_all_day_row_height = 0x7f070026;
 		public static final int date_cell_event_color_width = 0x7f070027;
 		public static final int date_cell_event_padding = 0x7f070028;
 		public static final int date_cell_padding = 0x7f070029;
-		public static final int day_marker_radius = 0x7f07002a;
-		public static final int day_of_week_text_size = 0x7f07002b;
+		public static final int cv_day_marker_radius = 0x7f07002a;
+		public static final int cv_day_of_week_text_size = 0x7f07002b;
 		public static final int day_pager_margin = 0x7f07002c;
-		public static final int day_text_size = 0x7f07002d;
+		public static final int cv_day_text_size = 0x7f07002d;
 		public static final int dayview_bottom_padding = 0x7f07002e;
 		public static final int dayview_event_border_width = 0x7f07002f;
 		public static final int dayview_event_location_height = 0x7f070030;
@@ -344,15 +344,15 @@ public final class R {
 		public static final int full_month_date_label_size = 0x7f070042;
 		public static final int full_month_event_text_size = 0x7f070043;
 		public static final int full_month_grid_thickness = 0x7f070044;
-		public static final int month_bottom_padding = 0x7f070045;
-		public static final int month_header_height = 0x7f070046;
-		public static final int month_list_item_header_height = 0x7f070047;
-		public static final int month_title_text_size = 0x7f070048;
-		public static final int monthview_height = 0x7f070049;
+		public static final int cv_month_bottom_padding = 0x7f070045;
+		public static final int cv_month_header_height = 0x7f070046;
+		public static final int cv_month_list_item_header_height = 0x7f070047;
+		public static final int cv_month_title_text_size = 0x7f070048;
+		public static final int cv_monthview_height = 0x7f070049;
 		public static final int page_margin = 0x7f07004a;
-		public static final int selected_circle_radius = 0x7f07004b;
-		public static final int selected_circle_stroke_width = 0x7f07004c;
-		public static final int weekview_height = 0x7f07004d;
+		public static final int cv_selected_circle_radius = 0x7f07004b;
+		public static final int cv_selected_circle_stroke_width = 0x7f07004c;
+		public static final int cv_weekview_height = 0x7f07004d;
 	}
 	public static final class drawable {
 		public static final int abc_ab_share_pack_holo_dark = 0x7f020000;

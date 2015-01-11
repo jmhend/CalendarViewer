@@ -1,17 +1,17 @@
 <resources>
-    <dimen name="monthview_height">240dp</dimen>
-    <dimen name="weekview_height">60dp</dimen>
-    <dimen name="month_header_height">28dp</dimen>
-    <dimen name="month_list_item_header_height">24dp</dimen>
-    <dimen name="day_of_week_text_size">10sp</dimen>
-    <dimen name="selected_circle_radius">16dp</dimen>
-    <dimen name="selected_circle_stroke_width">2dp</dimen>
-    <dimen name="month_title_text_size">16sp</dimen>
-    <dimen name="day_text_size">16sp</dimen>
-    <dimen name="month_bottom_padding">8dp</dimen>
-    <dimen name="day_marker_radius">3dp</dimen>
-    <dimen name="all_day_row_height">24dp</dimen>
-    <dimen name="all_day_divider_height">2dp</dimen>
+    <dimen name="cv_monthview_height">240dp</dimen>
+    <dimen name="cv_weekview_height">60dp</dimen>
+    <dimen name="cv_month_header_height">28dp</dimen>
+    <dimen name="cv_month_list_item_header_height">24dp</dimen>
+    <dimen name="cv_day_of_week_text_size">10sp</dimen>
+    <dimen name="cv_selected_circle_radius">16dp</dimen>
+    <dimen name="cv_selected_circle_stroke_width">2dp</dimen>
+    <dimen name="cv_month_title_text_size">16sp</dimen>
+    <dimen name="cv_day_text_size">16sp</dimen>
+    <dimen name="cv_month_bottom_padding">8dp</dimen>
+    <dimen name="cv_day_marker_radius">3dp</dimen>
+    <dimen name="cv_all_day_row_height">24dp</dimen>
+    <dimen name="cv_all_day_divider_height">2dp</dimen>
     <bool name="draw_day_labels">false</bool>
     
     <!-- DayView -->
@@ -39,4 +39,5 @@
     <dimen name="date_cell_padding">4dp</dimen>
     <dimen name="date_cell_event_padding">2dp</dimen>
     <dimen name="date_cell_event_color_width">4dp</dimen>
+    <dimen name="today_circle_radius">3dp</dimen>
 </resources>

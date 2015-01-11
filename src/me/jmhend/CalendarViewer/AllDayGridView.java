@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 /**
@@ -71,8 +70,8 @@ public class AllDayGridView extends GridView {
 	 */
 	private void init() {
 		Resources r = getResources();
-		mRowHeight = r.getDimensionPixelSize(R.dimen.all_day_row_height);
-		mDefaultSpacing = r.getDimensionPixelSize(R.dimen.all_day_divider_height);
+		mRowHeight = r.getDimensionPixelSize(R.dimen.cv_all_day_row_height);
+		mDefaultSpacing = r.getDimensionPixelSize(R.dimen.cv_all_day_divider_height);
 	}
 	
 ////====================================================================================

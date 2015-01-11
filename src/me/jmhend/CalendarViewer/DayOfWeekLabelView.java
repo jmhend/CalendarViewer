@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.TextView;
 
 public class DayOfWeekLabelView extends View {
 	
@@ -73,8 +72,8 @@ public class DayOfWeekLabelView extends View {
 	 */
 	private void init() {
 		Resources r = getContext().getResources();
-		mDayOfWeekTextSize = r.getDimensionPixelSize(R.dimen.day_of_week_text_size);
-		mHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
+		mDayOfWeekTextSize = r.getDimensionPixelSize(R.dimen.cv_day_of_week_text_size);
+		mHeight = r.getDimensionPixelOffset(R.dimen.cv_month_list_item_header_height);
 		mPaintColor = r.getColor(R.color.calendar_text_title);
 		
 		mPaint = new Paint();

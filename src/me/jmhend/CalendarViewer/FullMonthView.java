@@ -41,6 +41,7 @@ public class FullMonthView extends MonthView {
     private int mEventPadding;
     private int mEventTextSize;
     private int mEventColorWidth;
+    private int mTodayCircleRadius;
 
     private Paint mGridPaint;
     private Paint mDateLabelPaint;
@@ -90,7 +91,8 @@ public class FullMonthView extends MonthView {
         Resources res = getContext().getResources();
 
         mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-        mTapDelay = ViewConfiguration.getTapTimeout();
+        mTapDelay
+                = /*ViewConfiguration.getTapTimeout()*/ 20;
 
         mColorCurrentMonthDate = res.getColor(R.color.accent_blue);
         mColorOtherMonthDate = res.getColor(R.color.other_month_date_label);
@@ -102,6 +104,7 @@ public class FullMonthView extends MonthView {
         mEventPadding = res.getDimensionPixelSize(R.dimen.date_cell_event_padding);
         mEventTextSize = res.getDimensionPixelSize(R.dimen.full_month_event_text_size);
         mEventColorWidth = res.getDimensionPixelSize(R.dimen.date_cell_event_color_width);
+        mTodayCircleRadius = res.getDimensionPixelSize(R.dimen.today_circle_radius);
 
         mGridPaint = new Paint();
         mGridPaint.setColor(res.getColor(R.color.full_month_grid_color));
@@ -148,6 +151,7 @@ public class FullMonthView extends MonthView {
 
         mEventColorPaint = new Paint();
         mEventColorPaint.setStyle(Paint.Style.FILL);
+        mEventColorPaint.setAntiAlias(true);
     }
 
 ////=============================================================================
@@ -185,9 +189,10 @@ public class FullMonthView extends MonthView {
 
             // Today indicator.
             if (isToday) {
-                int circleX = dateBottomRight.x + mDateCellPadding;
+//                int circleX = (int) (dateBottomRight.x + mDateCellPadding *  1.5);
+                int circleX =  right - mTodayCircleRadius - mDateCellPadding;
                 int circleY = top + mDateCellPadding / 2 + (mDateLabelSize) - mDateLabelSize / 3;
-                canvas.drawCircle(circleX, circleY, 8, mTodayCirclePaint);
+                canvas.drawCircle(circleX, circleY, mTodayCircleRadius, mTodayCirclePaint);
             }
 
             drawEvents(canvas, i, rect);
@@ -244,7 +249,7 @@ public class FullMonthView extends MonthView {
 
         canvas.drawText(dateLabel, startX, startY, mDateLabelPaint);
 
-        mDateMeasurePoint.set(startX + (rect.right - rect.left) , startY + rect.bottom);
+        mDateMeasurePoint.set(startX + (rect.right - rect.left), startY + rect.bottom);
         return mDateMeasurePoint;
     }
 
@@ -272,7 +277,7 @@ public class FullMonthView extends MonthView {
 
             Event event = events.get(i);
             if (!mModel.shouldDrawEvent(event)) {
-                break;
+                continue;
             }
 
             int eventColorLeft = bounds.left;
@@ -303,6 +308,7 @@ public class FullMonthView extends MonthView {
             // If room, draw the next event.
             if (nextYTop < bounds.bottom) {
                 mEventColorPaint.setColor(event.getDrawingColor());
+
                 canvas.drawRect(eventColorLeft, colorDrawingTop, eventColorRight, colorDrawingBottom, mEventColorPaint);
 
                 canvas.drawText(actual, eventLabelLeft, drawingY, mEventTextPaint);

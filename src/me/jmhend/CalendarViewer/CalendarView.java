@@ -214,16 +214,16 @@ public abstract class CalendarView extends View {
 		mSelectedDayColor = r.getColor(R.color.day_text_selected);
 		mMonthTitleColor = r.getColor(R.color.calendar_text_title);
 		mSelectedCircleColor = r.getColor(R.color.selected_highlight);
-		mDayTextSize = r.getDimensionPixelSize(R.dimen.day_text_size);
-		mMonthTitleTextSize = r.getDimensionPixelSize(R.dimen.month_title_text_size);
-		mDayOfWeekTextSize = r.getDimensionPixelSize(R.dimen.day_of_week_text_size);
-		mMonthHeaderHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
-		mSelectedCircleRadius = r.getDimensionPixelSize(R.dimen.selected_circle_radius);
-		mSelectedCircleStrokeWidth = r.getDimensionPixelSize(R.dimen.selected_circle_stroke_width);
-		mBottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
-		mRowHeight = (r.getDimensionPixelOffset(R.dimen.monthview_height) - mMonthHeaderHeight) / 6;
+		mDayTextSize = r.getDimensionPixelSize(R.dimen.cv_day_text_size);
+		mMonthTitleTextSize = r.getDimensionPixelSize(R.dimen.cv_month_title_text_size);
+		mDayOfWeekTextSize = r.getDimensionPixelSize(R.dimen.cv_day_of_week_text_size);
+		mMonthHeaderHeight = r.getDimensionPixelOffset(R.dimen.cv_month_list_item_header_height);
+		mSelectedCircleRadius = r.getDimensionPixelSize(R.dimen.cv_selected_circle_radius);
+		mSelectedCircleStrokeWidth = r.getDimensionPixelSize(R.dimen.cv_selected_circle_stroke_width);
+		mBottomPadding = r.getDimensionPixelSize(R.dimen.cv_month_bottom_padding);
+		mRowHeight = (r.getDimensionPixelOffset(R.dimen.cv_monthview_height) - mMonthHeaderHeight) / 6;
 		mDrawDayOfWeekLabels = r.getBoolean(R.bool.draw_day_labels);
-		mDayMarkerRadius = r.getDimensionPixelSize(R.dimen.day_marker_radius);
+		mDayMarkerRadius = r.getDimensionPixelSize(R.dimen.cv_day_marker_radius);
 	}
 
 	/**

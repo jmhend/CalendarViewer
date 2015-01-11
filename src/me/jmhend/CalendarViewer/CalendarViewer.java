@@ -333,10 +333,10 @@ public class CalendarViewer implements OnPageSelectedListener, OnDayClickListene
 	 */
 	private void initDimens() {
 		Resources r = mContext.getResources();
-		int monthMaxHeight = r.getDimensionPixelOffset(R.dimen.monthview_height);
-		int monthHeaderHeight = r.getDimensionPixelOffset(R.dimen.month_header_height);
-		int bottomPadding = r.getDimensionPixelSize(R.dimen.month_bottom_padding);
-		int dayLabelsHeight = r.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
+		int monthMaxHeight = r.getDimensionPixelOffset(R.dimen.cv_monthview_height);
+		int monthHeaderHeight = r.getDimensionPixelOffset(R.dimen.cv_month_header_height);
+		int bottomPadding = r.getDimensionPixelSize(R.dimen.cv_month_bottom_padding);
+		int dayLabelsHeight = r.getDimensionPixelOffset(R.dimen.cv_month_list_item_header_height);
 		int dayBottomPadding = r.getDimensionPixelSize(R.dimen.dayview_bottom_padding);
 		
 		mMonthHeight = monthMaxHeight + bottomPadding + monthHeaderHeight;
