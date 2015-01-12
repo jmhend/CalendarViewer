@@ -683,7 +683,7 @@ public class DayView extends View {
 				bottomY = (int) ((mHourHeight * 24) + mPaddingTop);
 			// Event ends this day.
 			} else {
-				bottomY = getYForTime(endTime) - 1;
+				bottomY = getYForTime(endTime);
 			}
 			
 			int textBottom = topY + getTextHeight(event);
@@ -702,6 +702,9 @@ public class DayView extends View {
 			if (bottomY - topY < mMinEventHeight) {
 				bottomY = topY + mMinEventHeight;
 			}
+
+            // Make sure some spacing exists between the next event.
+            bottomY = bottomY - 1;
 			
 			Rect r = new Rect();
 			r.top = topY;
@@ -714,8 +717,11 @@ public class DayView extends View {
 				layoutGroupRects(groupedRects);
 				groupedRects.clear();
 			}
+
+            int nextMinYBound = (textBottom > bottomY)? bottomY : textBottom;
 			
-			minY = Math.max(minY, textBottom);
+//			minY = Math.max(minY, textBottom);
+            minY = Math.max(minY, nextMinYBound);
 			i++;
 		}
 		

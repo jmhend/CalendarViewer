@@ -174,15 +174,23 @@
     <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/bundles/debug/res/values/values.xml -->
     <eat-comment/>
-    <dimen name="all_day_divider_height">2dp</dimen>
-    <dimen name="all_day_row_height">24dp</dimen>
+    <dimen name="cv_all_day_divider_height">2dp</dimen>
+    <dimen name="cv_all_day_row_height">24dp</dimen>
+    <dimen name="cv_day_marker_radius">3dp</dimen>
+    <dimen name="cv_day_of_week_text_size">10sp</dimen>
+    <dimen name="cv_day_text_size">16sp</dimen>
+    <dimen name="cv_month_bottom_padding">8dp</dimen>
+    <dimen name="cv_month_header_height">28dp</dimen>
+    <dimen name="cv_month_list_item_header_height">24dp</dimen>
+    <dimen name="cv_month_title_text_size">16sp</dimen>
+    <dimen name="cv_monthview_height">240dp</dimen>
+    <dimen name="cv_selected_circle_radius">16dp</dimen>
+    <dimen name="cv_selected_circle_stroke_width">2dp</dimen>
+    <dimen name="cv_weekview_height">60dp</dimen>
     <dimen name="date_cell_event_color_width">4dp</dimen>
     <dimen name="date_cell_event_padding">2dp</dimen>
     <dimen name="date_cell_padding">4dp</dimen>
-    <dimen name="day_marker_radius">3dp</dimen>
-    <dimen name="day_of_week_text_size">10sp</dimen>
     <dimen name="day_pager_margin">2dp</dimen>
-    <dimen name="day_text_size">16sp</dimen>
     <dimen name="dayview_bottom_padding">48dp</dimen>
     <dimen name="dayview_event_border_width">3dp</dimen>
     <dimen name="dayview_event_location_height">15dp</dimen>
@@ -210,15 +218,8 @@
     <dimen name="full_month_date_label_size">12sp</dimen>
     <dimen name="full_month_event_text_size">10sp</dimen>
     <dimen name="full_month_grid_thickness">1dp</dimen>
-    <dimen name="month_bottom_padding">8dp</dimen>
-    <dimen name="month_header_height">28dp</dimen>
-    <dimen name="month_list_item_header_height">24dp</dimen>
-    <dimen name="month_title_text_size">16sp</dimen>
-    <dimen name="monthview_height">240dp</dimen>
     <dimen name="page_margin">4dp</dimen>
-    <dimen name="selected_circle_radius">16dp</dimen>
-    <dimen name="selected_circle_stroke_width">2dp</dimen>
-    <dimen name="weekview_height">60dp</dimen>
+    <dimen name="today_circle_radius">3dp</dimen>
     <!-- From: file:/Users/jmhend/as/UpTo/libraries/CalendarViewer/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values/values.xml -->
     <eat-comment/>
     <item name="action_bar_activity_content" type="id"/>
